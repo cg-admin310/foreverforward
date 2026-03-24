@@ -42,15 +42,19 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
       : "",
     venueName: event?.venue_name || "",
     addressLine1: event?.address_line1 || "",
+    addressLine2: event?.address_line2 || "",
     city: event?.city || "Los Angeles",
     state: event?.state || "CA",
+    zipCode: event?.zip_code || "",
     isVirtual: event?.is_virtual || false,
     virtualLink: event?.virtual_link || "",
     capacity: event?.capacity?.toString() || "",
     ticketPrice: event?.ticket_price?.toString() || "0",
     isPublished: event?.is_published || false,
+    isFeatured: event?.is_featured || false,
     featuredImageUrl: event?.featured_image_url || "",
     movieTitle: event?.movie_title || "",
+    movieDescription: event?.movie_description || "",
     foodPairing: event?.food_pairing || "",
   });
 
@@ -88,15 +92,21 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
             : undefined,
           venue_name: formData.venueName || undefined,
           address_line1: formData.addressLine1 || undefined,
+          address_line2: formData.addressLine2 || undefined,
           city: formData.city || undefined,
           state: formData.state || undefined,
+          zip_code: formData.zipCode || undefined,
+          is_virtual: formData.isVirtual,
+          virtual_link: formData.virtualLink || undefined,
           capacity: formData.capacity ? parseInt(formData.capacity) : undefined,
           ticket_price: formData.ticketPrice
             ? parseFloat(formData.ticketPrice)
             : undefined,
           is_published: formData.isPublished,
+          is_featured: formData.isFeatured,
           featured_image_url: formData.featuredImageUrl || undefined,
           movie_title: formData.movieTitle || undefined,
+          movie_description: formData.movieDescription || undefined,
           food_pairing: formData.foodPairing || undefined,
         });
 
@@ -119,8 +129,10 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
             : null,
           venue_name: formData.venueName || null,
           address_line1: formData.addressLine1 || null,
+          address_line2: formData.addressLine2 || null,
           city: formData.city || null,
           state: formData.state || null,
+          zip_code: formData.zipCode || null,
           is_virtual: formData.isVirtual,
           virtual_link: formData.virtualLink || null,
           capacity: formData.capacity ? parseInt(formData.capacity) : null,
@@ -128,8 +140,10 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
             ? parseFloat(formData.ticketPrice)
             : null,
           is_published: formData.isPublished,
+          is_featured: formData.isFeatured,
           featured_image_url: formData.featuredImageUrl || null,
           movie_title: formData.movieTitle || null,
+          movie_description: formData.movieDescription || null,
           food_pairing: formData.foodPairing || null,
         });
 
@@ -263,6 +277,19 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
             </div>
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-[#555555] mb-1">
+                Movie Description
+              </label>
+              <Textarea
+                value={formData.movieDescription}
+                onChange={(e) =>
+                  setFormData({ ...formData, movieDescription: e.target.value })
+                }
+                placeholder="Brief description of the movie (e.g., runtime, rating, synopsis)..."
+                rows={3}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-[#555555] mb-1">
                 Food Pairing / Menu Theme
               </label>
               <Textarea
@@ -358,7 +385,7 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-[#555555] mb-1">
-                  Address
+                  Address Line 1
                 </label>
                 <Input
                   value={formData.addressLine1}
@@ -366,6 +393,18 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
                     setFormData({ ...formData, addressLine1: e.target.value })
                   }
                   placeholder="Street address"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-[#555555] mb-1">
+                  Address Line 2
+                </label>
+                <Input
+                  value={formData.addressLine2}
+                  onChange={(e) =>
+                    setFormData({ ...formData, addressLine2: e.target.value })
+                  }
+                  placeholder="Suite, building, floor (optional)"
                 />
               </div>
               <div>
@@ -390,6 +429,18 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
                     setFormData({ ...formData, state: e.target.value })
                   }
                   placeholder="CA"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#555555] mb-1">
+                  ZIP Code
+                </label>
+                <Input
+                  value={formData.zipCode}
+                  onChange={(e) =>
+                    setFormData({ ...formData, zipCode: e.target.value })
+                  }
+                  placeholder="90047"
                 />
               </div>
             </div>
@@ -436,19 +487,35 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
       {/* Publishing */}
       <div className="bg-white rounded-xl border border-[#DDDDDD] p-6">
         <h2 className="font-semibold text-[#1A1A1A] mb-4">Publishing</h2>
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            id="isPublished"
-            checked={formData.isPublished}
-            onChange={(e) =>
-              setFormData({ ...formData, isPublished: e.target.checked })
-            }
-            className="h-4 w-4 rounded border-[#DDDDDD] text-[#C9A84C] focus:ring-[#C9A84C]"
-          />
-          <label htmlFor="isPublished" className="text-sm text-[#555555]">
-            Publish this event (make it visible on the public website)
-          </label>
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="isPublished"
+              checked={formData.isPublished}
+              onChange={(e) =>
+                setFormData({ ...formData, isPublished: e.target.checked })
+              }
+              className="h-4 w-4 rounded border-[#DDDDDD] text-[#C9A84C] focus:ring-[#C9A84C]"
+            />
+            <label htmlFor="isPublished" className="text-sm text-[#555555]">
+              Publish this event (make it visible on the public website)
+            </label>
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="isFeatured"
+              checked={formData.isFeatured}
+              onChange={(e) =>
+                setFormData({ ...formData, isFeatured: e.target.checked })
+              }
+              className="h-4 w-4 rounded border-[#DDDDDD] text-[#C9A84C] focus:ring-[#C9A84C]"
+            />
+            <label htmlFor="isFeatured" className="text-sm text-[#555555]">
+              Feature this event (highlight it prominently on the events page)
+            </label>
+          </div>
         </div>
       </div>
 

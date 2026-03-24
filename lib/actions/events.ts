@@ -373,24 +373,39 @@ export async function createEvent(eventData: {
   end_datetime?: string;
   venue_name?: string;
   address_line1?: string;
+  address_line2?: string;
   city?: string;
   state?: string;
+  zip_code?: string;
+  is_virtual?: boolean;
+  virtual_link?: string;
   description?: string;
   short_description?: string;
   capacity?: number;
   ticket_price?: number;
+  is_free?: boolean;
   is_published?: boolean;
+  is_featured?: boolean;
   featured_image_url?: string;
   movie_title?: string;
+  movie_description?: string;
   food_pairing?: string;
+  gallery_urls?: string[];
+  timezone?: string;
 }): Promise<ActionResult<Event>> {
   try {
     const supabase = await createServerSupabaseClient();
+
+    // Determine is_free based on ticket_price if not explicitly set
+    const isFree = eventData.is_free !== undefined
+      ? eventData.is_free
+      : !eventData.ticket_price || eventData.ticket_price === 0;
 
     const { data, error } = await supabase
       .from("events")
       .insert({
         ...eventData,
+        is_free: isFree,
         is_cancelled: false,
         tickets_sold: 0,
       })
@@ -402,7 +417,7 @@ export async function createEvent(eventData: {
       return { success: false, error: error.message };
     }
 
-    revalidatePath("/dashboard/events-admin");
+    revalidatePath("/events-admin");
     revalidatePath("/events");
     return { success: true, data };
   } catch (error) {
