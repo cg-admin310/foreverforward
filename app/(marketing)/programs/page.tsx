@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, GraduationCap, Users, Heart, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -122,42 +123,82 @@ export default function ProgramsPage() {
 
       {/* Leadership Thread Callout */}
       <section className="py-16 lg:py-24 bg-[#1A1A1A]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <span className="text-sm font-semibold text-[#C9A84C] uppercase tracking-wider">
-              The Leadership Thread
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-6">
-              Every Program Builds Leaders
-            </h2>
-            <p className="text-white/70 leading-relaxed mb-8 max-w-2xl mx-auto">
-              Whether it&apos;s a father learning IT skills or a child creating their
-              first story, every Forever Forward program weaves in leadership
-              development. We believe everyone has the potential to lead—in their
-              families, workplaces, and communities.
-            </p>
-            <div className="inline-flex flex-wrap items-center justify-center gap-4 text-[#C9A84C] text-sm font-medium">
-              <span className="px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444]">
-                Communication
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Training Image */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className="aspect-[4/3] rounded-2xl overflow-hidden relative">
+                <Image
+                  src="/images/generated/programs-training.png"
+                  alt="Black fathers learning IT skills together in a supportive training environment"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              </div>
+              {/* Overlay stat */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                className="absolute -bottom-6 -right-6 bg-white rounded-xl p-4 shadow-lg"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-[#FBF6E9] flex items-center justify-center">
+                    <Users className="h-6 w-6 text-[#C9A84C]" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold text-[#1A1A1A]">50+</p>
+                    <p className="text-xs text-[#888888]">Graduates in 2025</p>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Content */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="text-center lg:text-left"
+            >
+              <span className="text-sm font-semibold text-[#C9A84C] uppercase tracking-wider">
+                The Leadership Thread
               </span>
-              <span className="px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444]">
-                Problem Solving
-              </span>
-              <span className="px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444]">
-                Teamwork
-              </span>
-              <span className="px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444]">
-                Responsibility
-              </span>
-              <span className="px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444]">
-                Empathy
-              </span>
-            </div>
-          </motion.div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-6">
+                Every Program Builds Leaders
+              </h2>
+              <p className="text-white/70 leading-relaxed mb-8">
+                Whether it&apos;s a father learning IT skills or a child creating their
+                first story, every Forever Forward program weaves in leadership
+                development. We believe everyone has the potential to lead—in their
+                families, workplaces, and communities.
+              </p>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 text-[#C9A84C] text-sm font-medium">
+                <span className="px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444]">
+                  Communication
+                </span>
+                <span className="px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444]">
+                  Problem Solving
+                </span>
+                <span className="px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444]">
+                  Teamwork
+                </span>
+                <span className="px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444]">
+                  Responsibility
+                </span>
+                <span className="px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444]">
+                  Empathy
+                </span>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 

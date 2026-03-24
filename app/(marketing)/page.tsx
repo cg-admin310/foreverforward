@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ChevronDown,
@@ -17,6 +18,8 @@ import {
   MapPin,
   Film,
   Utensils,
+  CheckCircle,
+  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +29,7 @@ import { StatCounter } from "@/components/marketing/stat-counter";
 import { TestimonialCard } from "@/components/marketing/testimonial-card";
 import { BlogPreviewCard } from "@/components/marketing/blog-preview-card";
 import { PROGRAMS, IMPACT_STATS } from "@/lib/constants";
+import { subscribeToNewsletter } from "@/lib/actions/newsletter";
 
 // Placeholder blog posts
 const BLOG_POSTS = [
@@ -89,9 +93,14 @@ export default function HomePage() {
     e.preventDefault();
     if (!email) return;
     setIsSubmitting(true);
-    // TODO: Connect to Supabase
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSubscribed(true);
+
+    const result = await subscribeToNewsletter(email, "homepage");
+
+    if (result.success) {
+      setIsSubscribed(true);
+    } else {
+      console.error("Failed to subscribe:", result.error);
+    }
     setIsSubmitting(false);
   };
 
@@ -232,12 +241,51 @@ export default function HomePage() {
       <section className="py-20 lg:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Content */}
+            {/* Hero Image */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
+              className="relative order-2 lg:order-1"
+            >
+              <div className="aspect-[4/3] rounded-2xl overflow-hidden relative shadow-xl">
+                <Image
+                  src="/images/generated/hero-father-tech.png"
+                  alt="Black father working confidently in a modern tech environment"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  priority
+                />
+              </div>
+              {/* Stats overlay */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                className="absolute -bottom-6 -right-6 bg-white rounded-xl p-4 shadow-lg border border-[#DDDDDD]"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-[#FBF6E9] flex items-center justify-center">
+                    <GraduationCap className="h-6 w-6 text-[#C9A84C]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[#1A1A1A]">Google IT Certified</p>
+                    <p className="text-xs text-[#888888]">Industry-recognized skills</p>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Content */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="order-1 lg:order-2"
             >
               <span className="text-sm font-semibold text-[#C9A84C] uppercase tracking-wider">
                 Who We Are
@@ -253,9 +301,11 @@ export default function HomePage() {
                 creating a self-sustaining cycle of empowerment.
               </p>
               <p className="text-[#555555] leading-relaxed mb-8">
-                Founded in 2023 by Thomas "TJ" Wilform, a former aerospace IT
-                technician and Compton native, Forever Forward is proving that
-                workforce development and community service can go hand in hand.
+                Founded in 2023 by Thomas &quot;TJ&quot; Wilform—a Compton native, former
+                enterprise data center engineer, and single father who knows
+                firsthand how hard it is to find resources when you&apos;re a dad
+                going it alone—Forever Forward is proving that workforce
+                development and community service can go hand in hand.
               </p>
 
               <Button asChild variant="outline">
@@ -266,55 +316,6 @@ export default function HomePage() {
               </Button>
             </motion.div>
 
-            {/* Model Visual */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative"
-            >
-              <div className="bg-[#1A1A1A] rounded-2xl p-8 lg:p-10">
-                <h3 className="text-xl font-semibold text-white mb-8 text-center">
-                  The Forever Forward Model
-                </h3>
-                <div className="flex flex-col gap-4">
-                  {[
-                    { step: "TRAIN", desc: "Fathers & youth learn IT skills" },
-                    { step: "CERTIFY", desc: "Earn industry certifications" },
-                    { step: "EMPLOY", desc: "Join our workforce pool" },
-                    { step: "SERVE", desc: "Support nonprofits & schools" },
-                    { step: "SUSTAIN", desc: "Revenue funds more programs" },
-                  ].map((item, i) => (
-                    <motion.div
-                      key={item.step}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.3 + i * 0.1 }}
-                      className="flex items-center gap-4"
-                    >
-                      <div className="shrink-0 w-10 h-10 rounded-full bg-[#C9A84C] flex items-center justify-center">
-                        <span className="text-[#1A1A1A] font-bold text-sm">
-                          {i + 1}
-                        </span>
-                      </div>
-                      <div className="flex-1 bg-[#2D2D2D] rounded-lg px-4 py-3">
-                        <span className="text-[#C9A84C] font-semibold text-sm">
-                          {item.step}
-                        </span>
-                        <span className="text-white/70 text-sm ml-2">
-                          — {item.desc}
-                        </span>
-                      </div>
-                      {i < 4 && (
-                        <ChevronDown className="absolute left-5 text-[#C9A84C]/50 h-4 w-4 hidden lg:block" />
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
           </div>
         </div>
       </section>
@@ -452,7 +453,7 @@ export default function HomePage() {
       <section className="py-20 lg:py-28 bg-[#FAFAF8]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Image Placeholder */}
+            {/* Event Photo */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -460,13 +461,14 @@ export default function HomePage() {
               transition={{ duration: 0.6 }}
               className="relative order-2 lg:order-1"
             >
-              <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-[#C9A84C] to-[#A68A2E] overflow-hidden relative">
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-[#1A1A1A]">
-                  <Film className="h-16 w-16 mb-4 opacity-50" />
-                  <span className="font-semibold text-lg opacity-70">
-                    Movies on the Menu
-                  </span>
-                </div>
+              <div className="aspect-[4/3] rounded-2xl overflow-hidden relative">
+                <Image
+                  src="/images/generated/movies-on-menu.png"
+                  alt="Black families enjoying Movies on the Menu event - fathers bonding with children over dinner and a movie"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
               </div>
               {/* Decorative card */}
               <motion.div
@@ -698,8 +700,8 @@ export default function HomePage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#EFF4EB] text-[#5A7247] font-medium"
               >
-                <Shield className="h-5 w-5" />
-                Thanks for subscribing! Check your inbox soon.
+                <CheckCircle className="h-5 w-5" />
+                You&apos;re in! Watch for updates from Forever Forward.
               </motion.div>
             ) : (
               <form

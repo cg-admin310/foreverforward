@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { SERVICES, CONTACT_INFO } from "@/lib/constants";
+import { createLead } from "@/lib/actions/leads";
 
 const differentiators = [
   {
@@ -94,9 +95,28 @@ export default function ServicesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // TODO: Connect to Supabase leads
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSubmitted(true);
+
+    // Split name into first/last
+    const nameParts = formData.name.trim().split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+
+    const result = await createLead({
+      firstName,
+      lastName,
+      email: formData.email,
+      phone: formData.phone || undefined,
+      organization: formData.organization || undefined,
+      leadType: "msp",
+      source: "services_assessment_form",
+      notes: "Requested IT assessment from services page",
+    });
+
+    if (result.success) {
+      setIsSubmitted(true);
+    } else {
+      console.error("Failed to create lead:", result.error);
+    }
     setIsSubmitting(false);
   };
 

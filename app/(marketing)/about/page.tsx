@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -298,7 +299,7 @@ export default function AboutPage() {
       <section className="py-20 lg:py-28 bg-[#FAFAF8]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Photo Placeholder */}
+            {/* Founder Photo */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -306,11 +307,14 @@ export default function AboutPage() {
               className="relative"
             >
               <div className="aspect-[4/5] rounded-2xl bg-gradient-to-br from-[#1A1A1A] to-[#2D2D2D] overflow-hidden relative">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[#C9A84C]/50 text-lg font-medium">
-                    Founder Photo
-                  </span>
-                </div>
+                <Image
+                  src="/images/generated/founder-tj.png"
+                  alt="Thomas 'TJ' Wilform - Founder of Forever Forward"
+                  fill
+                  className="object-cover object-center"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  priority
+                />
               </div>
               {/* Decorative Quote */}
               <motion.div
@@ -344,21 +348,33 @@ export default function AboutPage() {
                 <p>
                   TJ Wilform grew up in Compton, California—a community that
                   shaped his understanding of resilience, family, and the
-                  transformative power of opportunity. After building a career
-                  as an IT technician at Boeing and Northrop Grumman, he saw
-                  firsthand how technology skills could open doors.
+                  transformative power of opportunity. He built his tech career
+                  at Xeex Communication, the #2 Juniper Networks reseller in the
+                  nation at the time, where he deployed large-scale data centers
+                  for enterprise clients.
                 </p>
                 <p>
-                  But he also saw something troubling: fathers in his community
-                  struggling without pathways to stable careers, and nonprofits
-                  operating with outdated technology because enterprise IT was
-                  out of reach.
+                  Everything changed when TJ became a single father. Suddenly
+                  thrust into a world where he needed support, he discovered a
+                  painful truth: resources for fathers raising children alone
+                  were nearly nonexistent. Many organizations made him feel like
+                  his daughter should be with her mother—which wasn&apos;t an
+                  option for her safety. He was determined to be there for his
+                  child while building a career that could provide.
                 </p>
                 <p>
-                  In 2023, TJ founded Forever Forward to solve both problems at
-                  once. The result is a nonprofit that doesn&apos;t just teach
-                  skills—it creates jobs, serves the community, and sustains
-                  itself.
+                  Through perseverance, TJ stayed in tech, earned certifications,
+                  and gained valuable experience. But he didn&apos;t stop there.
+                  He started teaching friends from the neighborhood how to break
+                  into IT—showing them the same path that had given him stability.
+                  Watching their transformations sparked a bigger vision.
+                </p>
+                <p>
+                  In 2023, TJ founded Forever Forward to solve the problems he
+                  lived through: fathers without pathways, communities without
+                  resources, and nonprofits without enterprise IT. The result is
+                  an organization that doesn&apos;t just teach skills—it creates
+                  jobs, serves the community, and sustains itself.
                 </p>
               </div>
 
@@ -367,7 +383,7 @@ export default function AboutPage() {
                   <span className="font-medium text-[#1A1A1A]">Fun fact:</span>{" "}
                   TJ is also building CommonGround, an AI-powered co-parenting
                   app helping families navigate shared custody with less
-                  conflict.
+                  conflict—inspired by his own journey as a father.
                 </p>
               </div>
             </motion.div>
