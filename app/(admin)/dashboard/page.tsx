@@ -64,18 +64,28 @@ function getActivityIcon(type: string) {
 }
 
 export default async function DashboardPage() {
-  // Fetch all dashboard data in parallel
-  const [metricsResult, activityResult, eventsResult, alertsResult] = await Promise.all([
-    getDashboardMetrics(),
-    getRecentActivity(5),
-    getUpcomingEvents(3),
-    getTravisAlerts(),
-  ]);
+  // Fetch all dashboard data in parallel with error handling
+  let metricsResult, activityResult, eventsResult, alertsResult;
 
-  const metrics = metricsResult.data;
-  const activities = activityResult.data || [];
-  const events = eventsResult.data || [];
-  const alerts = alertsResult.data || [];
+  try {
+    [metricsResult, activityResult, eventsResult, alertsResult] = await Promise.all([
+      getDashboardMetrics().catch(() => ({ success: false, data: null })),
+      getRecentActivity(5).catch(() => ({ success: false, data: [] })),
+      getUpcomingEvents(3).catch(() => ({ success: false, data: [] })),
+      getTravisAlerts().catch(() => ({ success: false, data: [] })),
+    ]);
+  } catch (error) {
+    console.error("Dashboard data fetch error:", error);
+    metricsResult = { success: false, data: null };
+    activityResult = { success: false, data: [] };
+    eventsResult = { success: false, data: [] };
+    alertsResult = { success: false, data: [] };
+  }
+
+  const metrics = metricsResult?.data;
+  const activities = activityResult?.data || [];
+  const events = eventsResult?.data || [];
+  const alerts = alertsResult?.data || [];
 
   const metricCards = [
     {
