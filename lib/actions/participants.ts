@@ -853,3 +853,155 @@ export async function getParticipantStats(): Promise<ActionResult<{
     return { success: false, error: "Failed to fetch participant stats" };
   }
 }
+
+// ============================================================================
+// GET PARTICIPANT DOCUMENTS
+// ============================================================================
+
+export async function getParticipantDocuments(
+  participantId: string
+): Promise<ActionResult<{ documents: import("@/types/database").Document[] }>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    const { data, error } = await supabase
+      .from("documents")
+      .select("*")
+      .eq("participant_id", participantId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching participant documents:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: { documents: data || [] } };
+  } catch (error) {
+    console.error("Error in getParticipantDocuments:", error);
+    return { success: false, error: "Failed to fetch participant documents" };
+  }
+}
+
+// ============================================================================
+// GET TRAVIS CONVERSATIONS
+// ============================================================================
+
+export async function getTravisConversations(
+  participantId: string
+): Promise<ActionResult<{ conversations: import("@/types/database").TravisConversation[] }>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    const { data, error } = await supabase
+      .from("travis_conversations")
+      .select("*")
+      .eq("participant_id", participantId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching Travis conversations:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: { conversations: data || [] } };
+  } catch (error) {
+    console.error("Error in getTravisConversations:", error);
+    return { success: false, error: "Failed to fetch Travis conversations" };
+  }
+}
+
+// ============================================================================
+// GET PARTICIPANT WITH ALL RELATED DATA
+// ============================================================================
+
+export async function getParticipantWithAllData(id: string): Promise<ActionResult<{
+  participant: Participant;
+  checkins: Checkin[];
+  activities: import("@/types/database").Activity[];
+  documents: import("@/types/database").Document[];
+  travisConversations: import("@/types/database").TravisConversation[];
+  cohort: import("@/types/database").Cohort | null;
+  caseWorker: import("@/types/database").User | null;
+}>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Fetch participant
+    const { data: participant, error: pError } = await supabase
+      .from("participants")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (pError || !participant) {
+      console.error("Error fetching participant:", pError);
+      return { success: false, error: pError?.message || "Participant not found" };
+    }
+
+    // Fetch check-ins
+    const { data: checkins } = await supabase
+      .from("checkins")
+      .select("*")
+      .eq("participant_id", id)
+      .order("created_at", { ascending: false });
+
+    // Fetch activities
+    const { data: activities } = await supabase
+      .from("activities")
+      .select("*")
+      .eq("participant_id", id)
+      .order("created_at", { ascending: false });
+
+    // Fetch documents
+    const { data: documents } = await supabase
+      .from("documents")
+      .select("*")
+      .eq("participant_id", id)
+      .order("created_at", { ascending: false });
+
+    // Fetch Travis conversations
+    const { data: travisConversations } = await supabase
+      .from("travis_conversations")
+      .select("*")
+      .eq("participant_id", id)
+      .order("created_at", { ascending: true });
+
+    // Fetch cohort if exists
+    let cohort = null;
+    if (participant.cohort_id) {
+      const { data: cohortData } = await supabase
+        .from("cohorts")
+        .select("*")
+        .eq("id", participant.cohort_id)
+        .single();
+      cohort = cohortData;
+    }
+
+    // Fetch case worker if assigned
+    let caseWorker = null;
+    if (participant.assigned_case_worker) {
+      const { data: userData } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", participant.assigned_case_worker)
+        .single();
+      caseWorker = userData;
+    }
+
+    return {
+      success: true,
+      data: {
+        participant,
+        checkins: checkins || [],
+        activities: activities || [],
+        documents: documents || [],
+        travisConversations: travisConversations || [],
+        cohort,
+        caseWorker,
+      },
+    };
+  } catch (error) {
+    console.error("Error in getParticipantWithAllData:", error);
+    return { success: false, error: "Failed to fetch participant data" };
+  }
+}
