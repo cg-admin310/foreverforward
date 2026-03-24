@@ -280,7 +280,7 @@ export async function undoCheckIn(attendeeId: string): Promise<ActionResult> {
 
 export async function checkInByQRCode(
   qrToken: string
-): Promise<ActionResult<{ attendeeId: string; name: string; eventTitle: string; alreadyCheckedIn: boolean }>> {
+): Promise<ActionResult<{ attendeeId: string; eventId: string; name: string; eventTitle: string; alreadyCheckedIn: boolean }>> {
   try {
     const supabase = await createServerSupabaseClient();
     const now = new Date().toISOString();
@@ -311,12 +311,14 @@ export async function checkInByQRCode(
 
     // If already checked in, return info but don't update
     if (attendee.checked_in) {
+      const eventData = attendee.events as unknown as { title: string } | null;
       return {
         success: true,
         data: {
           attendeeId: attendee.id,
+          eventId: attendee.event_id,
           name: `${attendee.first_name} ${attendee.last_name}`,
-          eventTitle: (attendee.events as { title: string })?.title || "Event",
+          eventTitle: eventData?.title || "Event",
           alreadyCheckedIn: true,
         },
       };
@@ -337,12 +339,14 @@ export async function checkInByQRCode(
 
     revalidatePath(`/events-admin/${attendee.event_id}/attendees`);
 
+    const eventData = attendee.events as unknown as { title: string } | null;
     return {
       success: true,
       data: {
         attendeeId: attendee.id,
+        eventId: attendee.event_id,
         name: `${attendee.first_name} ${attendee.last_name}`,
-        eventTitle: (attendee.events as { title: string })?.title || "Event",
+        eventTitle: eventData?.title || "Event",
         alreadyCheckedIn: false,
       },
     };

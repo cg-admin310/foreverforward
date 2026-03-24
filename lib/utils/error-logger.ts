@@ -138,16 +138,16 @@ export async function logCritical(
 export function createLogger(module: string) {
   return {
     info: (message: string, context: Omit<ErrorContext, "module">, logToDb = false) =>
-      logInfo(message, { module, ...context }, logToDb),
+      logInfo(message, { ...context, module } as ErrorContext, logToDb),
 
     warning: (message: string, context: Omit<ErrorContext, "module">, logToDb = false) =>
-      logWarning(message, { module, ...context }, logToDb),
+      logWarning(message, { ...context, module } as ErrorContext, logToDb),
 
     error: (error: unknown, context: Omit<ErrorContext, "module">, logToDb = false) =>
-      logError(error, { module, ...context }, "error", logToDb),
+      logError(error, { ...context, module } as ErrorContext, "error", logToDb),
 
     critical: (error: unknown, context: Omit<ErrorContext, "module">) =>
-      logCritical(error, { module, ...context }),
+      logCritical(error, { ...context, module } as ErrorContext),
   };
 }
 

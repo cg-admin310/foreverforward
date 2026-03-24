@@ -104,26 +104,26 @@ export function QRScannerDialog({
 
     if (result.success && result.data) {
       // Verify this is for the correct event
-      if (result.data.event_id !== eventId) {
+      if (result.data.eventId !== eventId) {
         setScanResult({
           success: false,
           message: "This ticket is for a different event",
         });
-      } else if (result.data.checked_in) {
+      } else if (result.data.alreadyCheckedIn) {
         setScanResult({
           success: true,
           message: "Already checked in",
-          attendeeName: `${result.data.first_name} ${result.data.last_name}`,
-          attendeeId: result.data.id,
+          attendeeName: result.data.name,
+          attendeeId: result.data.attendeeId,
         });
       } else {
         setScanResult({
           success: true,
           message: "Successfully checked in!",
-          attendeeName: `${result.data.first_name} ${result.data.last_name}`,
-          attendeeId: result.data.id,
+          attendeeName: result.data.name,
+          attendeeId: result.data.attendeeId,
         });
-        onCheckIn(result.data.id);
+        onCheckIn(result.data.attendeeId);
       }
     } else {
       setScanResult({
