@@ -5,19 +5,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import {
-  ChevronDown,
   Heart,
   Users,
   Handshake,
   Server,
-  Shield,
   Code,
   Cable,
   ArrowRight,
   Calendar,
-  MapPin,
   Film,
-  Utensils,
   CheckCircle,
   GraduationCap,
 } from "lucide-react";
@@ -130,23 +126,6 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            {/* Logo */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1, duration: 0.5 }}
-              className="mb-8"
-            >
-              <Image
-                src="/images/brand/ff-logo-primary-dark-bg.svg"
-                alt="Forever Forward"
-                width={280}
-                height={80}
-                className="mx-auto"
-                priority
-              />
-            </motion.div>
-
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -194,23 +173,6 @@ export default function HomePage() {
               <Button asChild variant="secondary" size="lg" className="min-w-[200px]">
                 <Link href="/services">IT Services</Link>
               </Button>
-            </motion.div>
-          </motion.div>
-
-          {/* Scroll Indicator */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 0.5 }}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2"
-          >
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-              className="flex flex-col items-center gap-2 text-white/50"
-            >
-              <span className="text-xs font-medium">Scroll to explore</span>
-              <ChevronDown className="h-5 w-5" />
             </motion.div>
           </motion.div>
         </div>
@@ -469,7 +431,7 @@ export default function HomePage() {
       </section>
 
       {/* ============================================
-          SECTION 6: MOVIES ON THE MENU
+          SECTION 6: COMMUNITY EVENTS
           ============================================ */}
       <section className="py-20 lg:py-28 bg-[#FAFAF8]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -485,7 +447,7 @@ export default function HomePage() {
               <div className="aspect-[4/3] rounded-2xl overflow-hidden relative">
                 <Image
                   src="/images/generated/movies-on-menu.png"
-                  alt="Black families enjoying Movies on the Menu event - fathers bonding with children over dinner and a movie"
+                  alt="Black families enjoying community events - fathers bonding with children"
                   fill
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 50vw"
@@ -501,13 +463,13 @@ export default function HomePage() {
               >
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-lg bg-[#EFF4EB] flex items-center justify-center">
-                    <Utensils className="h-6 w-6 text-[#5A7247]" />
+                    <Users className="h-6 w-6 text-[#5A7247]" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-[#1A1A1A]">
-                      Dinner + Movie
+                      Community First
                     </p>
-                    <p className="text-xs text-[#888888]">Family Event</p>
+                    <p className="text-xs text-[#888888]">Family Events</p>
                   </div>
                 </div>
               </motion.div>
@@ -522,41 +484,40 @@ export default function HomePage() {
               className="order-1 lg:order-2"
             >
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FBF6E9] text-[#A68A2E] text-sm font-medium mb-4">
-                <span className="w-2 h-2 rounded-full bg-[#C9A84C]" />
-                Upcoming Event
+                <Calendar className="h-4 w-4" />
+                Community Events
               </span>
               <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A1A] mb-4">
-                Movies on the Menu
+                Where Families Come Together
               </h2>
               <p className="text-[#555555] leading-relaxed mb-6">
-                Our signature family event series pairs blockbuster movies with
-                delicious themed dinners. It's where dads bond with their kids,
-                families make memories, and community comes together.
+                From our signature &quot;Movies on the Menu&quot; dinner-and-movie nights
+                to workshops, graduation ceremonies, and community celebrations—our
+                events create spaces where fathers bond with their children, families
+                make memories, and our community grows stronger together.
               </p>
 
               <div className="space-y-3 mb-8">
                 <div className="flex items-center gap-3 text-[#555555]">
-                  <Calendar className="h-5 w-5 text-[#C9A84C]" />
-                  <span>Next Event: April 12, 2024 at 5:00 PM</span>
-                </div>
-                <div className="flex items-center gap-3 text-[#555555]">
-                  <MapPin className="h-5 w-5 text-[#C9A84C]" />
-                  <span>Forever Forward Community Center, Los Angeles</span>
-                </div>
-                <div className="flex items-center gap-3 text-[#555555]">
                   <Film className="h-5 w-5 text-[#C9A84C]" />
-                  <span>Featuring: &quot;Space Jam: A New Legacy&quot;</span>
+                  <span>Movies on the Menu family nights</span>
+                </div>
+                <div className="flex items-center gap-3 text-[#555555]">
+                  <GraduationCap className="h-5 w-5 text-[#C9A84C]" />
+                  <span>Program graduations & celebrations</span>
+                </div>
+                <div className="flex items-center gap-3 text-[#555555]">
+                  <Users className="h-5 w-5 text-[#C9A84C]" />
+                  <span>Workshops, meetups & community gatherings</span>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-4">
-                <Button asChild size="lg">
-                  <Link href="/events">Get Tickets</Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link href="/events">View All Events</Link>
-                </Button>
-              </div>
+              <Button asChild size="lg">
+                <Link href="/events">
+                  View Upcoming Events
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
             </motion.div>
           </div>
         </div>
