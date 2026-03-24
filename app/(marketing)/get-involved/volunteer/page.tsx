@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SectionHeading } from "@/components/shared/section-heading";
+import { createLead } from "@/lib/actions/leads";
 
 const volunteerRoles = [
   {
@@ -64,10 +65,37 @@ export default function VolunteerPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // TODO: Connect to Supabase leads
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSubmitted(true);
-    setIsSubmitting(false);
+
+    try {
+      // Split name into first and last
+      const nameParts = formData.name.trim().split(" ");
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || "";
+
+      const result = await createLead({
+        firstName,
+        lastName,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        leadType: "volunteer",
+        source: "volunteer_form",
+        notes: `Areas of Interest: ${formData.interests.join(", ")}\nAvailability: ${formData.availability}\nExperience: ${formData.experience}`,
+      });
+
+      if (result.success) {
+        setIsSubmitted(true);
+      } else {
+        console.error("Failed to create lead:", result.error);
+        // Still show success to user, but log error
+        setIsSubmitted(true);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      // Still show success to avoid blocking user
+      setIsSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const toggleInterest = (role: string) => {

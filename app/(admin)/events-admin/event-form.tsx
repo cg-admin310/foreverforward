@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/admin/image-upload";
 import { createEvent, updateEvent } from "@/lib/actions/events";
 import type { Event, EventType } from "@/types/database";
 
@@ -231,19 +232,14 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-[#555555] mb-1">
-              Featured Image URL
-            </label>
-            <Input
+            <ImageUpload
               value={formData.featuredImageUrl}
-              onChange={(e) =>
-                setFormData({ ...formData, featuredImageUrl: e.target.value })
+              onChange={(url) =>
+                setFormData({ ...formData, featuredImageUrl: url })
               }
-              placeholder="https://... or /images/generated/..."
+              label="Featured Image"
+              description="Upload an image for this event (displayed on event cards and detail pages)"
             />
-            <p className="text-xs text-[#888888] mt-1">
-              Enter a URL for the event&apos;s featured image
-            </p>
           </div>
         </div>
       </div>

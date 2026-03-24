@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -103,10 +104,15 @@ export function Navbar() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <span className="text-xl lg:text-2xl font-bold text-[#C9A84C]">
-              Forever Forward
-            </span>
+          <Link href="/" className="flex items-center shrink-0">
+            <Image
+              src="/images/brand/ff-logo-horizontal-dark-bg.svg"
+              alt="Forever Forward"
+              width={180}
+              height={40}
+              className="h-8 lg:h-10 w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}

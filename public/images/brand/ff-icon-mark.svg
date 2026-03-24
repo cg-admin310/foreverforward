@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>Forever Forward Icon Mark</title>
+  <desc>Two interlocking forward-pointing chevrons representing the FF initials of Forever Forward</desc>
+  <path d="M8,32 L28,8 L28,24 L48,0 L48,64 L28,40 L28,56 Z" fill="#C9A84C"/>
+  <path d="M24,32 L44,8 L44,24 L64,0 L64,64 L44,40 L44,56 Z" fill="#5A7247" opacity="0.85"/>
+</svg>

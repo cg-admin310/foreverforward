@@ -31,6 +31,8 @@ import {
   updatePipelineStage,
   deleteClient,
 } from "@/lib/actions/clients";
+import { analyzeClientWebsite } from "@/lib/actions/website-scraper";
+import { generateProposal, generateContract, getClientDocuments, type Document } from "@/lib/actions/documents";
 import type { MspClient, PipelineStage } from "@/types/database";
 
 interface Activity {
@@ -75,6 +77,14 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
   const [isUpdatingStage, setIsUpdatingStage] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [newNote, setNewNote] = useState("");
+
+  // Document generation state
+  const [isGeneratingProposal, setIsGeneratingProposal] = useState(false);
+  const [isGeneratingContract, setIsGeneratingContract] = useState(false);
+  const [isAnalyzingWebsite, setIsAnalyzingWebsite] = useState(false);
+  const [generatedDocument, setGeneratedDocument] = useState<string | null>(null);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [isLoadingDocs, setIsLoadingDocs] = useState(false);
 
   const currentStageIndex = pipelineStages.findIndex(
     (s) => s.key === client.pipeline_stage
@@ -133,6 +143,65 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
       alert(result.error || "Failed to add note");
     }
     setIsAddingNote(false);
+  };
+
+  const handleAnalyzeWebsite = async () => {
+    if (!client.website) {
+      alert("Client has no website URL");
+      return;
+    }
+    setIsAnalyzingWebsite(true);
+    const result = await analyzeClientWebsite(client.id);
+    if (result.success) {
+      alert("Website analyzed! Check notes for insights.");
+      router.refresh();
+    } else {
+      alert(result.error || "Failed to analyze website");
+    }
+    setIsAnalyzingWebsite(false);
+  };
+
+  const handleGenerateProposal = async () => {
+    setIsGeneratingProposal(true);
+    setGeneratedDocument(null);
+    const result = await generateProposal(client.id, {
+      includeWebsiteAnalysis: !!client.website,
+    });
+    if (result.success && result.data) {
+      setGeneratedDocument(result.data.content);
+      loadDocuments();
+    } else {
+      alert(result.error || "Failed to generate proposal");
+    }
+    setIsGeneratingProposal(false);
+  };
+
+  const handleGenerateContract = async () => {
+    setIsGeneratingContract(true);
+    setGeneratedDocument(null);
+    const result = await generateContract(client.id, {
+      servicePackage: client.service_package || "growth",
+      monthlyValue: client.monthly_value || 1500,
+      contractTermMonths: 12,
+      startDate: new Date().toISOString().split("T")[0],
+      services: client.services || ["Managed IT"],
+    });
+    if (result.success && result.data) {
+      setGeneratedDocument(result.data.content);
+      loadDocuments();
+    } else {
+      alert(result.error || "Failed to generate contract");
+    }
+    setIsGeneratingContract(false);
+  };
+
+  const loadDocuments = async () => {
+    setIsLoadingDocs(true);
+    const result = await getClientDocuments(client.id);
+    if (result.success && result.data) {
+      setDocuments(result.data);
+    }
+    setIsLoadingDocs(false);
   };
 
   const formatDate = (dateString: string) => {
@@ -476,26 +545,114 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-xl border border-[#DDDDDD]"
+              className="space-y-6"
             >
-              <div className="p-4 border-b border-[#DDDDDD] flex items-center justify-between">
-                <h2 className="font-semibold text-[#1A1A1A]">Documents</h2>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+              {/* Actions */}
+              <div className="bg-white rounded-xl border border-[#DDDDDD] p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  {client.website && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleAnalyzeWebsite}
+                      disabled={isAnalyzingWebsite}
+                    >
+                      <Globe className="h-4 w-4 mr-2" />
+                      {isAnalyzingWebsite ? "Analyzing..." : "Analyze Website"}
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateProposal}
+                    disabled={isGeneratingProposal}
+                  >
                     <FileText className="h-4 w-4 mr-2" />
-                    Generate Proposal
+                    {isGeneratingProposal ? "Generating..." : "Generate Proposal"}
                   </Button>
-                  <Button variant="outline" size="sm">
-                    Generate Contract
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateContract}
+                    disabled={isGeneratingContract}
+                  >
+                    {isGeneratingContract ? "Generating..." : "Generate Contract"}
                   </Button>
                 </div>
               </div>
-              <div className="p-8 text-center">
-                <FileText className="h-8 w-8 text-[#DDDDDD] mx-auto mb-2" />
-                <p className="text-sm text-[#888888]">No documents yet</p>
-                <p className="text-xs text-[#888888] mt-1">
-                  Generate proposals and contracts from this tab
-                </p>
+
+              {/* Generated Document Preview */}
+              {generatedDocument && (
+                <div className="bg-white rounded-xl border border-[#DDDDDD]">
+                  <div className="p-4 border-b border-[#DDDDDD] flex items-center justify-between">
+                    <h2 className="font-semibold text-[#1A1A1A]">Generated Document</h2>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setGeneratedDocument(null)}
+                    >
+                      Close
+                    </Button>
+                  </div>
+                  <div className="p-6 prose prose-sm max-w-none">
+                    <pre className="whitespace-pre-wrap text-sm text-[#555555] bg-[#FAFAF8] p-4 rounded-lg overflow-auto max-h-[600px]">
+                      {generatedDocument}
+                    </pre>
+                  </div>
+                </div>
+              )}
+
+              {/* Documents List */}
+              <div className="bg-white rounded-xl border border-[#DDDDDD]">
+                <div className="p-4 border-b border-[#DDDDDD] flex items-center justify-between">
+                  <h2 className="font-semibold text-[#1A1A1A]">Documents</h2>
+                  <Button variant="outline" size="sm" onClick={loadDocuments}>
+                    Refresh
+                  </Button>
+                </div>
+                {isLoadingDocs ? (
+                  <div className="p-8 text-center">
+                    <p className="text-sm text-[#888888]">Loading...</p>
+                  </div>
+                ) : documents.length > 0 ? (
+                  <div className="divide-y divide-[#DDDDDD]">
+                    {documents.map((doc) => (
+                      <div
+                        key={doc.id}
+                        className="p-4 flex items-center justify-between hover:bg-[#FAFAF8]"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-[#FBF6E9]">
+                            <FileText className="h-4 w-4 text-[#C9A84C]" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-[#1A1A1A]">
+                              {doc.title}
+                            </p>
+                            <p className="text-xs text-[#888888]">
+                              {doc.document_type} • {doc.status} • {formatDate(doc.created_at)}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setGeneratedDocument(doc.content)}
+                        >
+                          View
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-8 text-center">
+                    <FileText className="h-8 w-8 text-[#DDDDDD] mx-auto mb-2" />
+                    <p className="text-sm text-[#888888]">No documents yet</p>
+                    <p className="text-xs text-[#888888] mt-1">
+                      Generate proposals and contracts using the buttons above
+                    </p>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

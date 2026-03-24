@@ -130,6 +130,23 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
+            {/* Logo */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1, duration: 0.5 }}
+              className="mb-8"
+            >
+              <Image
+                src="/images/brand/ff-logo-primary-dark-bg.svg"
+                alt="Forever Forward"
+                width={280}
+                height={80}
+                className="mx-auto"
+                priority
+              />
+            </motion.div>
+
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -139,7 +156,7 @@ export default function HomePage() {
             >
               <span className="w-2 h-2 rounded-full bg-[#C9A84C] animate-pulse" />
               <span className="text-sm text-white/80">
-                A 501(c)(3) Nonprofit Organization
+                A 501(c)(3) Nonprofit · Serving Los Angeles & Inland Empire
               </span>
             </motion.div>
 
@@ -391,8 +408,9 @@ export default function HomePage() {
             </h2>
             <p className="text-white/70 max-w-2xl mx-auto">
               We bring corporate-level IT infrastructure to nonprofits and
-              schools—at prices that respect your mission. Our technicians are
-              program graduates who understand community service.
+              schools across Los Angeles and the Inland Empire—at prices that
+              respect your mission. Our technicians are program graduates who
+              understand community service.
             </p>
           </motion.div>
 

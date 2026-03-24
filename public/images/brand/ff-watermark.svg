@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <title>Forever Forward Watermark</title>
+  <g transform="translate(36,36)" opacity="0.06">
+    <path d="M16,64 L56,16 L56,48 L96,0 L96,128 L56,80 L56,112 Z" fill="#1A1A1A"/>
+    <path d="M48,64 L88,16 L88,48 L128,0 L128,128 L88,80 L88,112 Z" fill="#1A1A1A"/>
+  </g>
+</svg>

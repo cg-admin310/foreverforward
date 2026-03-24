@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import {
   Instagram,
@@ -75,13 +76,18 @@ export function Footer() {
           {/* Column 1: About */}
           <div>
             <Link href="/" className="inline-block mb-6">
-              <span className="text-2xl font-bold text-[#C9A84C]">
-                Forever Forward
-              </span>
+              <Image
+                src="/images/brand/ff-logo-stacked-tagline-dark-bg.svg"
+                alt="Forever Forward"
+                width={200}
+                height={80}
+                className="h-16 w-auto"
+              />
             </Link>
             <p className="text-white/80 text-sm leading-relaxed mb-6">
               Empowering fathers, strengthening families, and inspiring youth
-              through transformative education and technology.
+              through transformative education and technology. Serving Los
+              Angeles and the Inland Empire.
             </p>
             <div className="space-y-3 text-sm text-white/70">
               <a

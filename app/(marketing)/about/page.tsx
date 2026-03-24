@@ -64,7 +64,7 @@ const timelineEvents = [
     year: "2024",
     title: "IT Services Launch",
     description:
-      "Forever Forward begins serving nonprofit organizations with managed IT services, creating the sustainable revenue model.",
+      "Forever Forward begins serving nonprofits across Los Angeles and the Inland Empire with managed IT services, creating the sustainable revenue model.",
   },
   {
     year: "2024",
@@ -308,7 +308,7 @@ export default function AboutPage() {
             >
               <div className="aspect-[4/5] rounded-2xl bg-gradient-to-br from-[#1A1A1A] to-[#2D2D2D] overflow-hidden relative">
                 <Image
-                  src="/images/generated/founder-tj.png"
+                  src="/images/brand/founderpic.jpg"
                   alt="Thomas 'TJ' Wilform - Founder of Forever Forward"
                   fill
                   className="object-cover object-center"

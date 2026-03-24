@@ -348,12 +348,19 @@ export default function ServicesPage() {
             </h2>
             <p className="text-[#555555] leading-relaxed max-w-2xl mx-auto mb-8">
               We provide on-site IT services throughout the Greater Los Angeles
-              area, including South LA, Compton, Inglewood, Carson, and Long
-              Beach. Remote monitoring and support is available nationwide.
+              area and the Inland Empire—including South LA, Compton, Inglewood, Carson,
+              Long Beach, Riverside, San Bernardino, and Ontario. Remote
+              monitoring and support is available nationwide.
             </p>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#EFF4EB] text-[#5A7247] font-medium">
-              <CheckCircle2 className="h-5 w-5" />
-              Based in Los Angeles, CA
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#EFF4EB] text-[#5A7247] font-medium">
+                <CheckCircle2 className="h-5 w-5" />
+                Los Angeles County
+              </div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FBF6E9] text-[#A68A2E] font-medium">
+                <CheckCircle2 className="h-5 w-5" />
+                Inland Empire
+              </div>
             </div>
           </motion.div>
         </div>

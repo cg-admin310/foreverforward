@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <title>Forever Forward - Social Media Card</title>
+  <rect width="1200" height="630" fill="#1A1A1A"/>
+  <line x1="60" y1="570" x2="1140" y2="570" stroke="#C9A84C" stroke-width="3"/>
+  <g id="icon" transform="translate(500,120)">
+    <path d="M20,80 L80,16 L80,52 L140,0 L140,160 L80,96 L80,132 Z" fill="#C9A84C"/>
+    <path d="M56,80 L116,16 L116,52 L176,0 L176,160 L116,96 L116,132 Z" fill="#5A7247" opacity="0.85"/>
+  </g>
+  <text x="600" y="340" font-family="Poppins, sans-serif" font-weight="700" font-size="54" fill="#FFFFFF" text-anchor="middle" letter-spacing="3">FOREVER FORWARD</text>
+  <text x="600" y="390" font-family="Poppins, sans-serif" font-weight="400" font-size="18" fill="#C9A84C" text-anchor="middle" letter-spacing="4">EMPOWERING FATHERS  ·  STRENGTHENING FAMILIES  ·  BUILDING LEGACIES</text>
+  <text x="600" y="540" font-family="Poppins, sans-serif" font-weight="400" font-size="16" fill="#888888" text-anchor="middle" letter-spacing="1">forever4ward.org</text>
+</svg>

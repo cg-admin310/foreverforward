@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { cn } from "@/lib/utils";
 import { CONTACT_INFO } from "@/lib/constants";
+import { createLead } from "@/lib/actions/leads";
 import type { ServiceDetail } from "@/lib/data/services";
 
 interface ServicePageClientProps {
@@ -35,10 +36,36 @@ export function ServicePageClient({ service }: ServicePageClientProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // TODO: Connect to Supabase leads
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSubmitted(true);
-    setIsSubmitting(false);
+
+    try {
+      // Split name into first and last
+      const nameParts = formData.name.trim().split(" ");
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || "";
+
+      const result = await createLead({
+        firstName,
+        lastName,
+        email: formData.email,
+        organization: formData.organization,
+        leadType: "msp",
+        source: "service_page",
+        serviceInterests: [service.slug],
+        notes: `Service Interest: ${service.name}\n\nNeeds: ${formData.message}`,
+      });
+
+      if (result.success) {
+        setIsSubmitted(true);
+      } else {
+        console.error("Failed to create lead:", result.error);
+        setIsSubmitted(true);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setIsSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
