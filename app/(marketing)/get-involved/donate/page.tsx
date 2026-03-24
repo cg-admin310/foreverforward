@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -11,6 +12,8 @@ import {
   CheckCircle2,
   CreditCard,
   Repeat,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,18 +64,69 @@ const impactAreas = [
 ];
 
 export default function DonatePage() {
-  const [donationType, setDonationType] = useState<"one-time" | "monthly">("one-time");
+  const searchParams = useSearchParams();
+  const [donationType, setDonationType] = useState<"one_time" | "monthly">("one_time");
   const [selectedAmount, setSelectedAmount] = useState<number | null>(200);
   const [customAmount, setCustomAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [donorEmail, setDonorEmail] = useState("");
+  const [donorFirstName, setDonorFirstName] = useState("");
+  const [donorLastName, setDonorLastName] = useState("");
 
   const amounts = [25, 50, 100, 200, 500, 1000];
 
+  // Check for cancelled checkout
+  useEffect(() => {
+    if (searchParams.get("cancelled") === "true") {
+      setError("Your donation was cancelled. Feel free to try again when you're ready.");
+    }
+  }, [searchParams]);
+
   const handleDonate = async () => {
     setIsProcessing(true);
-    // TODO: Integrate with Stripe
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsProcessing(false);
+    setError(null);
+
+    const amount = customAmount ? parseInt(customAmount) : selectedAmount;
+
+    if (!amount || amount < 1) {
+      setError("Please select or enter a valid donation amount.");
+      setIsProcessing(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount,
+          frequency: donationType,
+          donorEmail: donorEmail || undefined,
+          donorFirstName: donorFirstName || undefined,
+          donorLastName: donorLastName || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create checkout session");
+      }
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (err) {
+      console.error("Donation error:", err);
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setIsProcessing(false);
+    }
   };
 
   const currentAmount = customAmount ? parseInt(customAmount) : selectedAmount;
@@ -116,14 +170,26 @@ export default function DonatePage() {
             viewport={{ once: true }}
             className="bg-white rounded-2xl p-6 lg:p-10 shadow-lg border border-[#DDDDDD]"
           >
+            {/* Error Message */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 flex items-start gap-3"
+              >
+                <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                <p className="text-red-700 text-sm">{error}</p>
+              </motion.div>
+            )}
+
             {/* Donation Type Toggle */}
             <div className="flex justify-center mb-8">
               <div className="inline-flex rounded-lg bg-[#F5F3EF] p-1">
                 <button
-                  onClick={() => setDonationType("one-time")}
+                  onClick={() => setDonationType("one_time")}
                   className={cn(
                     "flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all",
-                    donationType === "one-time"
+                    donationType === "one_time"
                       ? "bg-[#C9A84C] text-[#1A1A1A]"
                       : "text-[#555555] hover:text-[#1A1A1A]"
                   )}
@@ -209,6 +275,33 @@ export default function DonatePage() {
               </motion.div>
             )}
 
+            {/* Optional Donor Info */}
+            <div className="mb-8 space-y-4">
+              <p className="text-sm text-[#888888] text-center">
+                Optional: Pre-fill your information (you can also enter it on the next page)
+              </p>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Input
+                  type="text"
+                  placeholder="First Name"
+                  value={donorFirstName}
+                  onChange={(e) => setDonorFirstName(e.target.value)}
+                />
+                <Input
+                  type="text"
+                  placeholder="Last Name"
+                  value={donorLastName}
+                  onChange={(e) => setDonorLastName(e.target.value)}
+                />
+              </div>
+              <Input
+                type="email"
+                placeholder="Email Address"
+                value={donorEmail}
+                onChange={(e) => setDonorEmail(e.target.value)}
+              />
+            </div>
+
             {/* Donate Button */}
             <Button
               onClick={handleDonate}
@@ -217,7 +310,10 @@ export default function DonatePage() {
               className="w-full h-14 text-lg"
             >
               {isProcessing ? (
-                "Processing..."
+                <>
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  Redirecting to secure checkout...
+                </>
               ) : (
                 <>
                   <CreditCard className="h-5 w-5 mr-2" />
