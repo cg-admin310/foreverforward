@@ -59,10 +59,26 @@ const partnershipTypes = [
 ];
 
 const currentPartners = [
-  "A New Day Foundation",
-  "Google.org",
-  "Microsoft Philanthropies",
-  "Los Angeles USD",
+  {
+    name: "A New Day Foundation",
+    logo: "/images/partners/a-new-day-foundation.png",
+    url: "https://anewdayfoundation.net/",
+  },
+  {
+    name: "Google.org",
+    logo: "/images/partners/google.svg",
+    url: "https://www.google.org/",
+  },
+  {
+    name: "Microsoft Philanthropies",
+    logo: "/images/partners/microsoft.svg",
+    url: "https://www.microsoft.com/en-us/corporate-responsibility/philanthropies",
+  },
+  {
+    name: "Los Angeles Unified School District",
+    logo: "/images/partners/lausd.png",
+    url: "https://www.lausd.org/",
+  },
 ];
 
 export default function PartnerPage() {
@@ -277,18 +293,25 @@ export default function PartnerPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {currentPartners.map((partner, index) => (
-              <motion.div
-                key={partner}
+              <motion.a
+                key={partner.name}
+                href={partner.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-[#2D2D2D] rounded-xl p-6 border border-[#444444] flex items-center justify-center"
+                className="aspect-[3/2] bg-white rounded-xl p-6 border border-[#444444] flex items-center justify-center hover:border-[#C9A84C] transition-all group"
               >
-                <span className="text-white/70 text-sm font-medium text-center">
-                  {partner}
-                </span>
-              </motion.div>
+                <Image
+                  src={partner.logo}
+                  alt={partner.name}
+                  width={140}
+                  height={50}
+                  className="max-h-10 w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+                />
+              </motion.a>
             ))}
           </div>
         </div>
