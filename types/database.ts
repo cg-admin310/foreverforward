@@ -367,6 +367,14 @@ export interface Event {
   updated_at: string;
 }
 
+export type PaymentStatus =
+  | "pending"
+  | "paid"
+  | "failed"
+  | "cancelled"
+  | "refunded"
+  | "partial_refund";
+
 export interface EventAttendee {
   id: string;
   event_id: string;
@@ -378,9 +386,17 @@ export interface EventAttendee {
   ticket_type: string | null;
   total_paid: number | null;
   stripe_payment_intent_id: string | null;
-  payment_status: string | null;
+  payment_status: PaymentStatus | null;
+  payment_method: string | null;
+  payment_date: string | null;
+  payment_notes: string | null;
+  refund_amount: number | null;
+  refund_reason: string | null;
+  refunded_at: string | null;
   checked_in: boolean | null;
   checked_in_at: string | null;
+  checked_out_at: string | null;
+  qr_code_token: string | null;
   dietary_restrictions: string | null;
   accessibility_needs: string | null;
   created_at: string;

@@ -1,7 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { randomUUID } from "crypto";
 import { createEventTicketCheckout, createEventCheckoutWithLineItems } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
+
+/**
+ * Generate a unique QR code token for check-in
+ * Format: FF-{eventIdPrefix}-{uuid}-{timestamp}
+ */
+function generateQRCodeToken(eventId: string): string {
+  const prefix = eventId.substring(0, 8);
+  const uniqueId = randomUUID().substring(0, 12);
+  const timestamp = Date.now().toString(36);
+  return `FF-${prefix}-${uniqueId}-${timestamp}`.toUpperCase();
+}
+
+/**
+ * Log activity for audit trail
+ */
+async function logActivity(
+  supabase: ReturnType<typeof createAdminClient>,
+  activityType: string,
+  description: string,
+  metadata: Record<string, unknown>
+) {
+  try {
+    await supabase.from("activities").insert({
+      activity_type: activityType,
+      description,
+      metadata,
+    });
+  } catch (error) {
+    console.error("[Checkout] Failed to log activity:", error);
+    // Non-critical, don't throw
+  }
+}
 
 // =============================================================================
 // VALIDATION SCHEMA
@@ -265,7 +302,27 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create a pending attendee record
+    // Generate QR code token for check-in
+    const qrCodeToken = generateQRCodeToken(eventId);
+
+    // Determine payment status
+    const isFreeRegistration = isFreeEvent && totalAmount === 0;
+    const paymentStatus = isFreeRegistration ? "paid" : "pending";
+
+    // Log checkout attempt for debugging
+    console.log("[Checkout] Processing registration:", {
+      eventId,
+      eventTitle: event.title,
+      email,
+      ticketQuantity,
+      totalAmount,
+      isFreeEvent,
+      isFreeRegistration,
+      paymentStatus,
+      lineItemsCount: lineItems.length,
+    });
+
+    // Create a pending attendee record with QR token
     const { data: attendee, error: attendeeError } = await supabase
       .from("event_attendees")
       .insert({
@@ -277,20 +334,37 @@ export async function POST(request: NextRequest) {
         ticket_quantity: ticketQuantity,
         ticket_type: ticketSelections?.length ? "multiple" : "general",
         total_paid: totalAmount,
-        payment_status: isFreeEvent && totalAmount === 0 ? "paid" : "pending",
+        payment_status: paymentStatus,
         dietary_restrictions: dietaryRestrictions || null,
         accessibility_needs: accessibilityNeeds || null,
+        qr_code_token: qrCodeToken,
+        // For free events, set payment_date immediately
+        payment_date: isFreeRegistration ? new Date().toISOString() : null,
       })
       .select()
       .single();
 
     if (attendeeError || !attendee) {
-      console.error("Failed to create attendee record:", attendeeError);
+      console.error("[Checkout] Failed to create attendee record:", attendeeError);
+
+      // Log the failure
+      await logActivity(supabase, "event_registration_failed", `Failed to register ${email} for event`, {
+        event_id: eventId,
+        email,
+        error: attendeeError?.message || "Unknown error",
+      });
+
       return NextResponse.json(
         { error: "Failed to register for event" },
         { status: 500 }
       );
     }
+
+    console.log("[Checkout] Attendee created:", {
+      attendeeId: attendee.id,
+      qrToken: qrCodeToken,
+      paymentStatus,
+    });
 
     // Create order items for tracking
     const orderItems = lineItems.map(item => ({
@@ -316,16 +390,29 @@ export async function POST(request: NextRequest) {
     }
 
     // If the event is free (total is 0), just update tickets_sold and return success
-    if (isFreeEvent && totalAmount === 0) {
+    if (isFreeRegistration) {
+      console.log("[Checkout] Free event registration - skipping Stripe");
+
       await supabase
         .from("events")
         .update({ tickets_sold: (event.tickets_sold || 0) + ticketQuantity })
         .eq("id", eventId);
 
+      // Log successful free registration
+      await logActivity(supabase, "event_free_registration", `${firstName} ${lastName} registered for free event`, {
+        event_id: eventId,
+        event_title: event.title,
+        attendee_id: attendee.id,
+        email,
+        ticket_quantity: ticketQuantity,
+        qr_code_token: qrCodeToken,
+      });
+
       return NextResponse.json({
         success: true,
         isFree: true,
         attendeeId: attendee.id,
+        qrCodeToken: qrCodeToken,
         message: "Successfully registered for free event",
       });
     }
@@ -333,27 +420,116 @@ export async function POST(request: NextRequest) {
     // Get the site URL for redirects
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
+    console.log("[Checkout] Creating Stripe checkout session:", {
+      totalAmount,
+      lineItemsCount: lineItems.length,
+      siteUrl,
+    });
+
     // Create Stripe checkout session
-    // If we have multiple line items, use the new function
-    if (lineItems.length > 1 || (lineItems.length === 1 && lineItems[0].itemId !== "general")) {
-      const { sessionId, url } = await createEventCheckoutWithLineItems({
+    try {
+      // If we have multiple line items, use the new function
+      if (lineItems.length > 1 || (lineItems.length === 1 && lineItems[0].itemId !== "general")) {
+        const { sessionId, url } = await createEventCheckoutWithLineItems({
+          eventId,
+          eventTitle: event.title,
+          lineItems: lineItems.map(item => ({
+            name: item.name,
+            description: item.description,
+            unitAmount: Math.round(item.price * 100), // Convert to cents
+            quantity: item.quantity,
+          })),
+          customerEmail: email,
+          customerName: `${firstName} ${lastName}`,
+          attendeeId: attendee.id,
+          totalTickets: ticketQuantity,
+          successUrl: `${siteUrl}/events/success?session_id={CHECKOUT_SESSION_ID}&attendee_id=${attendee.id}`,
+          cancelUrl: `${siteUrl}/events?cancelled=true`,
+          metadata: {
+            event_slug: event.slug,
+            qr_code_token: qrCodeToken,
+          },
+        });
+
+        console.log("[Checkout] Stripe session created:", { sessionId, url });
+
+        // Log checkout session created
+        await logActivity(supabase, "event_checkout_created", `Checkout session created for ${email}`, {
+          event_id: eventId,
+          event_title: event.title,
+          attendee_id: attendee.id,
+          session_id: sessionId,
+          total_amount: totalAmount,
+          line_items: lineItems.length,
+        });
+
+        return NextResponse.json({
+          success: true,
+          isFree: false,
+          sessionId,
+          url,
+          attendeeId: attendee.id,
+          qrCodeToken: qrCodeToken,
+        });
+      }
+
+      // Legacy: single line item checkout
+      const ticketPrice = event.is_free ? 0 : (event.ticket_price || 0);
+
+      // Double-check that we actually need Stripe (non-free with price > 0)
+      if (ticketPrice === 0) {
+        console.warn("[Checkout] WARNING: Legacy checkout with $0 ticket price - should be free event");
+
+        // This shouldn't happen, but handle it gracefully
+        await supabase
+          .from("events")
+          .update({ tickets_sold: (event.tickets_sold || 0) + ticketQuantity })
+          .eq("id", eventId);
+
+        await supabase
+          .from("event_attendees")
+          .update({
+            payment_status: "paid",
+            payment_date: new Date().toISOString(),
+          })
+          .eq("id", attendee.id);
+
+        return NextResponse.json({
+          success: true,
+          isFree: true,
+          attendeeId: attendee.id,
+          qrCodeToken: qrCodeToken,
+          message: "Successfully registered for free event",
+        });
+      }
+
+      const { sessionId, url } = await createEventTicketCheckout({
         eventId,
         eventTitle: event.title,
-        lineItems: lineItems.map(item => ({
-          name: item.name,
-          description: item.description,
-          unitAmount: Math.round(item.price * 100), // Convert to cents
-          quantity: item.quantity,
-        })),
+        ticketPrice,
+        ticketQuantity,
         customerEmail: email,
         customerName: `${firstName} ${lastName}`,
         attendeeId: attendee.id,
-        totalTickets: ticketQuantity,
         successUrl: `${siteUrl}/events/success?session_id={CHECKOUT_SESSION_ID}&attendee_id=${attendee.id}`,
         cancelUrl: `${siteUrl}/events?cancelled=true`,
         metadata: {
           event_slug: event.slug,
+          qr_code_token: qrCodeToken,
         },
+      });
+
+      console.log("[Checkout] Stripe session created (legacy):", { sessionId, url });
+
+      // Log checkout session created
+      await logActivity(supabase, "event_checkout_created", `Checkout session created for ${email}`, {
+        event_id: eventId,
+        event_title: event.title,
+        attendee_id: attendee.id,
+        session_id: sessionId,
+        total_amount: ticketPrice * ticketQuantity,
+        ticket_price: ticketPrice,
+        ticket_quantity: ticketQuantity,
       });
 
       return NextResponse.json({
@@ -362,35 +538,31 @@ export async function POST(request: NextRequest) {
         sessionId,
         url,
         attendeeId: attendee.id,
+        qrCodeToken: qrCodeToken,
       });
+    } catch (stripeError) {
+      console.error("[Checkout] Stripe checkout creation failed:", stripeError);
+
+      // Log Stripe failure
+      await logActivity(supabase, "event_checkout_failed", `Stripe checkout failed for ${email}`, {
+        event_id: eventId,
+        attendee_id: attendee.id,
+        error: stripeError instanceof Error ? stripeError.message : "Unknown Stripe error",
+      });
+
+      // Update attendee status to indicate checkout failure
+      await supabase
+        .from("event_attendees")
+        .update({ payment_status: "failed" })
+        .eq("id", attendee.id);
+
+      return NextResponse.json(
+        { error: "Failed to create payment session. Please try again." },
+        { status: 500 }
+      );
     }
-
-    // Legacy: single line item checkout
-    const ticketPrice = event.is_free ? 0 : (event.ticket_price || 0);
-    const { sessionId, url } = await createEventTicketCheckout({
-      eventId,
-      eventTitle: event.title,
-      ticketPrice,
-      ticketQuantity,
-      customerEmail: email,
-      customerName: `${firstName} ${lastName}`,
-      attendeeId: attendee.id,
-      successUrl: `${siteUrl}/events/success?session_id={CHECKOUT_SESSION_ID}&attendee_id=${attendee.id}`,
-      cancelUrl: `${siteUrl}/events?cancelled=true`,
-      metadata: {
-        event_slug: event.slug,
-      },
-    });
-
-    return NextResponse.json({
-      success: true,
-      isFree: false,
-      sessionId,
-      url,
-      attendeeId: attendee.id,
-    });
   } catch (error) {
-    console.error("Error creating event checkout session:", error);
+    console.error("[Checkout] Error creating event checkout session:", error);
     return NextResponse.json(
       { error: "Failed to create checkout session" },
       { status: 500 }

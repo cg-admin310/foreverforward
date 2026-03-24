@@ -233,6 +233,12 @@ export default async function EventDetailPage({ params }: PageProps) {
               <h2 className="font-semibold text-[#1A1A1A]">
                 Registered Attendees ({attendees.length})
               </h2>
+              <Link href={`/events-admin/${id}/attendees`}>
+                <Button variant="outline" size="sm">
+                  <Users className="h-4 w-4 mr-2" />
+                  Manage Attendees
+                </Button>
+              </Link>
             </div>
             {attendees.length > 0 ? (
               <div className="divide-y divide-[#DDDDDD]">

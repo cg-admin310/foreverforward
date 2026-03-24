@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { constructWebhookEvent, getCheckoutSession } from "@/lib/stripe";
+import { constructWebhookEvent, getCheckoutSession, stripe } from "@/lib/stripe";
 import { updateDonation, createDonation } from "@/lib/actions/donations";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -152,38 +152,64 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 }
 
 async function handleEventTicketPayment(session: Stripe.Checkout.Session) {
-  console.log("Processing event ticket payment:", session.id);
+  console.log("[Webhook] Processing event ticket payment:", session.id);
 
   const attendeeId = session.metadata?.attendee_id;
   const eventId = session.metadata?.event_id;
   const ticketQuantity = parseInt(session.metadata?.ticket_quantity || "1", 10);
 
   if (!attendeeId || !eventId) {
-    console.error("Missing attendee_id or event_id in event ticket session metadata");
+    console.error("[Webhook] Missing attendee_id or event_id in metadata:", {
+      attendeeId,
+      eventId,
+      sessionId: session.id,
+    });
     return;
   }
 
   const adminClient = createAdminClient();
 
-  // Get payment intent ID
+  // Get payment intent ID and payment method details
   let paymentIntentId: string | null = null;
+  let paymentMethod: string | null = null;
+
   if (session.payment_intent) {
     paymentIntentId = typeof session.payment_intent === "object"
       ? session.payment_intent.id
       : session.payment_intent;
+
+    // Retrieve payment intent with payment method expanded
+    try {
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId, {
+        expand: ["payment_method"],
+      });
+
+      if (paymentIntent.payment_method && typeof paymentIntent.payment_method === "object") {
+        const pm = paymentIntent.payment_method as Stripe.PaymentMethod;
+        if (pm.card) {
+          // Format: "VISA **** 4242"
+          paymentMethod = `${pm.card.brand.toUpperCase()} **** ${pm.card.last4}`;
+        }
+      }
+    } catch (error) {
+      console.error("[Webhook] Failed to retrieve payment method:", error);
+      // Continue without payment method - not critical
+    }
   }
 
-  // Update the attendee record with payment success
+  // Update the attendee record with full payment details
   const { error: attendeeError } = await adminClient
     .from("event_attendees")
     .update({
       payment_status: "paid",
       stripe_payment_intent_id: paymentIntentId,
+      payment_method: paymentMethod,
+      payment_date: new Date().toISOString(),
     })
     .eq("id", attendeeId);
 
   if (attendeeError) {
-    console.error("Failed to update attendee payment status:", attendeeError);
+    console.error("[Webhook] Failed to update attendee payment status:", attendeeError);
     return;
   }
 
@@ -195,7 +221,7 @@ async function handleEventTicketPayment(session: Stripe.Checkout.Session) {
     .single();
 
   if (eventFetchError) {
-    console.error("Failed to fetch event for ticket count update:", eventFetchError);
+    console.error("[Webhook] Failed to fetch event for ticket count update:", eventFetchError);
     return;
   }
 
@@ -207,11 +233,29 @@ async function handleEventTicketPayment(session: Stripe.Checkout.Session) {
     .eq("id", eventId);
 
   if (eventUpdateError) {
-    console.error("Failed to update event tickets_sold:", eventUpdateError);
+    console.error("[Webhook] Failed to update event tickets_sold:", eventUpdateError);
     return;
   }
 
-  console.log(`Event ticket payment processed: attendee ${attendeeId}, event ${eventId}, ${ticketQuantity} tickets`);
+  // Log to activities table for audit trail
+  try {
+    await adminClient.from("activities").insert({
+      activity_type: "event_ticket_purchase",
+      description: `Payment confirmed for ${ticketQuantity} ticket(s) - ${paymentMethod || "Card"}`,
+      metadata: {
+        event_id: eventId,
+        attendee_id: attendeeId,
+        amount: session.amount_total ? session.amount_total / 100 : 0,
+        payment_intent_id: paymentIntentId,
+        payment_method: paymentMethod,
+      },
+    });
+  } catch (activityError) {
+    console.error("[Webhook] Failed to log activity:", activityError);
+    // Non-critical, continue
+  }
+
+  console.log(`[Webhook] Event ticket payment processed: attendee=${attendeeId}, event=${eventId}, tickets=${ticketQuantity}, method=${paymentMethod}`);
 }
 
 async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
