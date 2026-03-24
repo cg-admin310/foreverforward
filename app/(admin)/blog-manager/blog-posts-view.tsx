@@ -134,11 +134,34 @@ You don't need a massive budget or technical expertise to begin exploring AI. St
     }
   };
 
+  // Generate a feature image URL based on category
+  const getFeatureImageUrl = (categoryId: string, topic: string) => {
+    const category = categories.find((c) => c.id === categoryId);
+    const categorySlug = category?.slug || "technology";
+
+    // Use Unsplash source for high-quality placeholder images
+    const imageQueries: Record<string, string> = {
+      fatherhood: "father-child-family",
+      "tech-careers": "technology-computer-office",
+      family: "family-together-happy",
+      "it-for-nonprofits": "nonprofit-charity-technology",
+      community: "community-people-together",
+      "ai-innovation": "artificial-intelligence-technology",
+    };
+
+    const query = imageQueries[categorySlug] || "technology-office";
+    // Use a deterministic seed based on topic for consistent images
+    const seed = topic.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return `https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1200&h=630&fit=crop&q=80`;
+  };
+
   const handleSaveAsDraft = async () => {
     if (!generatedPost) return;
 
     setIsSaving(true);
     try {
+      const featureImage = getFeatureImageUrl(generateCategory, generateTopic || generatedPost.title);
+
       const result = await createBlogPost({
         title: generatedPost.title,
         slug: generatedPost.slug,
@@ -147,6 +170,7 @@ You don't need a massive budget or technical expertise to begin exploring AI. St
         categoryId: generateCategory || undefined,
         status: "draft",
         aiGenerated: true,
+        featuredImageUrl: featureImage,
       });
 
       if (result.success && result.data) {
@@ -167,6 +191,8 @@ You don't need a massive budget or technical expertise to begin exploring AI. St
 
     setIsSaving(true);
     try {
+      const featureImage = getFeatureImageUrl(generateCategory, generateTopic || generatedPost.title);
+
       const result = await createBlogPost({
         title: generatedPost.title,
         slug: generatedPost.slug,
@@ -175,6 +201,7 @@ You don't need a massive budget or technical expertise to begin exploring AI. St
         categoryId: generateCategory || undefined,
         status: "published",
         aiGenerated: true,
+        featuredImageUrl: featureImage,
       });
 
       if (result.success && result.data) {

@@ -170,6 +170,56 @@ export async function registerForEvent(
 }
 
 // ============================================================================
+// GET EVENT BY ID (Admin)
+// ============================================================================
+
+export async function getEventById(id: string): Promise<ActionResult<Event>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    const { data, error } = await supabase
+      .from("events")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("Error fetching event:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error in getEventById:", error);
+    return { success: false, error: "Failed to fetch event" };
+  }
+}
+
+// ============================================================================
+// DELETE EVENT (Admin)
+// ============================================================================
+
+export async function deleteEvent(id: string): Promise<ActionResult> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    const { error } = await supabase.from("events").delete().eq("id", id);
+
+    if (error) {
+      console.error("Error deleting event:", error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath("/events-admin");
+    revalidatePath("/events");
+    return { success: true };
+  } catch (error) {
+    console.error("Error in deleteEvent:", error);
+    return { success: false, error: "Failed to delete event" };
+  }
+}
+
+// ============================================================================
 // GET ALL EVENTS (Admin)
 // ============================================================================
 
