@@ -203,7 +203,7 @@ export default function HomePage() {
       </section>
 
       {/* ============================================
-          SECTION 2: IMPACT STATS
+          SECTION 2: IMPACT GOALS
           ============================================ */}
       <section className="py-20 lg:py-28 bg-[#FAFAF8]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -215,15 +215,18 @@ export default function HomePage() {
             className="text-center mb-16"
           >
             <span className="text-sm font-semibold text-[#C9A84C] uppercase tracking-wider">
-              Our Impact
+              Our Vision
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A1A] mt-2">
-              Numbers That Tell Our Story
+              What We&apos;re Building Toward
             </h2>
+            <p className="text-[#555555] mt-4 max-w-2xl mx-auto">
+              These are our goals—the impact we&apos;re working to achieve together. Help us reach them.
+            </p>
           </motion.div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-            {IMPACT_STATS.map((stat, index) => (
+            {IMPACT_STATS.map((stat) => (
               <StatCounter
                 key={stat.label}
                 value={stat.value}

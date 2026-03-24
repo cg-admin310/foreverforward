@@ -391,12 +391,12 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Impact Stats */}
+      {/* Impact Goals */}
       <section className="py-20 lg:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            title="Our Impact So Far"
-            subtitle="We measure success by the lives we transform."
+            title="Our Goals"
+            subtitle="The impact we're working toward—help us reach these milestones."
             centered
           />
 

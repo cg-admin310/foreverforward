@@ -133,12 +133,16 @@ export const SOCIAL_LINKS = {
   youtube: "https://youtube.com/@foreverforward",
 } as const;
 
-export const IMPACT_STATS = [
-  { label: "Fathers Trained", value: 500, suffix: "+" },
-  { label: "Events Annually", value: 50, suffix: "+" },
-  { label: "Nonprofit Clients", value: 25, suffix: "+" },
-  { label: "Youth Reached", value: 5000, suffix: "+" },
+// These are our GOALS - what we're working toward
+export const IMPACT_GOALS = [
+  { label: "Fathers to Train", value: 500, suffix: "+", current: 0 },
+  { label: "Events Annually", value: 50, suffix: "+", current: 0 },
+  { label: "Nonprofit Clients", value: 25, suffix: "+", current: 0 },
+  { label: "Youth to Reach", value: 5000, suffix: "+", current: 0 },
 ] as const;
+
+// Legacy export for backward compatibility
+export const IMPACT_STATS = IMPACT_GOALS;
 
 export const USER_ROLES = [
   "super_admin",

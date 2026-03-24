@@ -48,6 +48,9 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
     capacity: event?.capacity?.toString() || "",
     ticketPrice: event?.ticket_price?.toString() || "0",
     isPublished: event?.is_published || false,
+    featuredImageUrl: event?.featured_image_url || "",
+    movieTitle: event?.movie_title || "",
+    foodPairing: event?.food_pairing || "",
   });
 
   const generateSlug = (title: string) => {
@@ -77,6 +80,7 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
           slug: formData.slug,
           event_type: formData.eventType,
           description: formData.description || undefined,
+          short_description: formData.shortDescription || undefined,
           start_datetime: new Date(formData.startDatetime).toISOString(),
           end_datetime: formData.endDatetime
             ? new Date(formData.endDatetime).toISOString()
@@ -90,6 +94,9 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
             ? parseFloat(formData.ticketPrice)
             : undefined,
           is_published: formData.isPublished,
+          featured_image_url: formData.featuredImageUrl || undefined,
+          movie_title: formData.movieTitle || undefined,
+          food_pairing: formData.foodPairing || undefined,
         });
 
         if (result.success) {
@@ -120,6 +127,9 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
             ? parseFloat(formData.ticketPrice)
             : null,
           is_published: formData.isPublished,
+          featured_image_url: formData.featuredImageUrl || null,
+          movie_title: formData.movieTitle || null,
+          food_pairing: formData.foodPairing || null,
         });
 
         if (result.success) {
@@ -220,8 +230,57 @@ export function EventForm({ event, mode = "create" }: EventFormProps) {
               rows={4}
             />
           </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-[#555555] mb-1">
+              Featured Image URL
+            </label>
+            <Input
+              value={formData.featuredImageUrl}
+              onChange={(e) =>
+                setFormData({ ...formData, featuredImageUrl: e.target.value })
+              }
+              placeholder="https://... or /images/generated/..."
+            />
+            <p className="text-xs text-[#888888] mt-1">
+              Enter a URL for the event&apos;s featured image
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* Movies on the Menu Specific */}
+      {formData.eventType === "movies_on_the_menu" && (
+        <div className="bg-white rounded-xl border border-[#DDDDDD] p-6">
+          <h2 className="font-semibold text-[#1A1A1A] mb-4">Movies on the Menu Details</h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-[#555555] mb-1">
+                Movie Title
+              </label>
+              <Input
+                value={formData.movieTitle}
+                onChange={(e) =>
+                  setFormData({ ...formData, movieTitle: e.target.value })
+                }
+                placeholder="e.g., Black Panther, Soul, Coco..."
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-[#555555] mb-1">
+                Food Pairing / Menu Theme
+              </label>
+              <Textarea
+                value={formData.foodPairing}
+                onChange={(e) =>
+                  setFormData({ ...formData, foodPairing: e.target.value })
+                }
+                placeholder="Describe the themed dinner menu..."
+                rows={3}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Date & Time */}
       <div className="bg-white rounded-xl border border-[#DDDDDD] p-6">

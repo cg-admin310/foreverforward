@@ -387,6 +387,57 @@ export interface EventAttendee {
   updated_at: string;
 }
 
+export interface EventTicketType {
+  id: string;
+  event_id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  quantity_available: number | null;
+  quantity_sold: number;
+  max_per_order: number;
+  is_active: boolean;
+  sort_order: number;
+  stripe_price_id?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type AddonCategory = "food" | "merchandise" | "upgrade" | "other";
+
+export interface EventAddon {
+  id: string;
+  event_id: string;
+  name: string;
+  description: string | null;
+  category?: AddonCategory | null;
+  price: number;
+  quantity_available: number | null;
+  quantity_sold: number;
+  max_per_order: number;
+  is_active: boolean;
+  sort_order: number;
+  applicable_ticket_types?: string[] | null;
+  stripe_price_id?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type OrderItemType = "ticket" | "addon";
+
+export interface EventOrderItem {
+  id: string;
+  attendee_id: string;
+  item_type: OrderItemType;
+  ticket_type_id: string | null;
+  addon_id: string | null;
+  item_name: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  created_at: string;
+}
+
 export interface Resource {
   id: string;
   name: string;
@@ -560,6 +611,14 @@ export type EventUpdate = Partial<EventInsert>;
 export type EventAttendeeInsert = Omit<EventAttendee, "id" | "created_at" | "updated_at">;
 export type EventAttendeeUpdate = Partial<EventAttendeeInsert>;
 
+export type EventTicketTypeInsert = Omit<EventTicketType, "id" | "created_at" | "updated_at">;
+export type EventTicketTypeUpdate = Partial<EventTicketTypeInsert>;
+
+export type EventAddonInsert = Omit<EventAddon, "id" | "created_at" | "updated_at">;
+export type EventAddonUpdate = Partial<EventAddonInsert>;
+
+export type EventOrderItemInsert = Omit<EventOrderItem, "id" | "created_at">;
+
 export type ResourceInsert = Omit<Resource, "id" | "created_at" | "updated_at">;
 export type ResourceUpdate = Partial<ResourceInsert>;
 
@@ -645,6 +704,21 @@ export interface Database {
         Row: EventAttendee;
         Insert: EventAttendeeInsert;
         Update: EventAttendeeUpdate;
+      };
+      event_ticket_types: {
+        Row: EventTicketType;
+        Insert: EventTicketTypeInsert;
+        Update: EventTicketTypeUpdate;
+      };
+      event_addons: {
+        Row: EventAddon;
+        Insert: EventAddonInsert;
+        Update: EventAddonUpdate;
+      };
+      event_order_items: {
+        Row: EventOrderItem;
+        Insert: EventOrderItemInsert;
+        Update: never;
       };
       resources: {
         Row: Resource;

@@ -214,11 +214,11 @@ export default function PartnerPage() {
               className="grid grid-cols-2 gap-4"
             >
               {[
-                { value: "500+", label: "Lives Changed" },
-                { value: "25+", label: "Partner Orgs" },
+                { value: "500+", label: "Lives to Change" },
+                { value: "25+", label: "Partner Goal" },
                 { value: "100%", label: "Transparency" },
                 { value: "$0", label: "Wasted Impact" },
-              ].map((stat, index) => (
+              ].map((stat) => (
                 <div
                   key={stat.label}
                   className="bg-[#FBF6E9] rounded-xl p-6 text-center"

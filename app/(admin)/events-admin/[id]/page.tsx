@@ -17,7 +17,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getEventById, getEventAttendees } from "@/lib/actions/events";
+import { getEventTicketTypes, getEventAddons } from "@/lib/actions/event-tickets";
 import { DeleteEventButton } from "./delete-button";
+import { TicketTypesManager } from "./ticket-types-manager";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -26,9 +28,11 @@ interface PageProps {
 export default async function EventDetailPage({ params }: PageProps) {
   const { id } = await params;
 
-  const [eventResult, attendeesResult] = await Promise.all([
+  const [eventResult, attendeesResult, ticketTypesResult, addonsResult] = await Promise.all([
     getEventById(id),
     getEventAttendees(id),
+    getEventTicketTypes(id),
+    getEventAddons(id),
   ]);
 
   if (!eventResult.success || !eventResult.data) {
@@ -37,6 +41,8 @@ export default async function EventDetailPage({ params }: PageProps) {
 
   const event = eventResult.data;
   const attendees = attendeesResult.data || [];
+  const ticketTypes = ticketTypesResult.data || [];
+  const addons = addonsResult.data || [];
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -213,6 +219,13 @@ export default async function EventDetailPage({ params }: PageProps) {
               )}
             </div>
           </div>
+
+          {/* Ticket Types and Add-ons Manager */}
+          <TicketTypesManager
+            eventId={id}
+            ticketTypes={ticketTypes}
+            addons={addons}
+          />
 
           {/* Attendees */}
           <div className="bg-white rounded-xl border border-[#DDDDDD]">

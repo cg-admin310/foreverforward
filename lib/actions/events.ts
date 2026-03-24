@@ -285,9 +285,13 @@ export async function createEvent(eventData: {
   city?: string;
   state?: string;
   description?: string;
+  short_description?: string;
   capacity?: number;
   ticket_price?: number;
   is_published?: boolean;
+  featured_image_url?: string;
+  movie_title?: string;
+  food_pairing?: string;
 }): Promise<ActionResult<Event>> {
   try {
     const supabase = await createServerSupabaseClient();

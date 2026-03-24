@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Calendar,
   MapPin,
@@ -110,12 +111,26 @@ export function EventsContent({
               className="bg-white rounded-2xl overflow-hidden shadow-lg border border-[#DDDDDD]"
             >
               <div className="grid lg:grid-cols-2">
-                {/* Image Placeholder */}
-                <div className="aspect-video lg:aspect-auto bg-gradient-to-br from-[#C9A84C] to-[#A68A2E] flex items-center justify-center min-h-[300px]">
-                  <div className="text-center text-[#1A1A1A]/80">
-                    <Film className="h-16 w-16 mx-auto mb-4" />
-                    <span className="font-semibold">Event Image</span>
-                  </div>
+                {/* Event Image */}
+                <div className="aspect-video lg:aspect-auto bg-gradient-to-br from-[#C9A84C] to-[#A68A2E] flex items-center justify-center min-h-[300px] relative overflow-hidden">
+                  {featured.featured_image_url ? (
+                    <Image
+                      src={featured.featured_image_url}
+                      alt={featured.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                    />
+                  ) : (
+                    <div className="text-center text-[#1A1A1A]/80">
+                      <Film className="h-16 w-16 mx-auto mb-4" />
+                      <span className="font-semibold">
+                        {featured.event_type === "movies_on_the_menu"
+                          ? "Movies on the Menu"
+                          : "Event"}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Content */}

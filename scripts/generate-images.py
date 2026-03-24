@@ -61,6 +61,31 @@ IMAGES = [
     {
         "filename": "partner-handshake.png",
         "prompt": "Professional photography of two business professionals, including a Black man in business attire, shaking hands in a modern office setting. Partnership and collaboration represented. Professional, corporate atmosphere with warm lighting. Both people look confident and happy about the partnership. Clean, modern office background. Photorealistic, high quality."
+    },
+    # Blog featured images
+    {
+        "filename": "blog-google-it-cert.png",
+        "prompt": "Professional photography of a Black man in his 30s celebrating with arms raised after passing an IT certification exam. Computer screen in background showing a certificate or 'Congratulations' message. Professional but joyful atmosphere in a testing center or office. The man looks triumphant and proud. Warm lighting. Photorealistic, high quality."
+    },
+    {
+        "filename": "blog-movies-dinner.png",
+        "prompt": "Professional photography close-up of a beautifully arranged themed dinner table for a movie night event. Gourmet food, popcorn in bowls, movie-themed decorations. A large movie screen visible softly in the background. Warm, inviting candlelight atmosphere. Family-friendly movie night aesthetic. Rich colors, gold accents. Photorealistic, high quality."
+    },
+    {
+        "filename": "blog-nonprofit-it.png",
+        "prompt": "Professional photography of a Black IT professional in business casual helping nonprofit office staff with their computers. Diverse team in a warm, collaborative office setting. Technology supporting mission-driven work. Screens showing productivity software. Helpful, professional interaction. Modern nonprofit office with good lighting. Photorealistic, high quality."
+    },
+    {
+        "filename": "blog-ai-workforce.png",
+        "prompt": "Artistic conceptual image representing AI and human workforce development. Abstract glowing neural network patterns in gold and black colors seamlessly connecting with a human silhouette. Modern, hopeful, optimistic atmosphere. Not dystopian but inspirational. Technology empowering humans. Futuristic yet warm. Digital art style, high quality."
+    },
+    {
+        "filename": "blog-present-father.png",
+        "prompt": "Professional photography of a Black father sitting on the living room floor playing with his young child around age 5. No phones or devices visible. Natural window light illuminates the scene. Genuine connection and laughter between father and child. Toys scattered around. Warm, intimate family moment at home. Photorealistic, high quality."
+    },
+    {
+        "filename": "blog-south-la-tech.png",
+        "prompt": "Artistic photography of South Los Angeles urban landscape with optimistic tech overlay elements. Palm trees, city buildings, with subtle digital circuit patterns and technology elements integrated into the sky. People walking with laptops and briefcases. Sunrise or golden hour lighting. Forward-looking, hopeful vision of tech in South LA. Modern, inspiring. Photorealistic with artistic elements, high quality."
     }
 ]
 

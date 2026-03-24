@@ -163,7 +163,7 @@ export default async function EventsPage() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-[#1A1A1A]">500+</p>
-                    <p className="text-sm text-[#888888]">Attendees in 2025</p>
+                    <p className="text-sm text-[#888888]">Attendee Goal 2025</p>
                   </div>
                 </div>
               </div>
