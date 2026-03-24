@@ -549,26 +549,43 @@ export function EventsContent({
                           )}
                         </div>
 
-                        <Button
-                          size="lg"
-                          onClick={() => handleGetTickets(event)}
-                          disabled={spotsLeft === 0}
-                          className={`
-                            ${isMoviesOnMenu
-                              ? 'bg-[#C9A84C] hover:bg-[#A68A2E] text-[#1A1A1A]'
-                              : ''
-                            }
-                          `}
-                        >
-                          {spotsLeft === 0 ? (
-                            'Sold Out'
-                          ) : (
-                            <>
-                              <Ticket className="h-5 w-5 mr-2" />
-                              {event.ticket_price ? 'Get Tickets' : 'Register Free'}
-                            </>
-                          )}
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="lg"
+                            asChild
+                            className={`
+                              ${isMoviesOnMenu
+                                ? 'border-white/20 text-white hover:bg-white/10'
+                                : ''
+                              }
+                            `}
+                          >
+                            <Link href={`/events/${event.slug}`}>
+                              View Details
+                            </Link>
+                          </Button>
+                          <Button
+                            size="lg"
+                            onClick={() => handleGetTickets(event)}
+                            disabled={spotsLeft === 0}
+                            className={`
+                              ${isMoviesOnMenu
+                                ? 'bg-[#C9A84C] hover:bg-[#A68A2E] text-[#1A1A1A]'
+                                : ''
+                              }
+                            `}
+                          >
+                            {spotsLeft === 0 ? (
+                              'Sold Out'
+                            ) : (
+                              <>
+                                <Ticket className="h-5 w-5 mr-2" />
+                                {event.ticket_price ? 'Get Tickets' : 'Register'}
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </div>
 
                       {/* Movies on the Menu Extra Info */}

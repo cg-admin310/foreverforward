@@ -133,6 +133,55 @@ export async function getEvent(slug: string): Promise<ActionResult<Event>> {
 }
 
 // ============================================================================
+// GET SINGLE EVENT WITH DETAILS (Public)
+// ============================================================================
+
+export async function getEventWithDetails(slug: string): Promise<ActionResult<EventWithDetails>> {
+  try {
+    const adminClient = createAdminClient();
+
+    const { data: event, error } = await adminClient
+      .from("events")
+      .select("*")
+      .eq("slug", slug)
+      .eq("is_published", true)
+      .single();
+
+    if (error) {
+      console.error("Error fetching event:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Fetch ticket types and add-ons
+    const [ticketTypesResult, addonsResult] = await Promise.all([
+      adminClient
+        .from("event_ticket_types")
+        .select("*")
+        .eq("event_id", event.id)
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
+      adminClient
+        .from("event_addons")
+        .select("*")
+        .eq("event_id", event.id)
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
+    ]);
+
+    const eventWithDetails: EventWithDetails = {
+      ...event,
+      ticket_types: ticketTypesResult.data || [],
+      addons: addonsResult.data || [],
+    };
+
+    return { success: true, data: eventWithDetails };
+  } catch (error) {
+    console.error("Error in getEventWithDetails:", error);
+    return { success: false, error: "Failed to fetch event" };
+  }
+}
+
+// ============================================================================
 // REGISTER FOR EVENT (Public)
 // ============================================================================
 
