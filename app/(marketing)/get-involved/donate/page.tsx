@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   Heart,
@@ -134,14 +135,25 @@ export default function DonatePage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 bg-[#1A1A1A] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A1A] via-[#1A1A1A] to-[#2D2D2D]" />
+      <section className="relative min-h-[60vh] lg:min-h-[70vh] bg-[#1A1A1A] overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/generated/donate-impact.png"
+            alt="Father and son learning together"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#1A1A1A] via-[#1A1A1A]/80 to-[#1A1A1A]/40" />
+        </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center py-20 lg:py-32">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="max-w-2xl"
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444] text-sm text-white/80 mb-6">
               <Heart className="h-4 w-4 text-[#C9A84C]" />
@@ -151,7 +163,7 @@ export default function DonatePage() {
               Your Gift Creates{" "}
               <span className="text-[#C9A84C]">Lasting Change</span>
             </h1>
-            <p className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-white/80">
               Every dollar you give goes directly to empowering fathers, training
               youth, and strengthening families in our community.
             </p>

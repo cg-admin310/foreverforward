@@ -14,6 +14,7 @@ export interface ServiceDetail {
   name: string;
   tagline: string;
   icon: string;
+  heroImage: string;
   heroDescription: string;
   overview: string[];
   benefits: {
@@ -37,6 +38,7 @@ export const SERVICE_DETAILS: Record<string, ServiceDetail> = {
     name: "Managed IT Services",
     tagline: "Enterprise IT. Nonprofit Heart.",
     icon: "🖥️",
+    heroImage: "/images/generated/service-managed-it.png",
     heroDescription:
       "Comprehensive IT support for nonprofits and schools—from help desk to strategic planning.",
     overview: [
@@ -178,6 +180,7 @@ export const SERVICE_DETAILS: Record<string, ServiceDetail> = {
     name: "Software & AI Development",
     tagline: "Custom Solutions for Impact",
     icon: "💻",
+    heroImage: "/images/generated/service-software-ai.png",
     heroDescription:
       "Custom applications, AI chatbots, process automation, and data tools built for mission-driven organizations.",
     overview: [
@@ -313,6 +316,7 @@ export const SERVICE_DETAILS: Record<string, ServiceDetail> = {
     name: "Low Voltage & Infrastructure",
     tagline: "Build the Foundation",
     icon: "🔌",
+    heroImage: "/images/generated/service-low-voltage.png",
     heroDescription:
       "Structured cabling, CCTV installation, network infrastructure, and media systems for facilities.",
     overview: [

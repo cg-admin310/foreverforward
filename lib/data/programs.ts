@@ -10,6 +10,7 @@ export interface ProgramDetail {
   duration: string;
   format: string;
   icon: string;
+  heroImage: string;
   heroDescription: string;
   overview: string[];
   atAGlance: {
@@ -47,6 +48,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     duration: "8 weeks",
     format: "Hybrid",
     icon: "💼",
+    heroImage: "/images/generated/program-father-forward.png",
     heroDescription:
       "An intensive 8-week program that transforms fathers into tech professionals and community leaders.",
     overview: [
@@ -196,6 +198,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     duration: "8 weeks",
     format: "Hybrid",
     icon: "🎓",
+    heroImage: "/images/generated/program-tech-ready-youth.png",
     heroDescription:
       "Prepare young people ages 16+ for entry-level IT careers with hands-on training and industry certifications.",
     overview: [
@@ -346,6 +349,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     duration: "Ongoing",
     format: "In-person",
     icon: "❤️",
+    heroImage: "/images/generated/program-making-moments.png",
     heroDescription:
       "Community events and experiences designed to strengthen father-child bonds and create lasting family memories.",
     overview: [
@@ -454,6 +458,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     duration: "Multi-phase",
     format: "Hybrid",
     icon: "🎬",
+    heroImage: "/images/generated/program-script-to-screen.png",
     heroDescription:
       "A filmmaking program partnered with actress Dawnn Lewis, teaching students to tell their stories through AI-enhanced video production.",
     overview: [
@@ -573,6 +578,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     duration: "Workshop",
     format: "In-person",
     icon: "✨",
+    heroImage: "/images/generated/program-stories-future.png",
     heroDescription:
       "A creative workshop where kids write stories about their future selves, design with AI, and bring their visions to life with 3D printing.",
     overview: [
@@ -672,6 +678,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     duration: "Ongoing",
     format: "Online",
     icon: "🎮",
+    heroImage: "/images/generated/program-lula-learning.png",
     heroDescription:
       "A gamified online STEM learning platform where young people earn points, unlock achievements, and level up their skills.",
     overview: [

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -25,16 +26,29 @@ export function ProgramPageClient({ program }: ProgramPageClientProps) {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 bg-[#1A1A1A] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A1A] via-[#1A1A1A] to-[#2D2D2D]" />
+      <section className="relative min-h-[70vh] lg:min-h-[80vh] bg-[#1A1A1A] overflow-hidden">
+        {/* Background Image */}
+        {program.heroImage && (
+          <div className="absolute inset-0">
+            <Image
+              src={program.heroImage}
+              alt={program.name}
+              fill
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#1A1A1A] via-[#1A1A1A]/80 to-[#1A1A1A]/40" />
+          </div>
+        )}
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center py-20 lg:py-32">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="max-w-2xl"
           >
-            <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-6">
               <span className="text-5xl">{program.icon}</span>
               <Badge variant={program.audience} size="lg" />
             </div>
@@ -44,10 +58,10 @@ export function ProgramPageClient({ program }: ProgramPageClientProps) {
             <p className="text-xl sm:text-2xl text-[#C9A84C] font-medium mb-6">
               {program.tagline}
             </p>
-            <p className="text-lg text-white/70 max-w-3xl mx-auto mb-8">
+            <p className="text-lg text-white/80 mb-8">
               {program.heroDescription}
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-start gap-4">
               <Button asChild size="lg">
                 <Link href="/get-involved/enroll">Apply Now</Link>
               </Button>

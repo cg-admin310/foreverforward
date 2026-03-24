@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   Handshake,
@@ -87,14 +88,25 @@ export default function PartnerPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 bg-[#1A1A1A] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A1A] via-[#1A1A1A] to-[#2D2D2D]" />
+      <section className="relative min-h-[60vh] lg:min-h-[70vh] bg-[#1A1A1A] overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/generated/partner-handshake.png"
+            alt="Business partnership handshake"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#1A1A1A] via-[#1A1A1A]/80 to-[#1A1A1A]/40" />
+        </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center py-20 lg:py-32">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="max-w-2xl"
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444] text-sm text-white/80 mb-6">
               <Handshake className="h-4 w-4 text-[#C9A84C]" />
@@ -104,7 +116,7 @@ export default function PartnerPage() {
               Let&apos;s Build{" "}
               <span className="text-[#C9A84C]">Together</span>
             </h1>
-            <p className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-white/80">
               Partner with Forever Forward to create meaningful impact. Whether
               you&apos;re a corporation, nonprofit, or community organization, there&apos;s
               a way to collaborate.

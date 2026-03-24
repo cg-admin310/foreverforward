@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   Users,
@@ -81,14 +82,25 @@ export default function VolunteerPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 bg-[#1A1A1A] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A1A] via-[#1A1A1A] to-[#2D2D2D]" />
+      <section className="relative min-h-[60vh] lg:min-h-[70vh] bg-[#1A1A1A] overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/generated/volunteer-community.png"
+            alt="Community volunteers at Forever Forward event"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#1A1A1A] via-[#1A1A1A]/80 to-[#1A1A1A]/40" />
+        </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center py-20 lg:py-32">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="max-w-2xl"
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444] text-sm text-white/80 mb-6">
               <Users className="h-4 w-4 text-[#C9A84C]" />
@@ -98,7 +110,7 @@ export default function VolunteerPage() {
               Give Your Time,{" "}
               <span className="text-[#C9A84C]">Change Lives</span>
             </h1>
-            <p className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-white/80">
               Whether you have a few hours a month or want to commit weekly,
               there&apos;s a place for you at Forever Forward. Your skills and
               experience can transform someone&apos;s future.
@@ -186,11 +198,13 @@ export default function VolunteerPage() {
               viewport={{ once: true }}
               className="relative"
             >
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-[#5A7247] to-[#3D5030] flex items-center justify-center">
-                <div className="text-center text-white/80">
-                  <Heart className="h-20 w-20 mx-auto mb-4" />
-                  <span className="font-semibold text-lg">Volunteer Image</span>
-                </div>
+              <div className="aspect-square rounded-2xl overflow-hidden relative">
+                <Image
+                  src="/images/generated/volunteer-community.png"
+                  alt="Volunteers helping at a Forever Forward community event"
+                  fill
+                  className="object-cover"
+                />
               </div>
             </motion.div>
           </div>
