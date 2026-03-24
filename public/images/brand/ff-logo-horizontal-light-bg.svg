@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 50" width="420" height="50">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 50" width="320" height="50">
   <title>Forever Forward Logo - Horizontal - Light Background</title>
   <g id="icon" transform="translate(0,5)">
     <path d="M6,20 L20,5 L20,15 L34,0 L34,40 L20,25 L20,35 Z" fill="#C9A84C"/>
     <path d="M18,20 L32,5 L32,15 L46,0 L46,40 L32,25 L32,35 Z" fill="#5A7247" opacity="0.85"/>
   </g>
   <g id="wordmark">
-    <text x="60" y="33" font-family="Poppins, sans-serif" font-weight="700" font-size="22" fill="#1A1A1A" letter-spacing="1">FOREVER</text>
-    <text x="228" y="33" font-family="Poppins, sans-serif" font-weight="700" font-size="22" fill="#C9A84C" letter-spacing="1">FORWARD</text>
+    <text x="60" y="33" font-family="Poppins, sans-serif" font-weight="700" font-size="22" fill="#1A1A1A" letter-spacing="0.5">FOREVER</text>
+    <text x="168" y="33" font-family="Poppins, sans-serif" font-weight="700" font-size="22" fill="#C9A84C" letter-spacing="0.5">FORWARD</text>
   </g>
 </svg>
