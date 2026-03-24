@@ -538,6 +538,272 @@ export async function updateCertificationStatus(
 }
 
 // ============================================================================
+// GET PROGRAMS OVERVIEW
+// ============================================================================
+
+export interface ProgramOverview {
+  slug: ProgramType;
+  name: string;
+  audience: string;
+  enrolled: number;
+  active_cohort: string | null;
+  cohort_week: number | null;
+  completion_rate: number | null;
+  color: string;
+}
+
+const programMeta: Record<ProgramType, { name: string; audience: string; color: string }> = {
+  father_forward: { name: "Father Forward", audience: "Fathers", color: "bg-[#C9A84C]" },
+  tech_ready_youth: { name: "Tech-Ready Youth", audience: "Youth 16+", color: "bg-[#5A7247]" },
+  making_moments: { name: "Making Moments", audience: "Families", color: "bg-blue-500" },
+  from_script_to_screen: { name: "From Script to Screen", audience: "Students", color: "bg-purple-500" },
+  stories_from_my_future: { name: "Stories from My Future", audience: "Kids", color: "bg-pink-500" },
+  lula: { name: "LULA", audience: "Youth", color: "bg-orange-500" },
+};
+
+export async function getProgramsOverview(): Promise<ActionResult<ProgramOverview[]>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get participant counts by program
+    const { data: participants, error: pError } = await supabase
+      .from("participants")
+      .select("program, status");
+
+    if (pError) {
+      console.error("Error fetching participants:", pError);
+      return { success: false, error: pError.message };
+    }
+
+    // Get active cohorts
+    const { data: cohorts, error: cError } = await supabase
+      .from("cohorts")
+      .select("*")
+      .eq("is_active", true);
+
+    if (cError) {
+      console.error("Error fetching cohorts:", cError);
+    }
+
+    const programs: ProgramOverview[] = (Object.keys(programMeta) as ProgramType[]).map((slug) => {
+      const meta = programMeta[slug];
+      const programParticipants = participants?.filter((p) => p.program === slug) || [];
+      const completed = programParticipants.filter((p) => p.status === "completed").length;
+      const total = programParticipants.length;
+
+      const activeCohort = cohorts?.find((c) => c.program === slug);
+
+      // Calculate weeks into cohort
+      let cohortWeek = null;
+      if (activeCohort) {
+        const startDate = new Date(activeCohort.start_date);
+        const now = new Date();
+        const weeksDiff = Math.floor((now.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1;
+        cohortWeek = Math.min(weeksDiff, 8);
+      }
+
+      return {
+        slug,
+        name: meta.name,
+        audience: meta.audience,
+        enrolled: programParticipants.filter((p) =>
+          ["enrolled", "active", "in_progress"].includes(p.status)
+        ).length,
+        active_cohort: activeCohort?.name || null,
+        cohort_week: cohortWeek,
+        completion_rate: total > 0 ? Math.round((completed / total) * 100) : null,
+        color: meta.color,
+      };
+    });
+
+    return { success: true, data: programs };
+  } catch (error) {
+    console.error("Error in getProgramsOverview:", error);
+    return { success: false, error: "Failed to fetch programs overview" };
+  }
+}
+
+// ============================================================================
+// GET UPCOMING COHORTS
+// ============================================================================
+
+export interface UpcomingCohort {
+  id: string;
+  program: ProgramType;
+  program_name: string;
+  name: string;
+  start_date: string;
+  enrolled: number;
+  capacity: number;
+}
+
+export async function getUpcomingCohorts(): Promise<ActionResult<UpcomingCohort[]>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    const { data, error } = await supabase
+      .from("cohorts")
+      .select("*")
+      .gte("start_date", new Date().toISOString())
+      .eq("is_accepting_applications", true)
+      .order("start_date", { ascending: true })
+      .limit(5);
+
+    if (error) {
+      console.error("Error fetching upcoming cohorts:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Get enrollment counts for each cohort
+    const cohortIds = data?.map((c) => c.id) || [];
+    const { data: participants } = await supabase
+      .from("participants")
+      .select("cohort_id")
+      .in("cohort_id", cohortIds);
+
+    const enrollmentCounts: Record<string, number> = {};
+    participants?.forEach((p) => {
+      if (p.cohort_id) {
+        enrollmentCounts[p.cohort_id] = (enrollmentCounts[p.cohort_id] || 0) + 1;
+      }
+    });
+
+    const cohorts: UpcomingCohort[] = (data || []).map((c) => ({
+      id: c.id,
+      program: c.program,
+      program_name: programMeta[c.program as ProgramType]?.name || c.program,
+      name: c.name,
+      start_date: c.start_date,
+      enrolled: enrollmentCounts[c.id] || 0,
+      capacity: c.max_participants || 15,
+    }));
+
+    return { success: true, data: cohorts };
+  } catch (error) {
+    console.error("Error in getUpcomingCohorts:", error);
+    return { success: false, error: "Failed to fetch upcoming cohorts" };
+  }
+}
+
+// ============================================================================
+// GET RECENT APPLICATIONS
+// ============================================================================
+
+export interface RecentApplication {
+  id: string;
+  name: string;
+  program: string;
+  applied: string;
+  status: "pending" | "approved" | "rejected";
+}
+
+export async function getRecentApplications(limit = 5): Promise<ActionResult<RecentApplication[]>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    const { data, error } = await supabase
+      .from("participants")
+      .select("id, first_name, last_name, program, status, created_at")
+      .eq("status", "applicant")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error("Error fetching recent applications:", error);
+      return { success: false, error: error.message };
+    }
+
+    const now = new Date();
+    const applications: RecentApplication[] = (data || []).map((p) => {
+      const created = new Date(p.created_at);
+      const diffMs = now.getTime() - created.getTime();
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffHours / 24);
+
+      let applied: string;
+      if (diffHours < 1) {
+        applied = "Just now";
+      } else if (diffHours < 24) {
+        applied = `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+      } else {
+        applied = `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+      }
+
+      return {
+        id: p.id,
+        name: `${p.first_name} ${p.last_name}`,
+        program: programMeta[p.program as ProgramType]?.name || p.program,
+        applied,
+        status: "pending" as const,
+      };
+    });
+
+    return { success: true, data: applications };
+  } catch (error) {
+    console.error("Error in getRecentApplications:", error);
+    return { success: false, error: "Failed to fetch recent applications" };
+  }
+}
+
+// ============================================================================
+// GET PROGRAMS STATS (for programs page header)
+// ============================================================================
+
+export async function getProgramStats(): Promise<ActionResult<{
+  totalEnrolled: number;
+  activePrograms: number;
+  pendingApplications: number;
+  thisMonthGraduates: number;
+}>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get all participants
+    const { data: participants } = await supabase
+      .from("participants")
+      .select("status, program, completed_at");
+
+    // Get active cohorts count
+    const { data: cohorts } = await supabase
+      .from("cohorts")
+      .select("id, program")
+      .eq("is_active", true);
+
+    const enrolled = participants?.filter((p) =>
+      ["enrolled", "active", "in_progress"].includes(p.status)
+    ).length || 0;
+
+    const pending = participants?.filter((p) => p.status === "applicant").length || 0;
+
+    // Count unique programs with active cohorts
+    const uniquePrograms = new Set(cohorts?.map((c) => c.program) || []);
+
+    // Count graduates this month
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const thisMonthGraduates = participants?.filter((p) => {
+      if (p.status !== "completed" || !p.completed_at) return false;
+      return new Date(p.completed_at) >= startOfMonth;
+    }).length || 0;
+
+    return {
+      success: true,
+      data: {
+        totalEnrolled: enrolled,
+        activePrograms: uniquePrograms.size,
+        pendingApplications: pending,
+        thisMonthGraduates,
+      },
+    };
+  } catch (error) {
+    console.error("Error in getProgramStats:", error);
+    return { success: false, error: "Failed to fetch program stats" };
+  }
+}
+
+// ============================================================================
 // GET PARTICIPANT STATS
 // ============================================================================
 

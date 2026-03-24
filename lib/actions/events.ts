@@ -325,3 +325,149 @@ export async function getEventAttendees(
     return { success: false, error: "Failed to fetch attendees" };
   }
 }
+
+// ============================================================================
+// GET EVENTS STATS (Admin)
+// ============================================================================
+
+export async function getEventsStats(): Promise<ActionResult<{
+  upcoming: number;
+  totalRegistered: number;
+  totalRevenue: number;
+  avgAttendance: number;
+}>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const now = new Date().toISOString();
+
+    // Get all events
+    const { data: events, error } = await supabase
+      .from("events")
+      .select("*");
+
+    if (error) {
+      console.error("Error fetching events stats:", error);
+      return { success: false, error: error.message };
+    }
+
+    const upcomingCount = events?.filter(
+      (e) => !e.is_cancelled && new Date(e.start_datetime) >= new Date(now)
+    ).length || 0;
+
+    const totalRegistered = events?.reduce((sum, e) => sum + (e.tickets_sold || 0), 0) || 0;
+
+    // Calculate revenue (ticket_price * tickets_sold for paid events)
+    const totalRevenue = events?.reduce((sum, e) => {
+      if (e.ticket_price && e.tickets_sold) {
+        return sum + (e.ticket_price * e.tickets_sold);
+      }
+      return sum;
+    }, 0) || 0;
+
+    // Calculate average attendance rate for past events
+    const pastEvents = events?.filter(
+      (e) => !e.is_cancelled && new Date(e.start_datetime) < new Date(now) && e.capacity
+    ) || [];
+
+    let avgAttendance = 0;
+    if (pastEvents.length > 0) {
+      const totalAttendanceRate = pastEvents.reduce((sum, e) => {
+        return sum + ((e.tickets_sold || 0) / (e.capacity || 1)) * 100;
+      }, 0);
+      avgAttendance = Math.round(totalAttendanceRate / pastEvents.length);
+    }
+
+    return {
+      success: true,
+      data: {
+        upcoming: upcomingCount,
+        totalRegistered,
+        totalRevenue,
+        avgAttendance,
+      },
+    };
+  } catch (error) {
+    console.error("Error in getEventsStats:", error);
+    return { success: false, error: "Failed to fetch events stats" };
+  }
+}
+
+// ============================================================================
+// GET EVENTS FOR ADMIN (with enhanced data)
+// ============================================================================
+
+export interface AdminEventDisplay {
+  id: string;
+  title: string;
+  event_type: string;
+  start_datetime: string;
+  end_datetime: string | null;
+  venue_name: string | null;
+  is_virtual: boolean | null;
+  virtual_link: string | null;
+  capacity: number | null;
+  tickets_sold: number | null;
+  ticket_price: number | null;
+  is_published: boolean | null;
+  is_cancelled: boolean | null;
+  status: "upcoming" | "live" | "completed" | "cancelled";
+  revenue: number;
+}
+
+export async function getAdminEventsDisplay(): Promise<ActionResult<AdminEventDisplay[]>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const now = new Date();
+
+    const { data, error } = await supabase
+      .from("events")
+      .select("*")
+      .order("start_datetime", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching admin events:", error);
+      return { success: false, error: error.message };
+    }
+
+    const eventsDisplay: AdminEventDisplay[] = (data || []).map((e) => {
+      const startDate = new Date(e.start_datetime);
+      const endDate = e.end_datetime ? new Date(e.end_datetime) : null;
+
+      let status: AdminEventDisplay["status"];
+      if (e.is_cancelled) {
+        status = "cancelled";
+      } else if (startDate > now) {
+        status = "upcoming";
+      } else if (endDate && now < endDate) {
+        status = "live";
+      } else if (!endDate && startDate.toDateString() === now.toDateString()) {
+        status = "live";
+      } else {
+        status = "completed";
+      }
+
+      return {
+        id: e.id,
+        title: e.title,
+        event_type: e.event_type,
+        start_datetime: e.start_datetime,
+        end_datetime: e.end_datetime,
+        venue_name: e.venue_name,
+        is_virtual: e.is_virtual,
+        virtual_link: e.virtual_link,
+        capacity: e.capacity,
+        tickets_sold: e.tickets_sold,
+        ticket_price: e.ticket_price,
+        is_published: e.is_published,
+        is_cancelled: e.is_cancelled,
+        status,
+        revenue: (e.ticket_price || 0) * (e.tickets_sold || 0),
+      };
+    });
+
+    return { success: true, data: eventsDisplay };
+  } catch (error) {
+    console.error("Error in getAdminEventsDisplay:", error);
+    return { success: false, error: "Failed to fetch events" };
+  }
+}

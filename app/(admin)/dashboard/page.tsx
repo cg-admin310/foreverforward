@@ -1,7 +1,6 @@
-"use client";
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import {
   Users,
   GraduationCap,
@@ -16,117 +15,107 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/admin/metric-card";
+import {
+  getDashboardMetrics,
+  getRecentActivity,
+  getUpcomingEvents,
+  getTravisAlerts,
+} from "@/lib/actions/dashboard";
 
-// Sample data - would come from Supabase
-const metrics = [
-  {
-    title: "New Leads",
-    value: 24,
-    change: { value: 12, type: "increase" as const },
-    icon: Users,
-  },
-  {
-    title: "Active Participants",
-    value: 87,
-    change: { value: 8, type: "increase" as const },
-    icon: GraduationCap,
-    iconColor: "text-[#5A7247]",
-    iconBg: "bg-[#EFF4EB]",
-  },
-  {
-    title: "MSP Clients",
-    value: 12,
-    change: { value: 2, type: "increase" as const },
-    icon: Building2,
-  },
-  {
-    title: "Monthly Revenue",
-    value: "$28.5K",
-    change: { value: 15, type: "increase" as const },
-    icon: DollarSign,
-    iconColor: "text-[#5A7247]",
-    iconBg: "bg-[#EFF4EB]",
-  },
-];
+function formatTimeAgo(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
 
-const recentActivity = [
-  {
-    id: 1,
-    type: "lead",
-    message: "New program lead: Marcus Johnson",
-    time: "5 minutes ago",
-    icon: Users,
-  },
-  {
-    id: 2,
-    type: "participant",
-    message: "James Williams completed Week 4",
-    time: "1 hour ago",
-    icon: GraduationCap,
-  },
-  {
-    id: 3,
-    type: "client",
-    message: "Proposal sent to Hope Community Center",
-    time: "2 hours ago",
-    icon: FileText,
-  },
-  {
-    id: 4,
-    type: "travis",
-    message: "Travis escalation: Anthony Brown needs support",
-    time: "3 hours ago",
-    icon: Bot,
-    urgent: true,
-  },
-  {
-    id: 5,
-    type: "payment",
-    message: "Invoice #1234 paid by LA Youth Services",
-    time: "5 hours ago",
-    icon: DollarSign,
-  },
-];
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins} minutes ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+  return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+}
 
-const upcomingEvents = [
-  {
-    id: 1,
-    title: "Movies on the Menu: Black Panther",
-    date: "Mar 28, 2026",
-    attendees: 45,
-  },
-  {
-    id: 2,
-    title: "Father Forward Cohort 12 Graduation",
-    date: "Apr 5, 2026",
-    attendees: 28,
-  },
-  {
-    id: 3,
-    title: "Tech-Ready Youth Info Session",
-    date: "Apr 10, 2026",
-    attendees: 15,
-  },
-];
+function formatCurrency(amount: number): string {
+  if (amount >= 1000) {
+    return `$${(amount / 1000).toFixed(1)}K`;
+  }
+  return `$${amount}`;
+}
 
-const travisAlerts = [
-  {
-    id: 1,
-    participant: "Anthony Brown",
-    issue: "Expressed frustration with coursework",
-    severity: "medium",
-    time: "3 hours ago",
-  },
-  {
-    id: 2,
-    participant: "DeShawn Mitchell",
-    issue: "Missed 2 consecutive check-ins",
-    severity: "high",
-    time: "1 day ago",
-  },
-];
+function getActivityIcon(type: string) {
+  switch (type) {
+    case "lead_created":
+    case "lead_updated":
+      return Users;
+    case "participant_enrolled":
+    case "participant_progress":
+      return GraduationCap;
+    case "client_created":
+    case "proposal_sent":
+      return FileText;
+    case "payment_received":
+      return DollarSign;
+    case "escalation":
+      return Bot;
+    default:
+      return FileText;
+  }
+}
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  // Fetch all dashboard data in parallel
+  const [metricsResult, activityResult, eventsResult, alertsResult] = await Promise.all([
+    getDashboardMetrics(),
+    getRecentActivity(5),
+    getUpcomingEvents(3),
+    getTravisAlerts(),
+  ]);
+
+  const metrics = metricsResult.data;
+  const activities = activityResult.data || [];
+  const events = eventsResult.data || [];
+  const alerts = alertsResult.data || [];
+
+  const metricCards = [
+    {
+      title: "New Leads",
+      value: metrics?.newLeads || 0,
+      change: metrics?.leadsChange
+        ? { value: Math.abs(metrics.leadsChange), type: metrics.leadsChange >= 0 ? "increase" as const : "decrease" as const }
+        : undefined,
+      icon: Users,
+    },
+    {
+      title: "Active Participants",
+      value: metrics?.activeParticipants || 0,
+      change: metrics?.participantsChange
+        ? { value: Math.abs(metrics.participantsChange), type: metrics.participantsChange >= 0 ? "increase" as const : "decrease" as const }
+        : undefined,
+      icon: GraduationCap,
+      iconColor: "text-[#5A7247]",
+      iconBg: "bg-[#EFF4EB]",
+    },
+    {
+      title: "MSP Clients",
+      value: metrics?.mspClients || 0,
+      change: metrics?.clientsChange
+        ? { value: Math.abs(metrics.clientsChange), type: metrics.clientsChange >= 0 ? "increase" as const : "decrease" as const }
+        : undefined,
+      icon: Building2,
+    },
+    {
+      title: "Monthly Revenue",
+      value: formatCurrency(metrics?.monthlyRevenue || 0),
+      change: metrics?.revenueChange
+        ? { value: Math.abs(metrics.revenueChange), type: metrics.revenueChange >= 0 ? "increase" as const : "decrease" as const }
+        : undefined,
+      icon: DollarSign,
+      iconColor: "text-[#5A7247]",
+      iconBg: "bg-[#EFF4EB]",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -149,27 +138,15 @@ export default function DashboardPage() {
 
       {/* Metrics Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {metrics.map((metric, index) => (
-          <motion.div
-            key={metric.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <MetricCard {...metric} />
-          </motion.div>
+        {metricCards.map((metric) => (
+          <MetricCard key={metric.title} {...metric} />
         ))}
       </div>
 
       {/* Main Content Grid */}
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Activity Feed */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="lg:col-span-2 bg-white rounded-xl border border-[#DDDDDD]"
-        >
+        <div className="lg:col-span-2 bg-white rounded-xl border border-[#DDDDDD]">
           <div className="p-4 border-b border-[#DDDDDD] flex items-center justify-between">
             <h2 className="font-semibold text-[#1A1A1A]">Recent Activity</h2>
             <Link
@@ -180,79 +157,96 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div className="divide-y divide-[#DDDDDD]">
-            {recentActivity.map((activity) => (
-              <div
-                key={activity.id}
-                className={`p-4 flex items-start gap-3 hover:bg-[#FAFAF8] transition-colors ${
-                  activity.urgent ? "bg-red-50" : ""
-                }`}
-              >
-                <div
-                  className={`p-2 rounded-lg ${
-                    activity.urgent
-                      ? "bg-red-100 text-red-600"
-                      : "bg-[#FBF6E9] text-[#C9A84C]"
-                  }`}
-                >
-                  <activity.icon className="h-4 w-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-[#1A1A1A]">{activity.message}</p>
-                  <p className="text-xs text-[#888888] mt-1">{activity.time}</p>
-                </div>
-                {activity.urgent && (
-                  <span className="px-2 py-1 bg-red-100 text-red-600 text-xs font-medium rounded-full">
-                    Action needed
-                  </span>
-                )}
+            {activities.length === 0 ? (
+              <div className="p-8 text-center text-[#888888]">
+                <p>No recent activity</p>
+                <p className="text-sm mt-1">Activity will appear here as you work</p>
               </div>
-            ))}
+            ) : (
+              activities.map((activity) => {
+                const Icon = getActivityIcon(activity.activity_type);
+                const isUrgent = activity.activity_type === "escalation";
+                return (
+                  <div
+                    key={activity.id}
+                    className={`p-4 flex items-start gap-3 hover:bg-[#FAFAF8] transition-colors ${
+                      isUrgent ? "bg-red-50" : ""
+                    }`}
+                  >
+                    <div
+                      className={`p-2 rounded-lg ${
+                        isUrgent
+                          ? "bg-red-100 text-red-600"
+                          : "bg-[#FBF6E9] text-[#C9A84C]"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-[#1A1A1A]">{activity.description}</p>
+                      <p className="text-xs text-[#888888] mt-1">
+                        {formatTimeAgo(activity.created_at)}
+                      </p>
+                    </div>
+                    {isUrgent && (
+                      <span className="px-2 py-1 bg-red-100 text-red-600 text-xs font-medium rounded-full">
+                        Action needed
+                      </span>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </div>
-        </motion.div>
+        </div>
 
         {/* Right Column */}
         <div className="space-y-6">
           {/* Travis Alerts */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="bg-white rounded-xl border border-[#DDDDDD]"
-          >
+          <div className="bg-white rounded-xl border border-[#DDDDDD]">
             <div className="p-4 border-b border-[#DDDDDD] flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Bot className="h-5 w-5 text-[#C9A84C]" />
                 <h2 className="font-semibold text-[#1A1A1A]">Travis Alerts</h2>
               </div>
               <span className="px-2 py-1 bg-[#FBF6E9] text-[#C9A84C] text-xs font-semibold rounded-full">
-                {travisAlerts.length}
+                {alerts.length}
               </span>
             </div>
             <div className="divide-y divide-[#DDDDDD]">
-              {travisAlerts.map((alert) => (
-                <Link
-                  key={alert.id}
-                  href={`/travis/alerts/${alert.id}`}
-                  className="block p-4 hover:bg-[#FAFAF8] transition-colors"
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium text-sm text-[#1A1A1A]">
-                      {alert.participant}
-                    </span>
-                    <span
-                      className={`px-2 py-0.5 text-xs rounded-full ${
-                        alert.severity === "high"
-                          ? "bg-red-100 text-red-600"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {alert.severity}
-                    </span>
-                  </div>
-                  <p className="text-sm text-[#555555]">{alert.issue}</p>
-                  <p className="text-xs text-[#888888] mt-1">{alert.time}</p>
-                </Link>
-              ))}
+              {alerts.length === 0 ? (
+                <div className="p-6 text-center text-[#888888]">
+                  <Bot className="h-8 w-8 mx-auto mb-2 text-[#5A7247]" />
+                  <p className="text-sm">All participants are on track!</p>
+                </div>
+              ) : (
+                alerts.map((alert) => (
+                  <Link
+                    key={alert.id}
+                    href={`/program-management/participants/${alert.participant_id}`}
+                    className="block p-4 hover:bg-[#FAFAF8] transition-colors"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-sm text-[#1A1A1A]">
+                        {alert.participant_name}
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 text-xs rounded-full ${
+                          alert.severity === "high"
+                            ? "bg-red-100 text-red-600"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {alert.severity}
+                      </span>
+                    </div>
+                    <p className="text-sm text-[#555555]">{alert.issue}</p>
+                    <p className="text-xs text-[#888888] mt-1">
+                      {formatTimeAgo(alert.created_at)}
+                    </p>
+                  </Link>
+                ))
+              )}
             </div>
             <div className="p-3 border-t border-[#DDDDDD]">
               <Link
@@ -263,15 +257,10 @@ export default function DashboardPage() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-          </motion.div>
+          </div>
 
           {/* Upcoming Events */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="bg-white rounded-xl border border-[#DDDDDD]"
-          >
+          <div className="bg-white rounded-xl border border-[#DDDDDD]">
             <div className="p-4 border-b border-[#DDDDDD] flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-[#5A7247]" />
@@ -279,23 +268,42 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="divide-y divide-[#DDDDDD]">
-              {upcomingEvents.map((event) => (
-                <Link
-                  key={event.id}
-                  href={`/events-admin/${event.id}`}
-                  className="block p-4 hover:bg-[#FAFAF8] transition-colors"
-                >
-                  <p className="font-medium text-sm text-[#1A1A1A]">
-                    {event.title}
-                  </p>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-xs text-[#888888]">{event.date}</span>
-                    <span className="text-xs text-[#555555]">
-                      {event.attendees} registered
-                    </span>
-                  </div>
-                </Link>
-              ))}
+              {events.length === 0 ? (
+                <div className="p-6 text-center text-[#888888]">
+                  <Calendar className="h-8 w-8 mx-auto mb-2 text-[#888888]" />
+                  <p className="text-sm">No upcoming events</p>
+                  <Link
+                    href="/events-admin/new"
+                    className="text-sm text-[#C9A84C] hover:underline"
+                  >
+                    Create an event
+                  </Link>
+                </div>
+              ) : (
+                events.map((event) => (
+                  <Link
+                    key={event.id}
+                    href={`/events-admin/${event.id}`}
+                    className="block p-4 hover:bg-[#FAFAF8] transition-colors"
+                  >
+                    <p className="font-medium text-sm text-[#1A1A1A]">
+                      {event.title}
+                    </p>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-xs text-[#888888]">
+                        {new Date(event.start_datetime).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                      <span className="text-xs text-[#555555]">
+                        {event.tickets_sold || 0} registered
+                      </span>
+                    </div>
+                  </Link>
+                ))
+              )}
             </div>
             <div className="p-3 border-t border-[#DDDDDD]">
               <Link
@@ -306,17 +314,12 @@ export default function DashboardPage() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 
       {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-        className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
-      >
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { title: "Generate Proposal", href: "/documents/new?type=proposal", icon: FileText },
           { title: "Schedule Event", href: "/events-admin/new", icon: Calendar },
@@ -334,7 +337,7 @@ export default function DashboardPage() {
             <span className="font-medium text-[#1A1A1A]">{action.title}</span>
           </Link>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 }
