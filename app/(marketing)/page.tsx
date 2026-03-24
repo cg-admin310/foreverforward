@@ -1,0 +1,735 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  ChevronDown,
+  Heart,
+  Users,
+  Handshake,
+  Server,
+  Shield,
+  Code,
+  Cable,
+  ArrowRight,
+  Calendar,
+  MapPin,
+  Film,
+  Utensils,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { SectionHeading } from "@/components/shared/section-heading";
+import { ProgramCard } from "@/components/marketing/program-card";
+import { StatCounter } from "@/components/marketing/stat-counter";
+import { TestimonialCard } from "@/components/marketing/testimonial-card";
+import { BlogPreviewCard } from "@/components/marketing/blog-preview-card";
+import { PROGRAMS, IMPACT_STATS } from "@/lib/constants";
+
+// Placeholder blog posts
+const BLOG_POSTS = [
+  {
+    title: "5 Ways Tech Skills Are Transforming Fatherhood",
+    excerpt:
+      "Discover how dads are using technology to stay connected, create memories, and build stronger bonds with their children.",
+    category: "Fatherhood",
+    date: "Mar 15, 2024",
+    readTime: "5 min read",
+    slug: "tech-skills-transforming-fatherhood",
+  },
+  {
+    title: "From the Shop Floor to the Server Room: Marcus's Story",
+    excerpt:
+      "How one Father Forward graduate went from manufacturing to managing IT infrastructure for local schools.",
+    category: "Success Stories",
+    date: "Mar 10, 2024",
+    readTime: "7 min read",
+    slug: "marcus-success-story",
+  },
+  {
+    title: "Why Nonprofits Need Managed IT Services in 2024",
+    excerpt:
+      "Security threats are evolving. Here's how nonprofit organizations can protect their data and community trust.",
+    category: "IT for Nonprofits",
+    date: "Mar 5, 2024",
+    readTime: "6 min read",
+    slug: "nonprofits-managed-it-2024",
+  },
+];
+
+// Placeholder testimonials
+const TESTIMONIALS = [
+  {
+    quote:
+      "Father Forward didn't just teach me IT skills—it gave me the confidence to be the dad I always wanted to be. Now I work in tech and make it to every one of my daughter's games.",
+    name: "Marcus Thompson",
+    role: "Father Forward Graduate, Class of 2023",
+  },
+  {
+    quote:
+      "Forever Forward transformed how our nonprofit operates. Their team understands our mission and treats our data like it's their own. Best decision we ever made.",
+    name: "Dr. Angela Davis",
+    role: "Executive Director, Compton Youth Alliance",
+  },
+  {
+    quote:
+      "My son went from being glued to games to building them. Tech-Ready Youth showed him that his passion could become a career. He's now interning at a tech startup.",
+    name: "Patricia Williams",
+    role: "Parent of Tech-Ready Youth Graduate",
+  },
+];
+
+export default function HomePage() {
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setIsSubmitting(true);
+    // TODO: Connect to Supabase
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setIsSubscribed(true);
+    setIsSubmitting(false);
+  };
+
+  return (
+    <>
+      {/* ============================================
+          SECTION 1: HERO
+          ============================================ */}
+      <section className="relative min-h-screen flex items-center justify-center bg-[#1A1A1A] overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C9A84C' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+          />
+        </div>
+
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A1A] via-[#1A1A1A] to-[#2D2D2D]" />
+
+        {/* Content */}
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444] mb-8"
+            >
+              <span className="w-2 h-2 rounded-full bg-[#C9A84C] animate-pulse" />
+              <span className="text-sm text-white/80">
+                A 501(c)(3) Nonprofit Organization
+              </span>
+            </motion.div>
+
+            {/* Headline */}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight mb-6">
+              Empowering Fathers.
+              <br />
+              <span className="text-[#C9A84C]">Strengthening Families.</span>
+              <br />
+              Building the Future.
+            </h1>
+
+            {/* Subheadline */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto mb-10"
+            >
+              Forever Forward delivers workforce development for Black fathers
+              and youth while providing enterprise IT services to nonprofits
+              and schools—creating a self-sustaining cycle of empowerment.
+            </motion.p>
+
+            {/* CTAs */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            >
+              <Button asChild size="lg" className="min-w-[200px]">
+                <Link href="/programs">Explore Programs</Link>
+              </Button>
+              <Button asChild variant="secondary" size="lg" className="min-w-[200px]">
+                <Link href="/services">IT Services</Link>
+              </Button>
+            </motion.div>
+          </motion.div>
+
+          {/* Scroll Indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.5 }}
+            className="absolute bottom-10 left-1/2 -translate-x-1/2"
+          >
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+              className="flex flex-col items-center gap-2 text-white/50"
+            >
+              <span className="text-xs font-medium">Scroll to explore</span>
+              <ChevronDown className="h-5 w-5" />
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Gold accent line at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#C9A84C]" />
+      </section>
+
+      {/* ============================================
+          SECTION 2: IMPACT STATS
+          ============================================ */}
+      <section className="py-20 lg:py-28 bg-[#FAFAF8]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <span className="text-sm font-semibold text-[#C9A84C] uppercase tracking-wider">
+              Our Impact
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A1A] mt-2">
+              Numbers That Tell Our Story
+            </h2>
+          </motion.div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+            {IMPACT_STATS.map((stat, index) => (
+              <StatCounter
+                key={stat.label}
+                value={stat.value}
+                suffix={stat.suffix}
+                label={stat.label}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          SECTION 3: WHO WE ARE
+          ============================================ */}
+      <section className="py-20 lg:py-28 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <span className="text-sm font-semibold text-[#C9A84C] uppercase tracking-wider">
+                Who We Are
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A1A] mt-2 mb-6">
+                A Dual-Engine Model for Sustainable Impact
+              </h2>
+              <p className="text-[#555555] leading-relaxed mb-6">
+                Forever Forward operates with a unique approach: we train Black
+                fathers and youth with in-demand tech skills, then deploy them
+                to serve nonprofit organizations and schools with enterprise IT
+                services. The revenue from our IT services funds our programs—
+                creating a self-sustaining cycle of empowerment.
+              </p>
+              <p className="text-[#555555] leading-relaxed mb-8">
+                Founded in 2023 by Thomas "TJ" Wilform, a former aerospace IT
+                technician and Compton native, Forever Forward is proving that
+                workforce development and community service can go hand in hand.
+              </p>
+
+              <Button asChild variant="outline">
+                <Link href="/about">
+                  Read Our Full Story
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+            </motion.div>
+
+            {/* Model Visual */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="relative"
+            >
+              <div className="bg-[#1A1A1A] rounded-2xl p-8 lg:p-10">
+                <h3 className="text-xl font-semibold text-white mb-8 text-center">
+                  The Forever Forward Model
+                </h3>
+                <div className="flex flex-col gap-4">
+                  {[
+                    { step: "TRAIN", desc: "Fathers & youth learn IT skills" },
+                    { step: "CERTIFY", desc: "Earn industry certifications" },
+                    { step: "EMPLOY", desc: "Join our workforce pool" },
+                    { step: "SERVE", desc: "Support nonprofits & schools" },
+                    { step: "SUSTAIN", desc: "Revenue funds more programs" },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={item.step}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.3 + i * 0.1 }}
+                      className="flex items-center gap-4"
+                    >
+                      <div className="shrink-0 w-10 h-10 rounded-full bg-[#C9A84C] flex items-center justify-center">
+                        <span className="text-[#1A1A1A] font-bold text-sm">
+                          {i + 1}
+                        </span>
+                      </div>
+                      <div className="flex-1 bg-[#2D2D2D] rounded-lg px-4 py-3">
+                        <span className="text-[#C9A84C] font-semibold text-sm">
+                          {item.step}
+                        </span>
+                        <span className="text-white/70 text-sm ml-2">
+                          — {item.desc}
+                        </span>
+                      </div>
+                      {i < 4 && (
+                        <ChevronDown className="absolute left-5 text-[#C9A84C]/50 h-4 w-4 hidden lg:block" />
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          SECTION 4: PROGRAMS GRID
+          ============================================ */}
+      <section className="py-20 lg:py-28 bg-[#EFF4EB]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            title="Our Programs"
+            subtitle="From workforce development to family enrichment, our programs are designed to uplift every member of the community."
+            centered
+          />
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mt-12">
+            {PROGRAMS.map((program, index) => (
+              <ProgramCard
+                key={program.slug}
+                name={program.name}
+                slug={program.slug}
+                tagline={program.tagline}
+                description={program.description}
+                audience={program.audience}
+                icon={program.icon}
+                index={index}
+              />
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-center mt-12"
+          >
+            <Button asChild>
+              <Link href="/programs">
+                View All Programs
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ============================================
+          SECTION 5: IT SERVICES CALLOUT
+          ============================================ */}
+      <section className="py-20 lg:py-28 bg-[#1A1A1A] relative overflow-hidden">
+        {/* Decorative Elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#C9A84C]/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#5A7247]/5 rounded-full blur-3xl" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <span className="text-sm font-semibold text-[#C9A84C] uppercase tracking-wider">
+              IT Services
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mt-2 mb-4">
+              Enterprise IT.{" "}
+              <span className="text-[#C9A84C]">Nonprofit Heart.</span>
+            </h2>
+            <p className="text-white/70 max-w-2xl mx-auto">
+              We bring corporate-level IT infrastructure to nonprofits and
+              schools—at prices that respect your mission. Our technicians are
+              program graduates who understand community service.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-12">
+            {[
+              {
+                icon: Server,
+                title: "Managed IT",
+                desc: "24/7 monitoring, help desk, security updates, and strategic planning for $50-$85/user/month.",
+              },
+              {
+                icon: Code,
+                title: "Software & AI",
+                desc: "Custom web apps, automation tools, and AI solutions built specifically for nonprofit needs.",
+              },
+              {
+                icon: Cable,
+                title: "Low Voltage",
+                desc: "Structured cabling, CCTV, network infrastructure—professionally installed with minimal disruption.",
+              },
+            ].map((service, i) => (
+              <motion.div
+                key={service.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="bg-[#2D2D2D] rounded-xl p-6 lg:p-8 border border-[#444444] hover:border-[#C9A84C] transition-colors group"
+              >
+                <div className="w-14 h-14 rounded-xl bg-[#C9A84C]/10 flex items-center justify-center mb-6 group-hover:bg-[#C9A84C]/20 transition-colors">
+                  <service.icon className="h-7 w-7 text-[#C9A84C]" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-3">
+                  {service.title}
+                </h3>
+                <p className="text-white/60 leading-relaxed">{service.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-center"
+          >
+            <Button asChild size="lg">
+              <Link href="/services">
+                Get a Free IT Assessment
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ============================================
+          SECTION 6: MOVIES ON THE MENU
+          ============================================ */}
+      <section className="py-20 lg:py-28 bg-[#FAFAF8]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Image Placeholder */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="relative order-2 lg:order-1"
+            >
+              <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-[#C9A84C] to-[#A68A2E] overflow-hidden relative">
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-[#1A1A1A]">
+                  <Film className="h-16 w-16 mb-4 opacity-50" />
+                  <span className="font-semibold text-lg opacity-70">
+                    Movies on the Menu
+                  </span>
+                </div>
+              </div>
+              {/* Decorative card */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                className="absolute -bottom-6 -right-6 bg-white rounded-xl p-4 shadow-lg border border-[#DDDDDD]"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-[#EFF4EB] flex items-center justify-center">
+                    <Utensils className="h-6 w-6 text-[#5A7247]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[#1A1A1A]">
+                      Dinner + Movie
+                    </p>
+                    <p className="text-xs text-[#888888]">Family Event</p>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Content */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="order-1 lg:order-2"
+            >
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FBF6E9] text-[#A68A2E] text-sm font-medium mb-4">
+                <span className="w-2 h-2 rounded-full bg-[#C9A84C]" />
+                Upcoming Event
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A1A] mb-4">
+                Movies on the Menu
+              </h2>
+              <p className="text-[#555555] leading-relaxed mb-6">
+                Our signature family event series pairs blockbuster movies with
+                delicious themed dinners. It's where dads bond with their kids,
+                families make memories, and community comes together.
+              </p>
+
+              <div className="space-y-3 mb-8">
+                <div className="flex items-center gap-3 text-[#555555]">
+                  <Calendar className="h-5 w-5 text-[#C9A84C]" />
+                  <span>Next Event: April 12, 2024 at 5:00 PM</span>
+                </div>
+                <div className="flex items-center gap-3 text-[#555555]">
+                  <MapPin className="h-5 w-5 text-[#C9A84C]" />
+                  <span>Forever Forward Community Center, Los Angeles</span>
+                </div>
+                <div className="flex items-center gap-3 text-[#555555]">
+                  <Film className="h-5 w-5 text-[#C9A84C]" />
+                  <span>Featuring: &quot;Space Jam: A New Legacy&quot;</span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-4">
+                <Button asChild size="lg">
+                  <Link href="/events">Get Tickets</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href="/events">View All Events</Link>
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          SECTION 7: TESTIMONIALS
+          ============================================ */}
+      <section className="py-20 lg:py-28 bg-[#F5F3EF]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            title="Voices from Our Community"
+            subtitle="Real stories from fathers, families, and organizations we've had the privilege to serve."
+            centered
+          />
+
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mt-12">
+            {TESTIMONIALS.map((testimonial, index) => (
+              <TestimonialCard
+                key={testimonial.name}
+                quote={testimonial.quote}
+                name={testimonial.name}
+                role={testimonial.role}
+                index={index}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          SECTION 8: BLOG PREVIEW
+          ============================================ */}
+      <section className="py-20 lg:py-28 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            title="From the Blog"
+            subtitle="Stories, insights, and resources for fathers, families, and mission-driven organizations."
+          />
+
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mt-12">
+            {BLOG_POSTS.map((post, index) => (
+              <BlogPreviewCard
+                key={post.slug}
+                title={post.title}
+                excerpt={post.excerpt}
+                category={post.category}
+                date={post.date}
+                readTime={post.readTime}
+                slug={post.slug}
+                index={index}
+              />
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mt-12"
+          >
+            <Button asChild variant="outline">
+              <Link href="/blog">
+                Read More Articles
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ============================================
+          SECTION 9: GET INVOLVED CTA BAND
+          ============================================ */}
+      <section className="py-20 lg:py-28 bg-[#1A1A1A]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              Join the Movement
+            </h2>
+            <p className="text-white/70 max-w-2xl mx-auto">
+              Whether you give, serve, or partner—every action moves us forward.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+            {[
+              {
+                icon: Heart,
+                title: "Donate",
+                desc: "Your gift funds programs that transform lives. Every dollar goes directly to families and youth in need.",
+                cta: "Give Now",
+                href: "/get-involved/donate",
+              },
+              {
+                icon: Users,
+                title: "Volunteer",
+                desc: "Share your skills as a mentor, instructor, or event helper. Your time makes a lasting impact.",
+                cta: "Sign Up",
+                href: "/get-involved/volunteer",
+              },
+              {
+                icon: Handshake,
+                title: "Partner",
+                desc: "Corporate sponsors and organizational partners help us scale our mission and reach more families.",
+                cta: "Learn More",
+                href: "/get-involved/partner",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-[#2D2D2D] rounded-xl p-8 text-center border border-[#444444] hover:border-[#C9A84C] transition-colors group"
+              >
+                <div className="w-16 h-16 rounded-full bg-[#C9A84C]/10 flex items-center justify-center mx-auto mb-6 group-hover:bg-[#C9A84C]/20 transition-colors">
+                  <item.icon className="h-8 w-8 text-[#C9A84C]" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-3">
+                  {item.title}
+                </h3>
+                <p className="text-white/60 leading-relaxed mb-6">
+                  {item.desc}
+                </p>
+                <Button asChild variant="secondary" className="w-full">
+                  <Link href={item.href}>{item.cta}</Link>
+                </Button>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          SECTION 10: NEWSLETTER SIGNUP
+          ============================================ */}
+      <section className="py-16 lg:py-20 bg-[#FBF6E9]">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#1A1A1A] mb-3">
+              Stay in the Loop
+            </h2>
+            <p className="text-[#555555] mb-8">
+              Get updates on upcoming events, program launches, success stories,
+              and ways to get involved. No spam, just good news.
+            </p>
+
+            {isSubscribed ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#EFF4EB] text-[#5A7247] font-medium"
+              >
+                <Shield className="h-5 w-5" />
+                Thanks for subscribing! Check your inbox soon.
+              </motion.div>
+            ) : (
+              <form
+                onSubmit={handleNewsletterSubmit}
+                className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+              >
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 bg-white border-[#DDDDDD]"
+                  required
+                />
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="shrink-0 bg-[#1A1A1A] hover:bg-[#2D2D2D] text-white"
+                >
+                  {isSubmitting ? "Subscribing..." : "Subscribe"}
+                </Button>
+              </form>
+            )}
+
+            <p className="text-xs text-[#888888] mt-4">
+              We respect your privacy. Unsubscribe at any time.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+    </>
+  );
+}
