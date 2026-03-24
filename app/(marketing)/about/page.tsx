@@ -495,8 +495,8 @@ export default function AboutPage() {
                 url: "https://www.microsoft.com/en-us/corporate-responsibility/philanthropies",
               },
               {
-                name: "Los Angeles USD",
-                logo: "/images/partners/lausd.svg",
+                name: "Los Angeles Unified School District",
+                logo: "/images/partners/lausd.png",
                 url: "https://www.lausd.org/",
               },
             ].map((partner) => (
