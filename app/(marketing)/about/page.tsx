@@ -479,19 +479,42 @@ export default function AboutPage() {
             className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6"
           >
             {[
-              "A New Day Foundation",
-              "Google.org",
-              "Microsoft Philanthropies",
-              "Los Angeles USD",
+              {
+                name: "A New Day Foundation",
+                logo: "/images/partners/a-new-day-foundation.png",
+                url: "https://anewdayfoundation.net/",
+              },
+              {
+                name: "Google.org",
+                logo: "/images/partners/google.svg",
+                url: "https://www.google.org/",
+              },
+              {
+                name: "Microsoft Philanthropies",
+                logo: "/images/partners/microsoft.svg",
+                url: "https://www.microsoft.com/en-us/corporate-responsibility/philanthropies",
+              },
+              {
+                name: "Los Angeles USD",
+                logo: "/images/partners/lausd.svg",
+                url: "https://www.lausd.org/",
+              },
             ].map((partner) => (
-              <div
-                key={partner}
-                className="aspect-[3/2] rounded-xl bg-[#F5F3EF] border border-[#DDDDDD] flex items-center justify-center p-6"
+              <a
+                key={partner.name}
+                href={partner.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="aspect-[3/2] rounded-xl bg-white border border-[#DDDDDD] flex items-center justify-center p-6 hover:border-[#C9A84C] hover:shadow-md transition-all group"
               >
-                <span className="text-[#888888] text-sm font-medium text-center">
-                  {partner}
-                </span>
-              </div>
+                <Image
+                  src={partner.logo}
+                  alt={partner.name}
+                  width={160}
+                  height={60}
+                  className="max-h-12 w-auto object-contain opacity-70 group-hover:opacity-100 transition-opacity"
+                />
+              </a>
             ))}
           </motion.div>
 
