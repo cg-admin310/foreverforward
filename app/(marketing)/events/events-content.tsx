@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -19,17 +19,35 @@ import {
   CheckCircle,
   Sparkles,
   ArrowRight,
+  Plus,
+  Minus,
+  Package,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Event } from "@/types/database";
+import type { Event, EventTicketType, EventAddon } from "@/types/database";
+
+interface EventWithDetails extends Event {
+  ticket_types?: EventTicketType[];
+  addons?: EventAddon[];
+}
 
 interface EventsContentProps {
-  featured: Event | null;
-  upcoming: Event[];
-  past: Event[];
+  featured: EventWithDetails | null;
+  upcoming: EventWithDetails[];
+  past: EventWithDetails[];
   hasEvents: boolean;
   eventTypeLabels: Record<string, string>;
+}
+
+interface TicketSelection {
+  ticketTypeId: string;
+  quantity: number;
+}
+
+interface AddonSelection {
+  addonId: string;
+  quantity: number;
 }
 
 function formatDate(dateString: string): string {
@@ -92,7 +110,7 @@ export function EventsContent({
   hasEvents,
   eventTypeLabels,
 }: EventsContentProps) {
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventWithDetails | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
@@ -101,17 +119,52 @@ export function EventsContent({
     lastName: "",
     email: "",
     phone: "",
-    ticketQuantity: 1,
     dietaryRestrictions: "",
     accessibilityNeeds: "",
   });
+  const [ticketSelections, setTicketSelections] = useState<TicketSelection[]>([]);
+  const [addonSelections, setAddonSelections] = useState<AddonSelection[]>([]);
 
   // Combine featured with upcoming for display (featured first if exists)
   const allUpcoming = featured
     ? [featured, ...upcoming.filter(e => e.id !== featured.id)]
     : upcoming;
 
-  const handleGetTickets = (event: Event) => {
+  // Check if event has ticket types configured
+  const hasTicketTypes = selectedEvent?.ticket_types && selectedEvent.ticket_types.length > 0;
+  const hasAddons = selectedEvent?.addons && selectedEvent.addons.length > 0;
+
+  // Calculate totals
+  const ticketTotal = useMemo(() => {
+    if (!selectedEvent) return 0;
+
+    if (hasTicketTypes) {
+      return ticketSelections.reduce((sum, selection) => {
+        const ticketType = selectedEvent.ticket_types?.find(tt => tt.id === selection.ticketTypeId);
+        return sum + (ticketType?.price || 0) * selection.quantity;
+      }, 0);
+    }
+
+    // Legacy: use event's ticket_price
+    const quantity = ticketSelections[0]?.quantity || 1;
+    return (selectedEvent.ticket_price || 0) * quantity;
+  }, [selectedEvent, ticketSelections, hasTicketTypes]);
+
+  const addonTotal = useMemo(() => {
+    if (!selectedEvent?.addons) return 0;
+    return addonSelections.reduce((sum, selection) => {
+      const addon = selectedEvent.addons?.find(a => a.id === selection.addonId);
+      return sum + (addon?.price || 0) * selection.quantity;
+    }, 0);
+  }, [selectedEvent, addonSelections]);
+
+  const grandTotal = ticketTotal + addonTotal;
+
+  const totalTickets = useMemo(() => {
+    return ticketSelections.reduce((sum, s) => sum + s.quantity, 0);
+  }, [ticketSelections]);
+
+  const handleGetTickets = (event: EventWithDetails) => {
     setSelectedEvent(event);
     setIsModalOpen(true);
     setRegistrationSuccess(false);
@@ -120,10 +173,19 @@ export function EventsContent({
       lastName: "",
       email: "",
       phone: "",
-      ticketQuantity: 1,
       dietaryRestrictions: "",
       accessibilityNeeds: "",
     });
+
+    // Initialize ticket selections
+    if (event.ticket_types && event.ticket_types.length > 0) {
+      // Default to 1 of the first ticket type
+      setTicketSelections([{ ticketTypeId: event.ticket_types[0].id, quantity: 1 }]);
+    } else {
+      // Legacy mode: just track quantity
+      setTicketSelections([{ ticketTypeId: "default", quantity: 1 }]);
+    }
+    setAddonSelections([]);
   };
 
   const handleCloseModal = () => {
@@ -132,9 +194,59 @@ export function EventsContent({
     setRegistrationSuccess(false);
   };
 
+  const updateTicketQuantity = (ticketTypeId: string, delta: number) => {
+    setTicketSelections(prev => {
+      const existing = prev.find(s => s.ticketTypeId === ticketTypeId);
+      const ticketType = selectedEvent?.ticket_types?.find(tt => tt.id === ticketTypeId);
+      const maxPerOrder = ticketType?.max_per_order || 10;
+      const availableQty = ticketType?.quantity_available !== null && ticketType?.quantity_available !== undefined
+        ? ticketType.quantity_available - (ticketType.quantity_sold || 0)
+        : Infinity;
+      const maxAllowed = Math.min(maxPerOrder, availableQty);
+
+      if (existing) {
+        const newQty = Math.max(0, Math.min(maxAllowed, existing.quantity + delta));
+        if (newQty === 0) {
+          return prev.filter(s => s.ticketTypeId !== ticketTypeId);
+        }
+        return prev.map(s => s.ticketTypeId === ticketTypeId ? { ...s, quantity: newQty } : s);
+      } else if (delta > 0) {
+        return [...prev, { ticketTypeId, quantity: Math.min(delta, maxAllowed) }];
+      }
+      return prev;
+    });
+  };
+
+  const updateAddonQuantity = (addonId: string, delta: number) => {
+    setAddonSelections(prev => {
+      const existing = prev.find(s => s.addonId === addonId);
+      const addon = selectedEvent?.addons?.find(a => a.id === addonId);
+      const maxPerOrder = addon?.max_per_order || 5;
+      const availableQty = addon?.quantity_available !== null && addon?.quantity_available !== undefined
+        ? addon.quantity_available - (addon.quantity_sold || 0)
+        : Infinity;
+      const maxAllowed = Math.min(maxPerOrder, availableQty);
+
+      if (existing) {
+        const newQty = Math.max(0, Math.min(maxAllowed, existing.quantity + delta));
+        if (newQty === 0) {
+          return prev.filter(s => s.addonId !== addonId);
+        }
+        return prev.map(s => s.addonId === addonId ? { ...s, quantity: newQty } : s);
+      } else if (delta > 0) {
+        return [...prev, { addonId, quantity: Math.min(delta, maxAllowed) }];
+      }
+      return prev;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedEvent) return;
+    if (totalTickets === 0) {
+      alert("Please select at least one ticket");
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -148,7 +260,10 @@ export function EventsContent({
           lastName: formData.lastName,
           email: formData.email,
           phone: formData.phone || undefined,
-          ticketQuantity: formData.ticketQuantity,
+          // Send either ticket type selections or legacy quantity
+          ticketQuantity: hasTicketTypes ? totalTickets : ticketSelections[0]?.quantity || 1,
+          ticketSelections: hasTicketTypes ? ticketSelections.filter(s => s.quantity > 0) : undefined,
+          addonSelections: addonSelections.filter(s => s.quantity > 0),
           dietaryRestrictions: formData.dietaryRestrictions || undefined,
           accessibilityNeeds: formData.accessibilityNeeds || undefined,
         }),
@@ -612,17 +727,187 @@ export function EventsContent({
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  {/* Price Display */}
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-[#FBF6E9] border border-[#E8D48B]">
-                    <span className="font-medium text-[#1A1A1A]">Price per ticket</span>
-                    {selectedEvent.ticket_price && selectedEvent.ticket_price > 0 ? (
-                      <span className="text-2xl font-bold text-[#1A1A1A]">
-                        ${selectedEvent.ticket_price}
-                      </span>
-                    ) : (
-                      <span className="text-xl font-bold text-[#5A7247]">FREE</span>
-                    )}
-                  </div>
+                  {/* Ticket Types Selection */}
+                  {hasTicketTypes ? (
+                    <div>
+                      <label className="block text-sm font-semibold text-[#1A1A1A] mb-3">
+                        <Ticket className="h-4 w-4 inline-block mr-2 text-[#C9A84C]" />
+                        Select Tickets <span className="text-red-500">*</span>
+                      </label>
+                      <div className="space-y-3">
+                        {selectedEvent.ticket_types?.map((ticketType) => {
+                          const selection = ticketSelections.find(s => s.ticketTypeId === ticketType.id);
+                          const quantity = selection?.quantity || 0;
+                          const available = ticketType.quantity_available !== null
+                            ? ticketType.quantity_available - (ticketType.quantity_sold || 0)
+                            : null;
+                          const isSoldOut = available !== null && available <= 0;
+
+                          return (
+                            <div
+                              key={ticketType.id}
+                              className={`
+                                p-4 rounded-xl border-2 transition-all
+                                ${quantity > 0 ? 'border-[#C9A84C] bg-[#FBF6E9]' : 'border-[#DDDDDD] bg-white'}
+                                ${isSoldOut ? 'opacity-60' : ''}
+                              `}
+                            >
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <h4 className="font-semibold text-[#1A1A1A]">{ticketType.name}</h4>
+                                    {isSoldOut && (
+                                      <span className="text-xs px-2 py-0.5 rounded bg-red-100 text-red-600 font-medium">
+                                        Sold Out
+                                      </span>
+                                    )}
+                                  </div>
+                                  {ticketType.description && (
+                                    <p className="text-sm text-[#555555] mt-1">{ticketType.description}</p>
+                                  )}
+                                  {available !== null && !isSoldOut && (
+                                    <p className="text-xs text-[#888888] mt-1">{available} remaining</p>
+                                  )}
+                                </div>
+                                <div className="text-right shrink-0">
+                                  <p className="font-bold text-lg text-[#1A1A1A]">
+                                    {ticketType.price > 0 ? `$${ticketType.price}` : 'Free'}
+                                  </p>
+                                  {!isSoldOut && (
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => updateTicketQuantity(ticketType.id, -1)}
+                                        className="w-8 h-8 rounded-lg bg-[#EEEEEE] hover:bg-[#DDDDDD] flex items-center justify-center transition-colors"
+                                        disabled={quantity === 0}
+                                      >
+                                        <Minus className="h-4 w-4 text-[#555555]" />
+                                      </button>
+                                      <span className="w-8 text-center font-semibold">{quantity}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => updateTicketQuantity(ticketType.id, 1)}
+                                        className="w-8 h-8 rounded-lg bg-[#C9A84C] hover:bg-[#A68A2E] flex items-center justify-center transition-colors"
+                                      >
+                                        <Plus className="h-4 w-4 text-white" />
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Legacy: Simple ticket quantity selector */
+                    <div>
+                      <div className="flex items-center justify-between p-4 rounded-xl bg-[#FBF6E9] border border-[#E8D48B]">
+                        <span className="font-medium text-[#1A1A1A]">Price per ticket</span>
+                        {selectedEvent.ticket_price && selectedEvent.ticket_price > 0 ? (
+                          <span className="text-2xl font-bold text-[#1A1A1A]">
+                            ${selectedEvent.ticket_price}
+                          </span>
+                        ) : (
+                          <span className="text-xl font-bold text-[#5A7247]">FREE</span>
+                        )}
+                      </div>
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1.5">
+                          Number of Tickets <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={ticketSelections[0]?.quantity || 1}
+                          onChange={(e) => setTicketSelections([{ ticketTypeId: "default", quantity: parseInt(e.target.value) }])}
+                          className="w-full rounded-lg border border-[#DDDDDD] bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent"
+                        >
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                            <option key={n} value={n}>
+                              {n} {n === 1 ? "ticket" : "tickets"}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Add-ons Section */}
+                  {hasAddons && totalTickets > 0 && (
+                    <div>
+                      <label className="block text-sm font-semibold text-[#1A1A1A] mb-3">
+                        <Package className="h-4 w-4 inline-block mr-2 text-[#5A7247]" />
+                        Add-ons <span className="text-[#888888] font-normal">(optional)</span>
+                      </label>
+                      <div className="space-y-3">
+                        {selectedEvent.addons?.map((addon) => {
+                          const selection = addonSelections.find(s => s.addonId === addon.id);
+                          const quantity = selection?.quantity || 0;
+                          const available = addon.quantity_available !== null
+                            ? addon.quantity_available - (addon.quantity_sold || 0)
+                            : null;
+                          const isSoldOut = available !== null && available <= 0;
+
+                          return (
+                            <div
+                              key={addon.id}
+                              className={`
+                                p-4 rounded-xl border-2 transition-all
+                                ${quantity > 0 ? 'border-[#5A7247] bg-[#EFF4EB]' : 'border-[#DDDDDD] bg-white'}
+                                ${isSoldOut ? 'opacity-60' : ''}
+                              `}
+                            >
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <h4 className="font-semibold text-[#1A1A1A]">{addon.name}</h4>
+                                    {addon.category && (
+                                      <span className="text-xs px-2 py-0.5 rounded bg-[#EEEEEE] text-[#555555] capitalize">
+                                        {addon.category}
+                                      </span>
+                                    )}
+                                    {isSoldOut && (
+                                      <span className="text-xs px-2 py-0.5 rounded bg-red-100 text-red-600 font-medium">
+                                        Sold Out
+                                      </span>
+                                    )}
+                                  </div>
+                                  {addon.description && (
+                                    <p className="text-sm text-[#555555] mt-1">{addon.description}</p>
+                                  )}
+                                </div>
+                                <div className="text-right shrink-0">
+                                  <p className="font-bold text-[#1A1A1A]">
+                                    +${addon.price}
+                                  </p>
+                                  {!isSoldOut && (
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => updateAddonQuantity(addon.id, -1)}
+                                        className="w-8 h-8 rounded-lg bg-[#EEEEEE] hover:bg-[#DDDDDD] flex items-center justify-center transition-colors"
+                                        disabled={quantity === 0}
+                                      >
+                                        <Minus className="h-4 w-4 text-[#555555]" />
+                                      </button>
+                                      <span className="w-8 text-center font-semibold">{quantity}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => updateAddonQuantity(addon.id, 1)}
+                                        className="w-8 h-8 rounded-lg bg-[#5A7247] hover:bg-[#3D5030] flex items-center justify-center transition-colors"
+                                      >
+                                        <Plus className="h-4 w-4 text-white" />
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Name Fields */}
                   <div className="grid grid-cols-2 gap-4">
@@ -677,24 +962,6 @@ export function EventsContent({
                     />
                   </div>
 
-                  {/* Ticket Quantity */}
-                  <div>
-                    <label className="block text-sm font-medium text-[#1A1A1A] mb-1.5">
-                      Number of Tickets <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={formData.ticketQuantity}
-                      onChange={(e) => setFormData({ ...formData, ticketQuantity: parseInt(e.target.value) })}
-                      className="w-full rounded-lg border border-[#DDDDDD] bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent"
-                    >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                        <option key={n} value={n}>
-                          {n} {n === 1 ? "ticket" : "tickets"}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
                   {/* Dietary Restrictions for Movies on the Menu */}
                   {selectedEvent.event_type === "movies_on_the_menu" && (
                     <div>
@@ -721,20 +988,40 @@ export function EventsContent({
                     />
                   </div>
 
-                  {/* Total */}
-                  {selectedEvent.ticket_price && selectedEvent.ticket_price > 0 && (
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-[#1A1A1A] text-white">
-                      <span className="font-medium">Total</span>
-                      <span className="text-2xl font-bold">
-                        ${(selectedEvent.ticket_price * formData.ticketQuantity).toFixed(2)}
-                      </span>
+                  {/* Order Summary / Total */}
+                  {grandTotal > 0 && (
+                    <div className="rounded-xl bg-[#1A1A1A] text-white p-4 space-y-2">
+                      {ticketTotal > 0 && (
+                        <div className="flex justify-between text-sm text-white/70">
+                          <span>Tickets ({totalTickets})</span>
+                          <span>${ticketTotal.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {addonTotal > 0 && (
+                        <div className="flex justify-between text-sm text-white/70">
+                          <span>Add-ons</span>
+                          <span>${addonTotal.toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between pt-2 border-t border-white/20">
+                        <span className="font-medium">Total</span>
+                        <span className="text-2xl font-bold">${grandTotal.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Free event indicator */}
+                  {grandTotal === 0 && totalTickets > 0 && (
+                    <div className="flex items-center justify-center p-4 rounded-xl bg-[#EFF4EB] border border-[#5A7247]">
+                      <CheckCircle className="h-5 w-5 text-[#5A7247] mr-2" />
+                      <span className="font-semibold text-[#5A7247]">Free Event - No Payment Required</span>
                     </div>
                   )}
 
                   {/* Submit */}
                   <Button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || totalTickets === 0}
                     className="w-full"
                     size="lg"
                   >
@@ -743,7 +1030,7 @@ export function EventsContent({
                         <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                         Processing...
                       </>
-                    ) : selectedEvent.ticket_price && selectedEvent.ticket_price > 0 ? (
+                    ) : grandTotal > 0 ? (
                       <>
                         <ArrowRight className="h-5 w-5 mr-2" />
                         Continue to Payment

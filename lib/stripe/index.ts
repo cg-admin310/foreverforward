@@ -242,6 +242,102 @@ export async function createEventTicketCheckout(
 }
 
 // =============================================================================
+// EVENT CHECKOUT WITH LINE ITEMS (Multiple ticket types and add-ons)
+// =============================================================================
+
+export interface EventCheckoutLineItem {
+  name: string;
+  description?: string;
+  unitAmount: number; // in cents
+  quantity: number;
+}
+
+export interface EventCheckoutWithLineItemsParams {
+  eventId: string;
+  eventTitle: string;
+  lineItems: EventCheckoutLineItem[];
+  customerEmail?: string;
+  customerName?: string;
+  attendeeId: string;
+  totalTickets: number;
+  successUrl: string;
+  cancelUrl: string;
+  metadata?: Record<string, string>;
+}
+
+/**
+ * Creates a Stripe Checkout session for event purchases with multiple line items
+ * (ticket types and add-ons)
+ */
+export async function createEventCheckoutWithLineItems(
+  params: EventCheckoutWithLineItemsParams
+): Promise<{ sessionId: string; url: string }> {
+  const {
+    eventId,
+    eventTitle,
+    lineItems,
+    customerEmail,
+    customerName,
+    attendeeId,
+    totalTickets,
+    successUrl,
+    cancelUrl,
+    metadata,
+  } = params;
+
+  const stripeLineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = lineItems.map(item => ({
+    price_data: {
+      currency: "usd",
+      product_data: {
+        name: item.name,
+        description: item.description,
+      },
+      unit_amount: item.unitAmount,
+    },
+    quantity: item.quantity,
+  }));
+
+  const sessionParams: Stripe.Checkout.SessionCreateParams = {
+    mode: "payment",
+    line_items: stripeLineItems,
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+    billing_address_collection: "required",
+    metadata: {
+      type: "event_ticket",
+      event_id: eventId,
+      attendee_id: attendeeId,
+      ticket_quantity: totalTickets.toString(),
+      ...metadata,
+    },
+    payment_intent_data: {
+      metadata: {
+        type: "event_ticket",
+        event_id: eventId,
+        attendee_id: attendeeId,
+        ticket_quantity: totalTickets.toString(),
+        customer_name: customerName || "",
+      },
+    },
+  };
+
+  if (customerEmail) {
+    sessionParams.customer_email = customerEmail;
+  }
+
+  const session = await stripe.checkout.sessions.create(sessionParams);
+
+  if (!session.url) {
+    throw new Error("Failed to create event checkout session URL");
+  }
+
+  return {
+    sessionId: session.id,
+    url: session.url,
+  };
+}
+
+// =============================================================================
 // CUSTOMER MANAGEMENT
 // =============================================================================
 

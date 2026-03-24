@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createEventTicketCheckout } from "@/lib/stripe";
+import { createEventTicketCheckout, createEventCheckoutWithLineItems } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 // =============================================================================
 // VALIDATION SCHEMA
 // =============================================================================
+
+const ticketSelectionSchema = z.object({
+  ticketTypeId: z.string(),
+  quantity: z.number().min(1).max(10),
+});
+
+const addonSelectionSchema = z.object({
+  addonId: z.string(),
+  quantity: z.number().min(1).max(10),
+});
 
 const eventCheckoutSchema = z.object({
   eventId: z.string().uuid("Invalid event ID"),
@@ -13,10 +23,25 @@ const eventCheckoutSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Valid email is required"),
   phone: z.string().optional(),
-  ticketQuantity: z.number().min(1, "At least 1 ticket required").max(10, "Maximum 10 tickets per order"),
+  ticketQuantity: z.number().min(1, "At least 1 ticket required").max(50, "Maximum 50 tickets per order"),
+  ticketSelections: z.array(ticketSelectionSchema).optional(),
+  addonSelections: z.array(addonSelectionSchema).optional(),
   dietaryRestrictions: z.string().optional(),
   accessibilityNeeds: z.string().optional(),
 });
+
+// =============================================================================
+// TYPES
+// =============================================================================
+
+interface LineItem {
+  name: string;
+  description?: string;
+  price: number;
+  quantity: number;
+  itemType: "ticket" | "addon";
+  itemId: string;
+}
 
 // =============================================================================
 // POST - CREATE EVENT TICKET CHECKOUT SESSION
@@ -42,6 +67,8 @@ export async function POST(request: NextRequest) {
       email,
       phone,
       ticketQuantity,
+      ticketSelections,
+      addonSelections,
       dietaryRestrictions,
       accessibilityNeeds,
     } = validationResult.data;
@@ -86,16 +113,157 @@ export async function POST(request: NextRequest) {
     }
 
     // Check capacity
-    const availableTickets = event.capacity - (event.tickets_sold || 0);
-    if (ticketQuantity > availableTickets) {
-      return NextResponse.json(
-        { error: `Only ${availableTickets} tickets remaining` },
-        { status: 400 }
-      );
+    if (event.capacity) {
+      const availableTickets = event.capacity - (event.tickets_sold || 0);
+      if (ticketQuantity > availableTickets) {
+        return NextResponse.json(
+          { error: `Only ${availableTickets} tickets remaining` },
+          { status: 400 }
+        );
+      }
     }
 
-    const ticketPrice = event.is_free ? 0 : (event.ticket_price || 0);
-    const totalAmount = ticketPrice * ticketQuantity;
+    // Build line items and calculate total
+    const lineItems: LineItem[] = [];
+    let totalAmount = 0;
+    let isFreeEvent = true;
+
+    // Check if we have ticket type selections
+    if (ticketSelections && ticketSelections.length > 0) {
+      // Fetch ticket types for this event
+      const ticketTypeIds = ticketSelections.map(s => s.ticketTypeId);
+      const { data: ticketTypes, error: ticketTypesError } = await supabase
+        .from("event_ticket_types")
+        .select("*")
+        .in("id", ticketTypeIds)
+        .eq("event_id", eventId)
+        .eq("is_active", true);
+
+      if (ticketTypesError) {
+        console.error("Error fetching ticket types:", ticketTypesError);
+        return NextResponse.json(
+          { error: "Failed to validate ticket types" },
+          { status: 500 }
+        );
+      }
+
+      // Validate each ticket selection
+      for (const selection of ticketSelections) {
+        const ticketType = ticketTypes?.find(tt => tt.id === selection.ticketTypeId);
+        if (!ticketType) {
+          return NextResponse.json(
+            { error: "Invalid ticket type selected" },
+            { status: 400 }
+          );
+        }
+
+        // Check availability
+        if (ticketType.quantity_available !== null) {
+          const available = ticketType.quantity_available - (ticketType.quantity_sold || 0);
+          if (selection.quantity > available) {
+            return NextResponse.json(
+              { error: `Only ${available} "${ticketType.name}" tickets remaining` },
+              { status: 400 }
+            );
+          }
+        }
+
+        // Check max per order
+        if (selection.quantity > ticketType.max_per_order) {
+          return NextResponse.json(
+            { error: `Maximum ${ticketType.max_per_order} "${ticketType.name}" tickets per order` },
+            { status: 400 }
+          );
+        }
+
+        const lineTotal = ticketType.price * selection.quantity;
+        totalAmount += lineTotal;
+        if (ticketType.price > 0) isFreeEvent = false;
+
+        lineItems.push({
+          name: `${event.title} - ${ticketType.name}`,
+          description: ticketType.description || undefined,
+          price: ticketType.price,
+          quantity: selection.quantity,
+          itemType: "ticket",
+          itemId: ticketType.id,
+        });
+      }
+    } else {
+      // Legacy mode: use event's ticket_price
+      const ticketPrice = event.is_free ? 0 : (event.ticket_price || 0);
+      totalAmount = ticketPrice * ticketQuantity;
+      if (ticketPrice > 0) isFreeEvent = false;
+
+      lineItems.push({
+        name: `${event.title} - General Admission`,
+        price: ticketPrice,
+        quantity: ticketQuantity,
+        itemType: "ticket",
+        itemId: "general",
+      });
+    }
+
+    // Process add-on selections
+    if (addonSelections && addonSelections.length > 0) {
+      const addonIds = addonSelections.map(s => s.addonId);
+      const { data: addons, error: addonsError } = await supabase
+        .from("event_addons")
+        .select("*")
+        .in("id", addonIds)
+        .eq("event_id", eventId)
+        .eq("is_active", true);
+
+      if (addonsError) {
+        console.error("Error fetching addons:", addonsError);
+        return NextResponse.json(
+          { error: "Failed to validate add-ons" },
+          { status: 500 }
+        );
+      }
+
+      for (const selection of addonSelections) {
+        const addon = addons?.find(a => a.id === selection.addonId);
+        if (!addon) {
+          return NextResponse.json(
+            { error: "Invalid add-on selected" },
+            { status: 400 }
+          );
+        }
+
+        // Check availability
+        if (addon.quantity_available !== null) {
+          const available = addon.quantity_available - (addon.quantity_sold || 0);
+          if (selection.quantity > available) {
+            return NextResponse.json(
+              { error: `Only ${available} "${addon.name}" remaining` },
+              { status: 400 }
+            );
+          }
+        }
+
+        // Check max per order
+        if (selection.quantity > addon.max_per_order) {
+          return NextResponse.json(
+            { error: `Maximum ${addon.max_per_order} "${addon.name}" per order` },
+            { status: 400 }
+          );
+        }
+
+        const lineTotal = addon.price * selection.quantity;
+        totalAmount += lineTotal;
+        if (addon.price > 0) isFreeEvent = false;
+
+        lineItems.push({
+          name: addon.name,
+          description: addon.description || undefined,
+          price: addon.price,
+          quantity: selection.quantity,
+          itemType: "addon",
+          itemId: addon.id,
+        });
+      }
+    }
 
     // Create a pending attendee record
     const { data: attendee, error: attendeeError } = await supabase
@@ -107,9 +275,9 @@ export async function POST(request: NextRequest) {
         email: email,
         phone: phone || null,
         ticket_quantity: ticketQuantity,
-        ticket_type: "general",
+        ticket_type: ticketSelections?.length ? "multiple" : "general",
         total_paid: totalAmount,
-        payment_status: event.is_free ? "paid" : "pending",
+        payment_status: isFreeEvent && totalAmount === 0 ? "paid" : "pending",
         dietary_restrictions: dietaryRestrictions || null,
         accessibility_needs: accessibilityNeeds || null,
       })
@@ -124,8 +292,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // If the event is free, just update tickets_sold and return success
-    if (event.is_free) {
+    // Create order items for tracking
+    const orderItems = lineItems.map(item => ({
+      attendee_id: attendee.id,
+      item_type: item.itemType,
+      ticket_type_id: item.itemType === "ticket" && item.itemId !== "general" ? item.itemId : null,
+      addon_id: item.itemType === "addon" ? item.itemId : null,
+      item_name: item.name,
+      quantity: item.quantity,
+      unit_price: item.price,
+      total_price: item.price * item.quantity,
+    }));
+
+    if (orderItems.length > 0) {
+      const { error: orderItemsError } = await supabase
+        .from("event_order_items")
+        .insert(orderItems);
+
+      if (orderItemsError) {
+        console.error("Failed to create order items:", orderItemsError);
+        // Don't fail the whole request, just log it
+      }
+    }
+
+    // If the event is free (total is 0), just update tickets_sold and return success
+    if (isFreeEvent && totalAmount === 0) {
       await supabase
         .from("events")
         .update({ tickets_sold: (event.tickets_sold || 0) + ticketQuantity })
@@ -142,7 +333,40 @@ export async function POST(request: NextRequest) {
     // Get the site URL for redirects
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-    // Create Stripe checkout session for paid events
+    // Create Stripe checkout session
+    // If we have multiple line items, use the new function
+    if (lineItems.length > 1 || (lineItems.length === 1 && lineItems[0].itemId !== "general")) {
+      const { sessionId, url } = await createEventCheckoutWithLineItems({
+        eventId,
+        eventTitle: event.title,
+        lineItems: lineItems.map(item => ({
+          name: item.name,
+          description: item.description,
+          unitAmount: Math.round(item.price * 100), // Convert to cents
+          quantity: item.quantity,
+        })),
+        customerEmail: email,
+        customerName: `${firstName} ${lastName}`,
+        attendeeId: attendee.id,
+        totalTickets: ticketQuantity,
+        successUrl: `${siteUrl}/events/success?session_id={CHECKOUT_SESSION_ID}&attendee_id=${attendee.id}`,
+        cancelUrl: `${siteUrl}/events?cancelled=true`,
+        metadata: {
+          event_slug: event.slug,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        isFree: false,
+        sessionId,
+        url,
+        attendeeId: attendee.id,
+      });
+    }
+
+    // Legacy: single line item checkout
+    const ticketPrice = event.is_free ? 0 : (event.ticket_price || 0);
     const { sessionId, url } = await createEventTicketCheckout({
       eventId,
       eventTitle: event.title,

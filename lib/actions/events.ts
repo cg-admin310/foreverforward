@@ -3,7 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { Event, EventAttendee } from "@/types/database";
+import type { Event, EventAttendee, EventTicketType, EventAddon } from "@/types/database";
+
+// ============================================================================
+// EXTENDED EVENT TYPE (with ticket types and add-ons)
+// ============================================================================
+
+export interface EventWithDetails extends Event {
+  ticket_types?: EventTicketType[];
+  addons?: EventAddon[];
+}
 
 // ============================================================================
 // TYPES
@@ -20,7 +29,7 @@ export interface ActionResult<T = void> {
 // ============================================================================
 
 export async function getPublishedEvents(): Promise<
-  ActionResult<{ featured: Event | null; upcoming: Event[]; past: Event[] }>
+  ActionResult<{ featured: EventWithDetails | null; upcoming: EventWithDetails[]; past: EventWithDetails[] }>
 > {
   try {
     const adminClient = createAdminClient();
@@ -39,9 +48,42 @@ export async function getPublishedEvents(): Promise<
       return { success: false, error: error.message };
     }
 
+    // Get ticket types and add-ons for all events
+    const eventIds = events?.map(e => e.id) || [];
+
+    let ticketTypes: EventTicketType[] = [];
+    let addons: EventAddon[] = [];
+
+    if (eventIds.length > 0) {
+      const [ticketTypesResult, addonsResult] = await Promise.all([
+        adminClient
+          .from("event_ticket_types")
+          .select("*")
+          .in("event_id", eventIds)
+          .eq("is_active", true)
+          .order("sort_order", { ascending: true }),
+        adminClient
+          .from("event_addons")
+          .select("*")
+          .in("event_id", eventIds)
+          .eq("is_active", true)
+          .order("sort_order", { ascending: true }),
+      ]);
+
+      ticketTypes = ticketTypesResult.data || [];
+      addons = addonsResult.data || [];
+    }
+
+    // Attach ticket types and add-ons to events
+    const eventsWithDetails: EventWithDetails[] = (events || []).map(event => ({
+      ...event,
+      ticket_types: ticketTypes.filter(tt => tt.event_id === event.id),
+      addons: addons.filter(a => a.event_id === event.id),
+    }));
+
     // Separate into featured, upcoming, and past
-    const upcoming = events?.filter((e) => new Date(e.start_datetime) >= new Date(now)) || [];
-    const past = events?.filter((e) => new Date(e.start_datetime) < new Date(now)) || [];
+    const upcoming = eventsWithDetails.filter((e) => new Date(e.start_datetime) >= new Date(now));
+    const past = eventsWithDetails.filter((e) => new Date(e.start_datetime) < new Date(now));
 
     // Featured is the soonest upcoming event, or most recent if none upcoming
     const featured = upcoming.length > 0 ? upcoming[0] : past.length > 0 ? past[0] : null;
