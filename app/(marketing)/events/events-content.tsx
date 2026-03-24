@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,8 +14,12 @@ import {
   Utensils,
   Star,
   CalendarPlus,
+  X,
+  Loader2,
+  CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/shared/badge";
 import { SectionHeading } from "@/components/shared/section-heading";
 import type { Event } from "@/types/database";
@@ -60,6 +65,88 @@ export function EventsContent({
   hasEvents,
   eventTypeLabels,
 }: EventsContentProps) {
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    ticketQuantity: 1,
+    dietaryRestrictions: "",
+    accessibilityNeeds: "",
+  });
+
+  const handleGetTickets = (event: Event) => {
+    setSelectedEvent(event);
+    setIsModalOpen(true);
+    setRegistrationSuccess(false);
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      ticketQuantity: 1,
+      dietaryRestrictions: "",
+      accessibilityNeeds: "",
+    });
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedEvent(null);
+    setRegistrationSuccess(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedEvent) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/stripe/event-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventId: selectedEvent.id,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone || undefined,
+          ticketQuantity: formData.ticketQuantity,
+          dietaryRestrictions: formData.dietaryRestrictions || undefined,
+          accessibilityNeeds: formData.accessibilityNeeds || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to process registration");
+      }
+
+      if (data.isFree) {
+        // Free event - show success message
+        setRegistrationSuccess(true);
+      } else {
+        // Paid event - redirect to Stripe
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error("No checkout URL returned");
+        }
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      alert(error instanceof Error ? error.message : "Failed to process registration. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (!hasEvents) {
     return (
       <section className="py-16 lg:py-24 bg-[#FAFAF8]">
@@ -200,7 +287,11 @@ export function EventsContent({
                     )}
                   </div>
 
-                  <Button size="lg" className="w-full">
+                  <Button
+                    size="lg"
+                    className="w-full"
+                    onClick={() => handleGetTickets(featured)}
+                  >
                     <Ticket className="h-5 w-5 mr-2" />
                     {featured.ticket_price ? "Get Tickets" : "Register Now"}
                   </Button>
@@ -303,6 +394,7 @@ export function EventsContent({
                               ? "secondary"
                               : "default"
                           }
+                          onClick={() => handleGetTickets(event)}
                         >
                           {!event.ticket_price || event.ticket_price === 0
                             ? "Register"
@@ -356,6 +448,233 @@ export function EventsContent({
             </div>
           </div>
         </section>
+      )}
+
+      {/* Ticket Purchase Modal */}
+      {isModalOpen && selectedEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={handleCloseModal}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+          >
+            <div className="sticky top-0 bg-white border-b border-[#DDDDDD] p-4 flex items-center justify-between rounded-t-2xl">
+              <h2 className="text-xl font-bold text-[#1A1A1A]">
+                {selectedEvent.ticket_price ? "Get Tickets" : "Register"}
+              </h2>
+              <button
+                onClick={handleCloseModal}
+                className="p-2 hover:bg-[#F5F3EF] rounded-lg transition-colors"
+              >
+                <X className="h-5 w-5 text-[#555555]" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {registrationSuccess ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 rounded-full bg-[#EFF4EB] flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="h-8 w-8 text-[#5A7247]" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-[#1A1A1A] mb-2">
+                    You&apos;re Registered!
+                  </h3>
+                  <p className="text-[#555555] mb-6">
+                    Check your email for confirmation and event details.
+                  </p>
+                  <Button onClick={handleCloseModal}>Done</Button>
+                </div>
+              ) : (
+                <>
+                  {/* Event Summary */}
+                  <div className="bg-[#FBF6E9] rounded-xl p-4 mb-6">
+                    <h3 className="font-semibold text-[#1A1A1A] mb-2">
+                      {selectedEvent.title}
+                    </h3>
+                    <div className="space-y-1 text-sm text-[#555555]">
+                      <p className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-[#C9A84C]" />
+                        {formatDate(selectedEvent.start_datetime)}
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-[#C9A84C]" />
+                        {formatTime(selectedEvent.start_datetime)}
+                      </p>
+                      {selectedEvent.venue_name && (
+                        <p className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-[#C9A84C]" />
+                          {selectedEvent.venue_name}
+                        </p>
+                      )}
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-[#E8D48B]">
+                      {selectedEvent.ticket_price ? (
+                        <span className="text-lg font-bold text-[#1A1A1A]">
+                          ${selectedEvent.ticket_price} per ticket
+                        </span>
+                      ) : (
+                        <span className="text-lg font-bold text-[#5A7247]">
+                          Free Event
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Registration Form */}
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
+                          First Name *
+                        </label>
+                        <Input
+                          value={formData.firstName}
+                          onChange={(e) =>
+                            setFormData({ ...formData, firstName: e.target.value })
+                          }
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
+                          Last Name *
+                        </label>
+                        <Input
+                          value={formData.lastName}
+                          onChange={(e) =>
+                            setFormData({ ...formData, lastName: e.target.value })
+                          }
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
+                        Email *
+                      </label>
+                      <Input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
+                        Phone (optional)
+                      </label>
+                      <Input
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) =>
+                          setFormData({ ...formData, phone: e.target.value })
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
+                        Number of Tickets *
+                      </label>
+                      <select
+                        value={formData.ticketQuantity}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            ticketQuantity: parseInt(e.target.value),
+                          })
+                        }
+                        className="w-full rounded-lg border border-[#DDDDDD] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
+                      >
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                          <option key={n} value={n}>
+                            {n} {n === 1 ? "ticket" : "tickets"}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedEvent.event_type === "movies_on_the_menu" && (
+                      <div>
+                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
+                          Dietary Restrictions (optional)
+                        </label>
+                        <Input
+                          value={formData.dietaryRestrictions}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              dietaryRestrictions: e.target.value,
+                            })
+                          }
+                          placeholder="e.g., vegetarian, allergies"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
+                        Accessibility Needs (optional)
+                      </label>
+                      <Input
+                        value={formData.accessibilityNeeds}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            accessibilityNeeds: e.target.value,
+                          })
+                        }
+                        placeholder="Let us know how we can accommodate you"
+                      />
+                    </div>
+
+                    {/* Total */}
+                    {selectedEvent.ticket_price && selectedEvent.ticket_price > 0 && (
+                      <div className="bg-[#1A1A1A] text-white rounded-lg p-4 flex items-center justify-between">
+                        <span className="font-medium">Total</span>
+                        <span className="text-xl font-bold">
+                          ${(selectedEvent.ticket_price * formData.ticketQuantity).toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full"
+                      size="lg"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : selectedEvent.ticket_price ? (
+                        <>
+                          <Ticket className="h-5 w-5 mr-2" />
+                          Continue to Payment
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-5 w-5 mr-2" />
+                          Complete Registration
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </>
+              )}
+            </div>
+          </motion.div>
+        </div>
       )}
     </>
   );

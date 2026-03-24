@@ -104,6 +104,15 @@ export async function POST(request: NextRequest) {
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   console.log("Checkout session completed:", session.id);
 
+  const paymentType = session.metadata?.type;
+
+  // Handle event ticket payments
+  if (paymentType === "event_ticket") {
+    await handleEventTicketPayment(session);
+    return;
+  }
+
+  // Handle donation payments
   const donationId = session.metadata?.donation_id;
 
   if (!donationId) {
@@ -142,12 +151,91 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   console.log(`Donation ${donationId} updated with payment success`);
 }
 
+async function handleEventTicketPayment(session: Stripe.Checkout.Session) {
+  console.log("Processing event ticket payment:", session.id);
+
+  const attendeeId = session.metadata?.attendee_id;
+  const eventId = session.metadata?.event_id;
+  const ticketQuantity = parseInt(session.metadata?.ticket_quantity || "1", 10);
+
+  if (!attendeeId || !eventId) {
+    console.error("Missing attendee_id or event_id in event ticket session metadata");
+    return;
+  }
+
+  const adminClient = createAdminClient();
+
+  // Get payment intent ID
+  let paymentIntentId: string | null = null;
+  if (session.payment_intent) {
+    paymentIntentId = typeof session.payment_intent === "object"
+      ? session.payment_intent.id
+      : session.payment_intent;
+  }
+
+  // Update the attendee record with payment success
+  const { error: attendeeError } = await adminClient
+    .from("event_attendees")
+    .update({
+      payment_status: "paid",
+      stripe_payment_intent_id: paymentIntentId,
+    })
+    .eq("id", attendeeId);
+
+  if (attendeeError) {
+    console.error("Failed to update attendee payment status:", attendeeError);
+    return;
+  }
+
+  // Update tickets_sold count on the event
+  const { data: event, error: eventFetchError } = await adminClient
+    .from("events")
+    .select("tickets_sold")
+    .eq("id", eventId)
+    .single();
+
+  if (eventFetchError) {
+    console.error("Failed to fetch event for ticket count update:", eventFetchError);
+    return;
+  }
+
+  const { error: eventUpdateError } = await adminClient
+    .from("events")
+    .update({
+      tickets_sold: (event.tickets_sold || 0) + ticketQuantity,
+    })
+    .eq("id", eventId);
+
+  if (eventUpdateError) {
+    console.error("Failed to update event tickets_sold:", eventUpdateError);
+    return;
+  }
+
+  console.log(`Event ticket payment processed: attendee ${attendeeId}, event ${eventId}, ${ticketQuantity} tickets`);
+}
+
 async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   console.log("Payment intent succeeded:", paymentIntent.id);
 
+  const paymentType = paymentIntent.metadata?.type;
+
+  // Handle event ticket payments
+  if (paymentType === "event_ticket") {
+    const attendeeId = paymentIntent.metadata?.attendee_id;
+    if (attendeeId) {
+      const adminClient = createAdminClient();
+      await adminClient
+        .from("event_attendees")
+        .update({ payment_status: "paid" })
+        .eq("id", attendeeId);
+      console.log(`Event attendee ${attendeeId} marked as paid`);
+    }
+    return;
+  }
+
   // Check if this is related to a donation
-  if (paymentIntent.metadata?.type !== "donation") {
-    console.log("Payment intent is not a donation, skipping");
+  if (paymentType !== "donation") {
+    console.log("Payment intent is not a donation or event ticket, skipping");
     return;
   }
 
