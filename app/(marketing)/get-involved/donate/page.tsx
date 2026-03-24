@@ -77,6 +77,11 @@ export default function DonatePage() {
 
   const amounts = [25, 50, 100, 200, 500, 1000];
 
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Check for cancelled checkout
   useEffect(() => {
     if (searchParams.get("cancelled") === "true") {

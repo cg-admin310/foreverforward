@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Calendar, Clock, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/shared/badge";
@@ -12,6 +13,7 @@ interface BlogPreviewCardProps {
   date: string;
   readTime: string;
   slug: string;
+  image?: string;
   index?: number;
 }
 
@@ -22,6 +24,7 @@ export function BlogPreviewCard({
   date,
   readTime,
   slug,
+  image,
   index = 0,
 }: BlogPreviewCardProps) {
   return (
@@ -33,13 +36,23 @@ export function BlogPreviewCard({
       className="group"
     >
       <Link href={`/blog/${slug}`} className="block">
-        {/* Placeholder Image */}
+        {/* Image */}
         <div className="aspect-video rounded-xl bg-gradient-to-br from-[#1A1A1A] to-[#2D2D2D] mb-4 overflow-hidden relative">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-[#C9A84C] text-sm font-medium">
-              Featured Image
-            </span>
-          </div>
+          {image ? (
+            <Image
+              src={image}
+              alt={title}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, 33vw"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#C9A84C]/20 to-[#5A7247]/20">
+              <span className="text-white/40 text-sm font-medium">
+                {category}
+              </span>
+            </div>
+          )}
           <div className="absolute inset-0 bg-[#C9A84C]/0 group-hover:bg-[#C9A84C]/10 transition-colors duration-300" />
         </div>
 

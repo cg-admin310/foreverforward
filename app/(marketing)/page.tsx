@@ -37,6 +37,7 @@ const BLOG_POSTS = [
     date: "Mar 15, 2024",
     readTime: "5 min read",
     slug: "tech-skills-transforming-fatherhood",
+    image: "/images/generated/blog-present-father.png",
   },
   {
     title: "From the Shop Floor to the Server Room: Marcus's Story",
@@ -46,6 +47,7 @@ const BLOG_POSTS = [
     date: "Mar 10, 2024",
     readTime: "7 min read",
     slug: "marcus-success-story",
+    image: "/images/generated/blog-south-la-tech.png",
   },
   {
     title: "Why Nonprofits Need Managed IT Services in 2024",
@@ -55,28 +57,29 @@ const BLOG_POSTS = [
     date: "Mar 5, 2024",
     readTime: "6 min read",
     slug: "nonprofits-managed-it-2024",
+    image: "/images/generated/blog-nonprofit-it.png",
   },
 ];
 
-// Placeholder testimonials
+// Testimonials - Black men in their 30s
 const TESTIMONIALS = [
   {
     quote:
-      "Father Forward didn't just teach me IT skills—it gave me the confidence to be the dad I always wanted to be. Now I work in tech and make it to every one of my daughter's games.",
+      "Man, this program changed everything. Got my Google cert, landed a help desk gig, and now I can actually provide for my kids the right way.",
     name: "Marcus Thompson",
-    role: "Father Forward Graduate, Class of 2023",
+    role: "Father Forward Graduate '23",
   },
   {
     quote:
-      "Forever Forward transformed how our nonprofit operates. Their team understands our mission and treats our data like it's their own. Best decision we ever made.",
-    name: "Dr. Angela Davis",
-    role: "Executive Director, Compton Youth Alliance",
+      "I was out here hustling with no direction. TJ and the team showed me a whole different path. Now my daughter tells everyone her dad works in tech.",
+    name: "Darnell Washington",
+    role: "Father Forward Graduate '24",
   },
   {
     quote:
-      "My son went from being glued to games to building them. Tech-Ready Youth showed him that his passion could become a career. He's now interning at a tech startup.",
-    name: "Patricia Williams",
-    role: "Parent of Tech-Ready Youth Graduate",
+      "Real talk—I almost gave up. But these folks believed in me when I didn't believe in myself. Got my certification, got the job. My son sees a different future now.",
+    name: "Jerome Mitchell",
+    role: "Father Forward Graduate '23",
   },
 ];
 
@@ -568,6 +571,7 @@ export default function HomePage() {
                 date={post.date}
                 readTime={post.readTime}
                 slug={post.slug}
+                image={post.image}
                 index={index}
               />
             ))}
@@ -649,9 +653,13 @@ export default function HomePage() {
                 <p className="text-white/60 leading-relaxed mb-6">
                   {item.desc}
                 </p>
-                <Button asChild variant="secondary" className="w-full">
-                  <Link href={item.href}>{item.cta}</Link>
-                </Button>
+                <Link
+                  href={item.href}
+                  scroll={true}
+                  className="inline-flex items-center justify-center w-full px-6 py-3 rounded-lg border-2 border-[#5A7247] text-[#5A7247] font-semibold text-sm transition-colors hover:bg-[#5A7247] hover:text-white active:bg-[#3D5030] touch-manipulation"
+                >
+                  {item.cta}
+                </Link>
               </motion.div>
             ))}
           </div>
