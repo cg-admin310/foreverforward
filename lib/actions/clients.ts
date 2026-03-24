@@ -275,6 +275,46 @@ export async function updateClient(
 }
 
 // ============================================================================
+// DELETE CLIENT
+// ============================================================================
+
+export async function deleteClient(id: string): Promise<ActionResult> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // First get client info for activity log
+    const { data: client } = await supabase
+      .from("msp_clients")
+      .select("organization_name")
+      .eq("id", id)
+      .single();
+
+    const { error } = await supabase.from("msp_clients").delete().eq("id", id);
+
+    if (error) {
+      console.error("Error deleting client:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Log activity
+    const adminClient = createAdminClient();
+    await adminClient.from("activities").insert({
+      activity_type: "client_deleted",
+      description: `Client deleted: ${client?.organization_name}`,
+      client_id: null,
+      metadata: { deleted_client_id: id },
+      performed_by: null,
+    });
+
+    revalidatePath("/clients");
+    return { success: true };
+  } catch (error) {
+    console.error("Error in deleteClient:", error);
+    return { success: false, error: "Failed to delete client" };
+  }
+}
+
+// ============================================================================
 // UPDATE PIPELINE STAGE
 // ============================================================================
 
