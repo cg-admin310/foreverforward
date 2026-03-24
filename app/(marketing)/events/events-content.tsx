@@ -17,11 +17,11 @@ import {
   X,
   Loader2,
   CheckCircle,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/shared/badge";
-import { SectionHeading } from "@/components/shared/section-heading";
 import type { Event } from "@/types/database";
 
 interface EventsContentProps {
@@ -35,6 +35,16 @@ interface EventsContentProps {
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function formatFullDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -50,13 +60,30 @@ function formatTime(dateString: string): string {
   });
 }
 
-function formatDateParts(dateString: string): { month: string; day: string } {
+function formatDateParts(dateString: string): { month: string; day: string; weekday: string } {
   const date = new Date(dateString);
   return {
-    month: date.toLocaleDateString("en-US", { month: "short" }),
+    month: date.toLocaleDateString("en-US", { month: "short" }).toUpperCase(),
     day: date.getDate().toString(),
+    weekday: date.toLocaleDateString("en-US", { weekday: "short" }),
   };
 }
+
+// Stagger animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
 
 export function EventsContent({
   featured,
@@ -78,6 +105,11 @@ export function EventsContent({
     dietaryRestrictions: "",
     accessibilityNeeds: "",
   });
+
+  // Combine featured with upcoming for display (featured first if exists)
+  const allUpcoming = featured
+    ? [featured, ...upcoming.filter(e => e.id !== featured.id)]
+    : upcoming;
 
   const handleGetTickets = (event: Event) => {
     setSelectedEvent(event);
@@ -129,10 +161,8 @@ export function EventsContent({
       }
 
       if (data.isFree) {
-        // Free event - show success message
         setRegistrationSuccess(true);
       } else {
-        // Paid event - redirect to Stripe
         if (data.url) {
           window.location.href = data.url;
         } else {
@@ -147,26 +177,51 @@ export function EventsContent({
     }
   };
 
+  // Empty state
   if (!hasEvents) {
     return (
-      <section className="py-16 lg:py-24 bg-[#FAFAF8]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="py-20 lg:py-32 bg-gradient-to-b from-[#FAFAF8] to-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl p-12 border border-[#DDDDDD]"
+            transition={{ duration: 0.6 }}
+            className="relative"
           >
-            <CalendarPlus className="h-16 w-16 text-[#C9A84C] mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">
-              No Upcoming Events
-            </h2>
-            <p className="text-[#555555] mb-8 max-w-md mx-auto">
-              We&apos;re currently planning our next community events. Sign up for
-              our newsletter to be the first to know when tickets go on sale!
-            </p>
-            <Button asChild size="lg">
-              <Link href="/get-involved/enroll">Get Event Updates</Link>
-            </Button>
+            {/* Decorative background */}
+            <div className="absolute inset-0 bg-[#1A1A1A] rounded-3xl transform rotate-1" />
+            <div className="relative bg-white rounded-3xl p-12 lg:p-16 border border-[#DDDDDD] shadow-xl">
+              <div className="text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                  className="w-24 h-24 rounded-full bg-gradient-to-br from-[#C9A84C] to-[#A68A2E] flex items-center justify-center mx-auto mb-8"
+                >
+                  <CalendarPlus className="h-12 w-12 text-white" />
+                </motion.div>
+
+                <h2 className="text-3xl lg:text-4xl font-bold text-[#1A1A1A] mb-4">
+                  Events Coming Soon
+                </h2>
+                <p className="text-lg text-[#555555] mb-8 max-w-lg mx-auto leading-relaxed">
+                  We&apos;re cooking up something special! Sign up to be the first to know
+                  when our next community gathering is announced.
+                </p>
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <Button asChild size="lg" className="min-w-[200px]">
+                    <Link href="/get-involved/enroll">
+                      <Sparkles className="h-5 w-5 mr-2" />
+                      Get Notified
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" size="lg">
+                    <Link href="/contact">Contact Us</Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -175,277 +230,319 @@ export function EventsContent({
 
   return (
     <>
-      {/* Featured Event */}
-      {featured && (
-        <section className="py-16 lg:py-24 bg-[#FAFAF8]">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mb-8"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <Star className="h-5 w-5 text-[#C9A84C] fill-[#C9A84C]" />
-                <span className="text-sm font-semibold text-[#C9A84C] uppercase tracking-wider">
-                  Featured Event
-                </span>
-              </div>
-            </motion.div>
+      {/* All Upcoming Events Grid */}
+      <section className="py-16 lg:py-24 bg-[#FAFAF8]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12"
+          >
+            <div>
+              <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#C9A84C] uppercase tracking-wider mb-2">
+                <Calendar className="h-4 w-4" />
+                Upcoming Events
+              </span>
+              <h2 className="text-3xl lg:text-4xl font-bold text-[#1A1A1A]">
+                Don&apos;t Miss Out
+              </h2>
+            </div>
+            <p className="text-[#555555] max-w-md">
+              Join us for workshops, family events, and community gatherings that bring people together.
+            </p>
+          </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl overflow-hidden shadow-lg border border-[#DDDDDD]"
-            >
-              <div className="grid lg:grid-cols-2">
-                {/* Event Image */}
-                <div className="aspect-video lg:aspect-auto bg-gradient-to-br from-[#C9A84C] to-[#A68A2E] flex items-center justify-center min-h-[300px] relative overflow-hidden">
-                  {featured.featured_image_url ? (
-                    <Image
-                      src={featured.featured_image_url}
-                      alt={featured.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                    />
-                  ) : (
-                    <div className="text-center text-[#1A1A1A]/80">
-                      <Film className="h-16 w-16 mx-auto mb-4" />
-                      <span className="font-semibold">
-                        {featured.event_type === "movies_on_the_menu"
-                          ? "Movies on the Menu"
-                          : "Event"}
-                      </span>
-                    </div>
-                  )}
-                </div>
+          {/* Events Grid */}
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid gap-8"
+          >
+            {allUpcoming.map((event, index) => {
+              const dateParts = formatDateParts(event.start_datetime);
+              const isMoviesOnMenu = event.event_type === "movies_on_the_menu";
+              const isFeatured = index === 0 && featured?.id === event.id;
+              const spotsLeft = event.capacity ? Math.max(0, event.capacity - (event.tickets_sold || 0)) : null;
 
-                {/* Content */}
-                <div className="p-6 lg:p-10">
-                  <Badge variant="gold" className="mb-4">
-                    {eventTypeLabels[featured.event_type] || featured.event_type}
-                  </Badge>
-                  <h2 className="text-2xl lg:text-3xl font-bold text-[#1A1A1A] mb-4">
-                    {featured.title}
-                  </h2>
-
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center gap-3 text-[#555555]">
-                      <Calendar className="h-5 w-5 text-[#C9A84C]" />
-                      <span>{formatDate(featured.start_datetime)}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-[#555555]">
-                      <Clock className="h-5 w-5 text-[#C9A84C]" />
-                      <span>
-                        {formatTime(featured.start_datetime)}
-                        {featured.end_datetime &&
-                          ` - ${formatTime(featured.end_datetime)}`}
-                      </span>
-                    </div>
-                    {featured.venue_name && (
-                      <div className="flex items-center gap-3 text-[#555555]">
-                        <MapPin className="h-5 w-5 text-[#C9A84C]" />
-                        <span>{featured.venue_name}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {featured.description && (
-                    <p className="text-[#555555] leading-relaxed mb-6">
-                      {featured.description}
-                    </p>
-                  )}
-
-                  <div className="flex items-center justify-between mb-6 p-4 rounded-lg bg-[#FBF6E9]">
-                    <div>
-                      {featured.ticket_price ? (
-                        <>
-                          <span className="text-2xl font-bold text-[#1A1A1A]">
-                            ${featured.ticket_price}
-                          </span>
-                          <span className="text-[#888888] ml-1">per person</span>
-                        </>
+              return (
+                <motion.div
+                  key={event.id}
+                  variants={itemVariants}
+                  className={`group relative ${isFeatured ? 'lg:col-span-full' : ''}`}
+                >
+                  <div
+                    className={`
+                      relative overflow-hidden rounded-2xl border transition-all duration-300
+                      ${isMoviesOnMenu
+                        ? 'bg-[#1A1A1A] border-[#333] hover:border-[#C9A84C]'
+                        : 'bg-white border-[#DDDDDD] hover:border-[#C9A84C] hover:shadow-xl'
+                      }
+                      ${isFeatured ? 'lg:grid lg:grid-cols-2' : ''}
+                    `}
+                  >
+                    {/* Image Section */}
+                    <div className={`
+                      relative overflow-hidden
+                      ${isFeatured ? 'aspect-[16/10] lg:aspect-auto lg:min-h-[400px]' : 'aspect-[16/9]'}
+                    `}>
+                      {event.featured_image_url ? (
+                        <Image
+                          src={event.featured_image_url}
+                          alt={event.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          sizes={isFeatured ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 768px) 100vw, 50vw"}
+                        />
                       ) : (
-                        <span className="text-xl font-bold text-[#5A7247]">
-                          Free Event
-                        </span>
+                        <div className={`
+                          absolute inset-0 flex items-center justify-center
+                          ${isMoviesOnMenu
+                            ? 'bg-gradient-to-br from-[#C9A84C] via-[#A68A2E] to-[#8B7225]'
+                            : 'bg-gradient-to-br from-[#5A7247] via-[#4A6139] to-[#3D5030]'
+                          }
+                        `}>
+                          <div className="text-center text-white/90">
+                            {isMoviesOnMenu ? (
+                              <>
+                                <Film className="h-16 w-16 mx-auto mb-3 opacity-80" />
+                                <span className="text-lg font-semibold">Movies on the Menu</span>
+                              </>
+                            ) : (
+                              <>
+                                <Users className="h-16 w-16 mx-auto mb-3 opacity-80" />
+                                <span className="text-lg font-semibold">Community Event</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Date Badge - Floating */}
+                      <div className="absolute top-4 left-4 z-10">
+                        <div className="bg-white rounded-xl p-3 shadow-lg text-center min-w-[70px]">
+                          <span className="block text-xs font-bold text-[#C9A84C] tracking-wider">
+                            {dateParts.month}
+                          </span>
+                          <span className="block text-2xl font-bold text-[#1A1A1A] leading-none">
+                            {dateParts.day}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Featured Badge */}
+                      {isFeatured && (
+                        <div className="absolute top-4 right-4 z-10">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#C9A84C] text-[#1A1A1A] text-xs font-bold uppercase tracking-wider">
+                            <Star className="h-3 w-3 fill-current" />
+                            Featured
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Movies on Menu Badge */}
+                      {isMoviesOnMenu && !isFeatured && (
+                        <div className="absolute top-4 right-4 z-10">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#C9A84C] text-[#1A1A1A] text-xs font-bold">
+                            <Utensils className="h-3 w-3" />
+                            Dinner + Movie
+                          </span>
+                        </div>
                       )}
                     </div>
-                    {featured.capacity && (
-                      <div className="text-right">
-                        <span className="text-[#5A7247] font-medium">
-                          {Math.max(
-                            0,
-                            featured.capacity - (featured.tickets_sold || 0)
-                          )}{" "}
-                          spots left
+
+                    {/* Content Section */}
+                    <div className={`p-6 lg:p-8 ${isMoviesOnMenu ? 'text-white' : ''}`}>
+                      {/* Event Type Tag */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className={`
+                          inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider
+                          ${isMoviesOnMenu
+                            ? 'bg-[#C9A84C]/20 text-[#C9A84C]'
+                            : 'bg-[#EFF4EB] text-[#5A7247]'
+                          }
+                        `}>
+                          {eventTypeLabels[event.event_type] || event.event_type}
                         </span>
-                        <span className="text-[#888888] text-sm block">
-                          of {featured.capacity} total
-                        </span>
+                        {event.is_free || !event.ticket_price ? (
+                          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#5A7247] text-white">
+                            FREE
+                          </span>
+                        ) : null}
                       </div>
-                    )}
+
+                      {/* Title */}
+                      <h3 className={`
+                        text-2xl lg:text-3xl font-bold mb-4 leading-tight
+                        ${isMoviesOnMenu ? 'text-white' : 'text-[#1A1A1A]'}
+                      `}>
+                        {event.title}
+                      </h3>
+
+                      {/* Description */}
+                      {event.description && (
+                        <p className={`
+                          mb-6 leading-relaxed line-clamp-2
+                          ${isMoviesOnMenu ? 'text-white/70' : 'text-[#555555]'}
+                        `}>
+                          {event.description}
+                        </p>
+                      )}
+
+                      {/* Event Details */}
+                      <div className={`
+                        flex flex-wrap gap-4 mb-6 text-sm
+                        ${isMoviesOnMenu ? 'text-white/60' : 'text-[#888888]'}
+                      `}>
+                        <span className="flex items-center gap-2">
+                          <Clock className={`h-4 w-4 ${isMoviesOnMenu ? 'text-[#C9A84C]' : 'text-[#C9A84C]'}`} />
+                          {formatTime(event.start_datetime)}
+                        </span>
+                        {event.venue_name && (
+                          <span className="flex items-center gap-2">
+                            <MapPin className={`h-4 w-4 ${isMoviesOnMenu ? 'text-[#C9A84C]' : 'text-[#C9A84C]'}`} />
+                            {event.venue_name}
+                          </span>
+                        )}
+                        {spotsLeft !== null && (
+                          <span className="flex items-center gap-2">
+                            <Users className={`h-4 w-4 ${isMoviesOnMenu ? 'text-[#C9A84C]' : 'text-[#C9A84C]'}`} />
+                            {spotsLeft > 0 ? `${spotsLeft} spots left` : 'Sold Out'}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Price & CTA */}
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          {event.ticket_price && event.ticket_price > 0 ? (
+                            <div>
+                              <span className={`text-3xl font-bold ${isMoviesOnMenu ? 'text-white' : 'text-[#1A1A1A]'}`}>
+                                ${event.ticket_price}
+                              </span>
+                              <span className={`text-sm ml-1 ${isMoviesOnMenu ? 'text-white/60' : 'text-[#888888]'}`}>
+                                /person
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-2xl font-bold text-[#5A7247]">
+                              Free Event
+                            </span>
+                          )}
+                        </div>
+
+                        <Button
+                          size="lg"
+                          onClick={() => handleGetTickets(event)}
+                          disabled={spotsLeft === 0}
+                          className={`
+                            ${isMoviesOnMenu
+                              ? 'bg-[#C9A84C] hover:bg-[#A68A2E] text-[#1A1A1A]'
+                              : ''
+                            }
+                          `}
+                        >
+                          {spotsLeft === 0 ? (
+                            'Sold Out'
+                          ) : (
+                            <>
+                              <Ticket className="h-5 w-5 mr-2" />
+                              {event.ticket_price ? 'Get Tickets' : 'Register Free'}
+                            </>
+                          )}
+                        </Button>
+                      </div>
+
+                      {/* Movies on the Menu Extra Info */}
+                      {isMoviesOnMenu && event.movie_title && (
+                        <div className="mt-6 pt-6 border-t border-white/10">
+                          <div className="flex items-center gap-3 text-white/70">
+                            <Film className="h-5 w-5 text-[#C9A84C]" />
+                            <span>Featuring: <strong className="text-white">{event.movie_title}</strong></span>
+                          </div>
+                          {event.food_pairing && (
+                            <div className="flex items-center gap-3 text-white/70 mt-2">
+                              <Utensils className="h-5 w-5 text-[#C9A84C]" />
+                              <span>Menu: <strong className="text-white">{event.food_pairing}</strong></span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </div>
+      </section>
 
-                  <Button
-                    size="lg"
-                    className="w-full"
-                    onClick={() => handleGetTickets(featured)}
-                  >
-                    <Ticket className="h-5 w-5 mr-2" />
-                    {featured.ticket_price ? "Get Tickets" : "Register Now"}
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-      )}
-
-      {/* Upcoming Events */}
-      {upcoming.length > 0 && (
-        <section className="py-16 lg:py-24 bg-white">
+      {/* Past Events - Compact Grid */}
+      {past.length > 0 && (
+        <section className="py-16 lg:py-20 bg-white border-t border-[#EEEEEE]">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeading
-              title="Upcoming Events"
-              subtitle="Mark your calendar for these community gatherings."
-            />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-2xl lg:text-3xl font-bold text-[#1A1A1A] mb-2">
+                Past Events
+              </h2>
+              <p className="text-[#888888]">
+                A look back at our recent community gatherings
+              </p>
+            </motion.div>
 
-            <div className="mt-12 space-y-6">
-              {upcoming.map((event, index) => {
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {past.slice(0, 6).map((event) => {
                 const dateParts = formatDateParts(event.start_datetime);
                 return (
                   <motion.div
                     key={event.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="bg-[#FAFAF8] rounded-xl p-6 border border-[#DDDDDD] hover:border-[#C9A84C] transition-colors group"
+                    variants={itemVariants}
+                    className="group bg-[#FAFAF8] rounded-xl p-5 border border-[#EEEEEE] hover:border-[#DDDDDD] transition-all"
                   >
-                    <div className="flex flex-col lg:flex-row lg:items-center gap-6">
-                      {/* Date Badge */}
-                      <div className="shrink-0 w-20 h-20 rounded-xl bg-[#1A1A1A] flex flex-col items-center justify-center text-center">
-                        <span className="text-[#C9A84C] text-sm font-medium">
+                    <div className="flex items-start gap-4">
+                      {/* Date */}
+                      <div className="shrink-0 w-14 h-14 rounded-lg bg-[#1A1A1A] flex flex-col items-center justify-center text-center">
+                        <span className="text-[10px] font-bold text-[#C9A84C] tracking-wider">
                           {dateParts.month}
                         </span>
-                        <span className="text-white text-2xl font-bold">
+                        <span className="text-lg font-bold text-white leading-none">
                           {dateParts.day}
                         </span>
                       </div>
 
-                      {/* Content */}
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <Badge
-                              variant={
-                                event.event_type === "movies_on_the_menu"
-                                  ? "gold"
-                                  : "default"
-                              }
-                              size="sm"
-                              className="mb-2"
-                            >
-                              {eventTypeLabels[event.event_type] ||
-                                event.event_type}
-                            </Badge>
-                            <h3 className="text-xl font-semibold text-[#1A1A1A] group-hover:text-[#C9A84C] transition-colors">
-                              {event.title}
-                            </h3>
-                          </div>
-                          <div className="text-right shrink-0">
-                            {!event.ticket_price || event.ticket_price === 0 ? (
-                              <span className="text-[#5A7247] font-semibold">
-                                Free
-                              </span>
-                            ) : (
-                              <span className="text-[#1A1A1A] font-semibold">
-                                ${event.ticket_price}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {event.description && (
-                          <p className="text-[#555555] mt-2 line-clamp-2">
-                            {event.description}
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-[#1A1A1A] truncate group-hover:text-[#C9A84C] transition-colors">
+                          {event.title}
+                        </h3>
+                        <p className="text-sm text-[#888888] mt-1">
+                          {eventTypeLabels[event.event_type] || event.event_type}
+                        </p>
+                        {event.tickets_sold && event.tickets_sold > 0 && (
+                          <p className="text-sm text-[#5A7247] font-medium mt-2">
+                            {event.tickets_sold} attended
                           </p>
                         )}
-
-                        <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-[#888888]">
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            {formatTime(event.start_datetime)}
-                          </span>
-                          {event.venue_name && (
-                            <span className="flex items-center gap-1">
-                              <MapPin className="h-4 w-4" />
-                              {event.venue_name}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* CTA */}
-                      <div className="shrink-0">
-                        <Button
-                          variant={
-                            !event.ticket_price || event.ticket_price === 0
-                              ? "secondary"
-                              : "default"
-                          }
-                          onClick={() => handleGetTickets(event)}
-                        >
-                          {!event.ticket_price || event.ticket_price === 0
-                            ? "Register"
-                            : "Get Tickets"}
-                        </Button>
                       </div>
                     </div>
                   </motion.div>
                 );
               })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Past Events */}
-      {past.length > 0 && (
-        <section className="py-16 lg:py-24 bg-[#F5F3EF]">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeading
-              title="Recent Event Highlights"
-              subtitle="A look back at some of our favorite community moments."
-              centered
-            />
-
-            <div className="mt-12 grid md:grid-cols-3 gap-6">
-              {past.slice(0, 3).map((event, index) => (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-xl p-6 text-center border border-[#DDDDDD]"
-                >
-                  <div className="w-16 h-16 rounded-full bg-[#FBF6E9] flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl font-bold text-[#C9A84C]">
-                      {event.tickets_sold || 0}
-                    </span>
-                  </div>
-                  <h3 className="font-semibold text-[#1A1A1A] mb-1">
-                    {event.title}
-                  </h3>
-                  <p className="text-sm text-[#888888]">
-                    {new Date(event.start_datetime).toLocaleDateString("en-US", {
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
+            </motion.div>
           </div>
         </section>
       )}
@@ -453,224 +550,212 @@ export function EventsContent({
       {/* Ticket Purchase Modal */}
       {isModalOpen && selectedEvent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={handleCloseModal}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden"
           >
-            <div className="sticky top-0 bg-white border-b border-[#DDDDDD] p-4 flex items-center justify-between rounded-t-2xl">
-              <h2 className="text-xl font-bold text-[#1A1A1A]">
-                {selectedEvent.ticket_price ? "Get Tickets" : "Register"}
-              </h2>
+            {/* Modal Header */}
+            <div className="relative bg-[#1A1A1A] text-white p-6">
               <button
                 onClick={handleCloseModal}
-                className="p-2 hover:bg-[#F5F3EF] rounded-lg transition-colors"
+                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-lg transition-colors"
               >
-                <X className="h-5 w-5 text-[#555555]" />
+                <X className="h-5 w-5" />
               </button>
+              <div className="pr-8">
+                <span className="inline-block px-2 py-1 rounded bg-[#C9A84C]/20 text-[#C9A84C] text-xs font-semibold uppercase tracking-wider mb-2">
+                  {eventTypeLabels[selectedEvent.event_type] || selectedEvent.event_type}
+                </span>
+                <h2 className="text-xl font-bold mb-2">{selectedEvent.title}</h2>
+                <div className="flex flex-wrap gap-3 text-sm text-white/70">
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="h-4 w-4 text-[#C9A84C]" />
+                    {formatDate(selectedEvent.start_datetime)}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="h-4 w-4 text-[#C9A84C]" />
+                    {formatTime(selectedEvent.start_datetime)}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div className="p-6">
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
               {registrationSuccess ? (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 rounded-full bg-[#EFF4EB] flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="h-8 w-8 text-[#5A7247]" />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-8"
+                >
+                  <div className="w-20 h-20 rounded-full bg-[#EFF4EB] flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle className="h-10 w-10 text-[#5A7247]" />
                   </div>
-                  <h3 className="text-xl font-semibold text-[#1A1A1A] mb-2">
+                  <h3 className="text-2xl font-bold text-[#1A1A1A] mb-2">
                     You&apos;re Registered!
                   </h3>
                   <p className="text-[#555555] mb-6">
                     Check your email for confirmation and event details.
                   </p>
-                  <Button onClick={handleCloseModal}>Done</Button>
-                </div>
+                  <Button onClick={handleCloseModal} size="lg">
+                    Done
+                  </Button>
+                </motion.div>
               ) : (
-                <>
-                  {/* Event Summary */}
-                  <div className="bg-[#FBF6E9] rounded-xl p-4 mb-6">
-                    <h3 className="font-semibold text-[#1A1A1A] mb-2">
-                      {selectedEvent.title}
-                    </h3>
-                    <div className="space-y-1 text-sm text-[#555555]">
-                      <p className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-[#C9A84C]" />
-                        {formatDate(selectedEvent.start_datetime)}
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-[#C9A84C]" />
-                        {formatTime(selectedEvent.start_datetime)}
-                      </p>
-                      {selectedEvent.venue_name && (
-                        <p className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-[#C9A84C]" />
-                          {selectedEvent.venue_name}
-                        </p>
-                      )}
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-[#E8D48B]">
-                      {selectedEvent.ticket_price ? (
-                        <span className="text-lg font-bold text-[#1A1A1A]">
-                          ${selectedEvent.ticket_price} per ticket
-                        </span>
-                      ) : (
-                        <span className="text-lg font-bold text-[#5A7247]">
-                          Free Event
-                        </span>
-                      )}
-                    </div>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  {/* Price Display */}
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-[#FBF6E9] border border-[#E8D48B]">
+                    <span className="font-medium text-[#1A1A1A]">Price per ticket</span>
+                    {selectedEvent.ticket_price && selectedEvent.ticket_price > 0 ? (
+                      <span className="text-2xl font-bold text-[#1A1A1A]">
+                        ${selectedEvent.ticket_price}
+                      </span>
+                    ) : (
+                      <span className="text-xl font-bold text-[#5A7247]">FREE</span>
+                    )}
                   </div>
 
-                  {/* Registration Form */}
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
-                          First Name *
-                        </label>
-                        <Input
-                          value={formData.firstName}
-                          onChange={(e) =>
-                            setFormData({ ...formData, firstName: e.target.value })
-                          }
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
-                          Last Name *
-                        </label>
-                        <Input
-                          value={formData.lastName}
-                          onChange={(e) =>
-                            setFormData({ ...formData, lastName: e.target.value })
-                          }
-                          required
-                        />
-                      </div>
-                    </div>
-
+                  {/* Name Fields */}
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
-                        Email *
+                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1.5">
+                        First Name <span className="text-red-500">*</span>
                       </label>
                       <Input
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
+                        value={formData.firstName}
+                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                        placeholder="John"
                         required
                       />
                     </div>
-
                     <div>
-                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
-                        Phone (optional)
+                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1.5">
+                        Last Name <span className="text-red-500">*</span>
                       </label>
                       <Input
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) =>
-                          setFormData({ ...formData, phone: e.target.value })
-                        }
+                        value={formData.lastName}
+                        onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                        placeholder="Doe"
+                        required
                       />
                     </div>
+                  </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
-                        Number of Tickets *
-                      </label>
-                      <select
-                        value={formData.ticketQuantity}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            ticketQuantity: parseInt(e.target.value),
-                          })
-                        }
-                        className="w-full rounded-lg border border-[#DDDDDD] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
-                      >
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                          <option key={n} value={n}>
-                            {n} {n === 1 ? "ticket" : "tickets"}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-medium text-[#1A1A1A] mb-1.5">
+                      Email <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="john@example.com"
+                      required
+                    />
+                  </div>
 
-                    {selectedEvent.event_type === "movies_on_the_menu" && (
-                      <div>
-                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
-                          Dietary Restrictions (optional)
-                        </label>
-                        <Input
-                          value={formData.dietaryRestrictions}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              dietaryRestrictions: e.target.value,
-                            })
-                          }
-                          placeholder="e.g., vegetarian, allergies"
-                        />
-                      </div>
-                    )}
+                  {/* Phone */}
+                  <div>
+                    <label className="block text-sm font-medium text-[#1A1A1A] mb-1.5">
+                      Phone <span className="text-[#888888] font-normal">(optional)</span>
+                    </label>
+                    <Input
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="(555) 123-4567"
+                    />
+                  </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
-                        Accessibility Needs (optional)
-                      </label>
-                      <Input
-                        value={formData.accessibilityNeeds}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            accessibilityNeeds: e.target.value,
-                          })
-                        }
-                        placeholder="Let us know how we can accommodate you"
-                      />
-                    </div>
-
-                    {/* Total */}
-                    {selectedEvent.ticket_price && selectedEvent.ticket_price > 0 && (
-                      <div className="bg-[#1A1A1A] text-white rounded-lg p-4 flex items-center justify-between">
-                        <span className="font-medium">Total</span>
-                        <span className="text-xl font-bold">
-                          ${(selectedEvent.ticket_price * formData.ticketQuantity).toFixed(2)}
-                        </span>
-                      </div>
-                    )}
-
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full"
-                      size="lg"
+                  {/* Ticket Quantity */}
+                  <div>
+                    <label className="block text-sm font-medium text-[#1A1A1A] mb-1.5">
+                      Number of Tickets <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={formData.ticketQuantity}
+                      onChange={(e) => setFormData({ ...formData, ticketQuantity: parseInt(e.target.value) })}
+                      className="w-full rounded-lg border border-[#DDDDDD] bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent"
                     >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                          Processing...
-                        </>
-                      ) : selectedEvent.ticket_price ? (
-                        <>
-                          <Ticket className="h-5 w-5 mr-2" />
-                          Continue to Payment
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="h-5 w-5 mr-2" />
-                          Complete Registration
-                        </>
-                      )}
-                    </Button>
-                  </form>
-                </>
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                        <option key={n} value={n}>
+                          {n} {n === 1 ? "ticket" : "tickets"}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Dietary Restrictions for Movies on the Menu */}
+                  {selectedEvent.event_type === "movies_on_the_menu" && (
+                    <div>
+                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1.5">
+                        Dietary Restrictions <span className="text-[#888888] font-normal">(optional)</span>
+                      </label>
+                      <Input
+                        value={formData.dietaryRestrictions}
+                        onChange={(e) => setFormData({ ...formData, dietaryRestrictions: e.target.value })}
+                        placeholder="Vegetarian, allergies, etc."
+                      />
+                    </div>
+                  )}
+
+                  {/* Accessibility */}
+                  <div>
+                    <label className="block text-sm font-medium text-[#1A1A1A] mb-1.5">
+                      Accessibility Needs <span className="text-[#888888] font-normal">(optional)</span>
+                    </label>
+                    <Input
+                      value={formData.accessibilityNeeds}
+                      onChange={(e) => setFormData({ ...formData, accessibilityNeeds: e.target.value })}
+                      placeholder="Let us know how we can accommodate you"
+                    />
+                  </div>
+
+                  {/* Total */}
+                  {selectedEvent.ticket_price && selectedEvent.ticket_price > 0 && (
+                    <div className="flex items-center justify-between p-4 rounded-xl bg-[#1A1A1A] text-white">
+                      <span className="font-medium">Total</span>
+                      <span className="text-2xl font-bold">
+                        ${(selectedEvent.ticket_price * formData.ticketQuantity).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Submit */}
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : selectedEvent.ticket_price && selectedEvent.ticket_price > 0 ? (
+                      <>
+                        <ArrowRight className="h-5 w-5 mr-2" />
+                        Continue to Payment
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-5 w-5 mr-2" />
+                        Complete Registration
+                      </>
+                    )}
+                  </Button>
+                </form>
               )}
             </div>
           </motion.div>
