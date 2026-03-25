@@ -52,11 +52,11 @@ export async function getDashboardMetrics(): Promise<ActionResult<DashboardMetri
       .in("status", ["enrolled", "active"]);
     const activeParticipants = participantsResult.error ? 0 : participantsResult.count;
 
-    // MSP Clients
+    // MSP Clients (valid stages: new_lead, discovery, assessment, proposal, negotiation, contract, onboarding, active, churned)
     const clientsCountResult = await supabase
       .from("msp_clients")
       .select("*", { count: "exact", head: true })
-      .neq("pipeline_stage", "lost");
+      .neq("pipeline_stage", "churned");
     const mspClients = clientsCountResult.error ? 0 : clientsCountResult.count;
 
     // Calculate monthly revenue from MSP clients
