@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Donation, DonationInsert, DonationFrequency } from "@/types/database";
 import { sendEmail, donationThankYouEmail, donationReceiptEmail } from "@/lib/resend";
@@ -169,7 +168,7 @@ export async function getDonations(options?: {
   search?: string;
 }): Promise<ActionResult<{ donations: Donation[]; total: number }>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createAdminClient();
 
     let query = supabase
       .from("donations")
@@ -218,7 +217,7 @@ export async function getDonations(options?: {
 
 export async function getDonationById(id: string): Promise<ActionResult<Donation>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createAdminClient();
 
     const { data, error } = await supabase
       .from("donations")
@@ -296,7 +295,7 @@ export async function getDonationByStripeSubscription(
 
 export async function getDonationStats(): Promise<ActionResult<DonationStats>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createAdminClient();
 
     // Get start of current month and year
     const now = new Date();
@@ -364,7 +363,7 @@ export async function getDonorSummaries(options?: {
   search?: string;
 }): Promise<ActionResult<{ donors: DonorSummary[]; total: number }>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createAdminClient();
 
     // Get all successful donations
     let query = supabase
@@ -454,7 +453,7 @@ export async function getRecentDonations(
   limit = 10
 ): Promise<ActionResult<Donation[]>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createAdminClient();
 
     const { data, error } = await supabase
       .from("donations")
@@ -618,7 +617,7 @@ export async function exportDonationsToCSV(options?: {
   frequency?: DonationFrequency;
 }): Promise<ActionResult<string>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createAdminClient();
 
     let query = supabase
       .from("donations")
