@@ -65,10 +65,11 @@ export async function createStripeCustomerForClient(
   clientId: string
 ): Promise<ActionResult<string>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    // Use admin client to bypass RLS
+    const adminClient = createAdminClient();
 
     // Get client details
-    const { data: client, error: clientError } = await supabase
+    const { data: client, error: clientError } = await adminClient
       .from("msp_clients")
       .select("*")
       .eq("id", clientId)
@@ -94,7 +95,6 @@ export async function createStripeCustomerForClient(
     );
 
     // Update client with Stripe customer ID
-    const adminClient = createAdminClient();
     await adminClient
       .from("msp_clients")
       .update({ stripe_customer_id: customer.id })
@@ -122,10 +122,11 @@ export async function createInvoice(data: {
   type?: "recurring" | "one-time";
 }): Promise<ActionResult<InvoiceDisplay>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    // Use admin client to bypass RLS
+    const adminClient = createAdminClient();
 
     // Get client details
-    const { data: client, error: clientError } = await supabase
+    const { data: client, error: clientError } = await adminClient
       .from("msp_clients")
       .select("*")
       .eq("id", data.clientId)
@@ -159,7 +160,6 @@ export async function createInvoice(data: {
     });
 
     // Sync invoice to Supabase database
-    const adminClient = createAdminClient();
     await adminClient.from("invoices").insert({
       stripe_invoice_id: invoice.id,
       stripe_customer_id: stripeCustomerId,
