@@ -18,11 +18,22 @@ export interface DashboardMetrics {
   revenueChange: number;
 }
 
+const DEFAULT_METRICS: DashboardMetrics = {
+  newLeads: 0,
+  leadsChange: 0,
+  activeParticipants: 0,
+  participantsChange: 0,
+  mspClients: 0,
+  clientsChange: 0,
+  monthlyRevenue: 0,
+  revenueChange: 0,
+};
+
 export async function getDashboardMetrics(): Promise<ActionResult<DashboardMetrics>> {
   try {
     const supabase = await createServerSupabaseClient();
 
-    // Get leads from this month
+    // Calculate date ranges
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
@@ -30,78 +41,118 @@ export async function getDashboardMetrics(): Promise<ActionResult<DashboardMetri
     const startOfLastMonth = new Date(startOfMonth);
     startOfLastMonth.setMonth(startOfLastMonth.getMonth() - 1);
 
-    // New leads this month (with error handling for missing table)
-    const leadsResult = await supabase
-      .from("leads")
-      .select("*", { count: "exact", head: true })
-      .gte("created_at", startOfMonth.toISOString());
-    const newLeadsCount = leadsResult.error ? 0 : leadsResult.count;
+    // Query 1: Leads this month
+    let newLeadsCount = 0;
+    try {
+      const { count, error } = await supabase
+        .from("leads")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", startOfMonth.toISOString());
 
-    // Leads last month (for comparison)
-    const lastMonthResult = await supabase
-      .from("leads")
-      .select("*", { count: "exact", head: true })
-      .gte("created_at", startOfLastMonth.toISOString())
-      .lt("created_at", startOfMonth.toISOString());
-    const lastMonthLeads = lastMonthResult.error ? 0 : lastMonthResult.count;
+      if (!error && count !== null) {
+        newLeadsCount = count;
+      } else if (error) {
+        console.error("getDashboardMetrics: leads query error:", error.message);
+      }
+    } catch (e) {
+      console.error("getDashboardMetrics: leads query exception:", e);
+    }
 
-    // Active participants (valid statuses: applicant, enrolled, active, on_hold, completed, withdrawn)
-    const participantsResult = await supabase
-      .from("participants")
-      .select("*", { count: "exact", head: true })
-      .in("status", ["enrolled", "active"]);
-    const activeParticipants = participantsResult.error ? 0 : participantsResult.count;
+    // Query 2: Leads last month (for comparison)
+    let lastMonthLeads = 0;
+    try {
+      const { count, error } = await supabase
+        .from("leads")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", startOfLastMonth.toISOString())
+        .lt("created_at", startOfMonth.toISOString());
 
-    // MSP Clients (valid stages: new_lead, discovery, assessment, proposal, negotiation, contract, onboarding, active, churned)
-    const clientsCountResult = await supabase
-      .from("msp_clients")
-      .select("*", { count: "exact", head: true })
-      .neq("pipeline_stage", "churned");
-    const mspClients = clientsCountResult.error ? 0 : clientsCountResult.count;
+      if (!error && count !== null) {
+        lastMonthLeads = count;
+      } else if (error) {
+        console.error("getDashboardMetrics: last month leads error:", error.message);
+      }
+    } catch (e) {
+      console.error("getDashboardMetrics: last month leads exception:", e);
+    }
 
-    // Calculate monthly revenue from MSP clients
-    const clientsRevenueResult = await supabase
-      .from("msp_clients")
-      .select("monthly_value")
-      .eq("pipeline_stage", "active_client");
-    const clients = clientsRevenueResult.error ? [] : clientsRevenueResult.data;
+    // Query 3: Active participants
+    // Valid statuses: 'applicant', 'enrolled', 'active', 'on_hold', 'completed', 'withdrawn'
+    let activeParticipants = 0;
+    try {
+      const { count, error } = await supabase
+        .from("participants")
+        .select("*", { count: "exact", head: true })
+        .in("status", ["enrolled", "active"]);
 
-    const monthlyRevenue = clients?.reduce((sum, c) => sum + (c.monthly_value || 0), 0) || 0;
+      if (!error && count !== null) {
+        activeParticipants = count;
+      } else if (error) {
+        console.error("getDashboardMetrics: participants error:", error.message);
+      }
+    } catch (e) {
+      console.error("getDashboardMetrics: participants exception:", e);
+    }
 
-    // Calculate changes (percentage)
-    const leadsChange = lastMonthLeads && lastMonthLeads > 0
-      ? Math.round(((newLeadsCount || 0) - lastMonthLeads) / lastMonthLeads * 100)
-      : (newLeadsCount || 0) > 0 ? 100 : 0;
+    // Query 4: MSP clients (non-churned)
+    // Valid stages: 'new_lead', 'discovery', 'assessment', 'proposal', 'negotiation', 'contract', 'onboarding', 'active', 'churned'
+    let mspClients = 0;
+    try {
+      const { count, error } = await supabase
+        .from("msp_clients")
+        .select("*", { count: "exact", head: true })
+        .neq("pipeline_stage", "churned");
+
+      if (!error && count !== null) {
+        mspClients = count;
+      } else if (error) {
+        console.error("getDashboardMetrics: msp_clients count error:", error.message);
+      }
+    } catch (e) {
+      console.error("getDashboardMetrics: msp_clients count exception:", e);
+    }
+
+    // Query 5: Monthly revenue from active clients
+    let monthlyRevenue = 0;
+    try {
+      const { data, error } = await supabase
+        .from("msp_clients")
+        .select("monthly_value")
+        .eq("pipeline_stage", "active");
+
+      if (!error && data) {
+        monthlyRevenue = data.reduce((sum, c) => sum + (c.monthly_value || 0), 0);
+      } else if (error) {
+        console.error("getDashboardMetrics: revenue error:", error.message);
+      }
+    } catch (e) {
+      console.error("getDashboardMetrics: revenue exception:", e);
+    }
+
+    // Calculate leads change percentage
+    let leadsChange = 0;
+    if (lastMonthLeads > 0) {
+      leadsChange = Math.round(((newLeadsCount - lastMonthLeads) / lastMonthLeads) * 100);
+    } else if (newLeadsCount > 0) {
+      leadsChange = 100;
+    }
 
     return {
       success: true,
       data: {
-        newLeads: newLeadsCount || 0,
+        newLeads: newLeadsCount,
         leadsChange,
-        activeParticipants: activeParticipants || 0,
+        activeParticipants,
         participantsChange: 0, // Would need historical data
-        mspClients: mspClients || 0,
-        clientsChange: 0,
+        mspClients,
+        clientsChange: 0, // Would need historical data
         monthlyRevenue,
-        revenueChange: 0,
+        revenueChange: 0, // Would need historical data
       },
     };
   } catch (error) {
-    console.error("Error in getDashboardMetrics:", error);
-    // Return default values instead of error to prevent page crash
-    return {
-      success: true,
-      data: {
-        newLeads: 0,
-        leadsChange: 0,
-        activeParticipants: 0,
-        participantsChange: 0,
-        mspClients: 0,
-        clientsChange: 0,
-        monthlyRevenue: 0,
-        revenueChange: 0,
-      },
-    };
+    console.error("getDashboardMetrics: top-level exception:", error);
+    return { success: true, data: DEFAULT_METRICS };
   }
 }
 
@@ -131,14 +182,13 @@ export async function getRecentActivity(limit = 10): Promise<ActionResult<Activi
       .limit(limit);
 
     if (error) {
-      console.error("Error fetching activities:", error);
-      // Return empty array instead of error to prevent page crash
+      console.error("getRecentActivity: query error:", error.message);
       return { success: true, data: [] };
     }
 
     return { success: true, data: data || [] };
   } catch (error) {
-    console.error("Error in getRecentActivity:", error);
+    console.error("getRecentActivity: exception:", error);
     return { success: true, data: [] };
   }
 }
@@ -169,14 +219,13 @@ export async function getUpcomingEvents(limit = 5): Promise<ActionResult<Upcomin
       .limit(limit);
 
     if (error) {
-      console.error("Error fetching events:", error);
-      // Return empty array instead of error to prevent page crash
+      console.error("getUpcomingEvents: query error:", error.message);
       return { success: true, data: [] };
     }
 
     return { success: true, data: data || [] };
   } catch (error) {
-    console.error("Error in getUpcomingEvents:", error);
+    console.error("getUpcomingEvents: exception:", error);
     return { success: true, data: [] };
   }
 }
@@ -197,19 +246,18 @@ export interface TravisAlert {
 export async function getTravisAlerts(): Promise<ActionResult<TravisAlert[]>> {
   try {
     const supabase = await createServerSupabaseClient();
-
     const alerts: TravisAlert[] = [];
 
-    // Get participants with Travis escalation flags
+    // Query 1: Participants with Travis escalation flags (high severity)
     try {
-      const { data: escalatedParticipants, error: escError } = await supabase
+      const { data, error } = await supabase
         .from("participants")
         .select("id, first_name, last_name, travis_escalation_flags, updated_at")
         .in("status", ["enrolled", "active"])
         .not("travis_escalation_flags", "is", null);
 
-      if (!escError && escalatedParticipants) {
-        escalatedParticipants.forEach((p) => {
+      if (!error && data) {
+        data.forEach((p) => {
           const flags = p.travis_escalation_flags as string[] | null;
           if (flags && flags.length > 0) {
             alerts.push({
@@ -222,44 +270,51 @@ export async function getTravisAlerts(): Promise<ActionResult<TravisAlert[]>> {
             });
           }
         });
+      } else if (error) {
+        console.error("getTravisAlerts: escalation query error:", error.message);
       }
-    } catch {
-      // Column might not exist, continue without escalations
+    } catch (e) {
+      console.error("getTravisAlerts: escalation query exception:", e);
     }
 
-    // Get participants with low progress (enrolled but stuck at 0%)
+    // Query 2: Stuck participants (enrolled 14+ days with 0% progress)
     try {
-      const { data: stuckParticipants, error: stuckError } = await supabase
+      const twoWeeksAgo = new Date();
+      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+      const { data, error } = await supabase
         .from("participants")
         .select("id, first_name, last_name, created_at")
         .in("status", ["enrolled", "active"])
-        .eq("progress_percentage", 0);
+        .eq("progress_percentage", 0)
+        .lt("created_at", twoWeeksAgo.toISOString());
 
-      if (!stuckError && stuckParticipants) {
-        // Only flag if enrolled more than 14 days ago
-        const twoWeeksAgo = new Date();
-        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-
-        stuckParticipants.forEach((p) => {
-          if (new Date(p.created_at) < twoWeeksAgo) {
-            alerts.push({
-              id: `stuck-${p.id}`,
-              participant_name: `${p.first_name} ${p.last_name}`,
-              issue: "No progress in 14+ days",
-              severity: "medium",
-              created_at: p.created_at,
-              participant_id: p.id,
-            });
-          }
+      if (!error && data) {
+        data.forEach((p) => {
+          alerts.push({
+            id: `stuck-${p.id}`,
+            participant_name: `${p.first_name} ${p.last_name}`,
+            issue: "No progress in 14+ days",
+            severity: "medium",
+            created_at: p.created_at,
+            participant_id: p.id,
+          });
         });
+      } else if (error) {
+        console.error("getTravisAlerts: stuck query error:", error.message);
       }
-    } catch {
-      // Continue without stuck participants check
+    } catch (e) {
+      console.error("getTravisAlerts: stuck query exception:", e);
     }
 
-    return { success: true, data: alerts.slice(0, 5) };
+    // Return up to 5 alerts, high severity first
+    const sortedAlerts = alerts
+      .sort((a, b) => (a.severity === "high" ? -1 : 1))
+      .slice(0, 5);
+
+    return { success: true, data: sortedAlerts };
   } catch (error) {
-    console.error("Error in getTravisAlerts:", error);
+    console.error("getTravisAlerts: top-level exception:", error);
     return { success: true, data: [] };
   }
 }
