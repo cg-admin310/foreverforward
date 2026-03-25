@@ -105,7 +105,8 @@ export async function createStripeCustomerForClient(
     return { success: true, data: customer.id };
   } catch (error) {
     console.error("Error creating Stripe customer:", error);
-    return { success: false, error: "Failed to create Stripe customer" };
+    const errorMessage = error instanceof Error ? error.message : "Failed to create Stripe customer";
+    return { success: false, error: errorMessage };
   }
 }
 
@@ -186,7 +187,9 @@ export async function createInvoice(data: {
     return { success: true, data: displayInvoice };
   } catch (error) {
     console.error("Error creating invoice:", error);
-    return { success: false, error: "Failed to create invoice" };
+    // Return actual error message for debugging
+    const errorMessage = error instanceof Error ? error.message : "Failed to create invoice";
+    return { success: false, error: errorMessage };
   }
 }
 
