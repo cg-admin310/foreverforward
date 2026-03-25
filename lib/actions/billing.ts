@@ -1259,21 +1259,29 @@ export async function getRevenueHistory(months = 12): Promise<ActionResult<{
       current.setMonth(current.getMonth() + 1);
     }
 
-    // Get billing revenue from revenue_history table
-    const { data: billingHistory } = await adminClient
-      .from("revenue_history")
-      .select("month_year, collected_amount, outstanding_amount")
-      .eq("source", "billing")
-      .gte("month_year", monthList[0])
-      .order("month_year");
+    // Get billing revenue from revenue_history table (may not exist yet)
+    let billingHistory: { month_year: string; collected_amount: number; outstanding_amount: number }[] | null = null;
+    let donationHistory: { month_year: string; collected_amount: number }[] | null = null;
 
-    // Get donation revenue from revenue_history table
-    const { data: donationHistory } = await adminClient
-      .from("revenue_history")
-      .select("month_year, collected_amount")
-      .eq("source", "donations")
-      .gte("month_year", monthList[0])
-      .order("month_year");
+    try {
+      const { data } = await adminClient
+        .from("revenue_history")
+        .select("month_year, collected_amount, outstanding_amount")
+        .eq("source", "billing")
+        .gte("month_year", monthList[0])
+        .order("month_year");
+      billingHistory = data;
+
+      const { data: donData } = await adminClient
+        .from("revenue_history")
+        .select("month_year, collected_amount")
+        .eq("source", "donations")
+        .gte("month_year", monthList[0])
+        .order("month_year");
+      donationHistory = donData;
+    } catch {
+      // Table might not exist yet - will fall back to calculating from invoices/donations
+    }
 
     // If no revenue history, calculate from invoices and donations
     let billingData: { month: string; collected: number; outstanding: number }[];
