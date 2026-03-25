@@ -1416,12 +1416,14 @@ export async function getClientBillingData(clientId: string): Promise<ActionResu
 
     if (client.stripe_subscription_id && client.auto_invoice_enabled) {
       try {
-        const subscription = await stripe.subscriptions.retrieve(client.stripe_subscription_id);
+        const subscription = await getSubscription(client.stripe_subscription_id);
+        // In Stripe v20, current_period_end is on subscription items
+        const currentPeriodEnd = subscription.items?.data?.[0]?.current_period_end;
         recurringStatus = {
           enabled: subscription.status === "active",
           amount: client.monthly_value || undefined,
-          nextInvoice: subscription.current_period_end
-            ? new Date(subscription.current_period_end * 1000).toISOString()
+          nextInvoice: currentPeriodEnd
+            ? new Date(currentPeriodEnd * 1000).toISOString()
             : undefined,
         };
       } catch (e) {
