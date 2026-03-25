@@ -1,11 +1,12 @@
 // AI Document Generation Prompts for Forever Forward
 // Used to generate proposals, contracts, and other business documents
 
-import type { MspClient } from "@/types/database";
+import type { MspClient, ITAssessmentData } from "@/types/database";
 import type { ClientAnalysisResult } from "./client-analysis";
 
 export interface ProposalInput {
   client: MspClient;
+  assessmentData?: ITAssessmentData;
   websiteAnalysis?: ClientAnalysisResult;
   customServices?: string[];
   customPricing?: string;
@@ -64,7 +65,7 @@ export function getDocumentGeneratorSystemPrompt(): string {
 }
 
 export function getProposalGenerationPrompt(input: ProposalInput): string {
-  const { client, websiteAnalysis, customServices, customPricing, additionalContext } = input;
+  const { client, assessmentData, websiteAnalysis, customServices, customPricing, additionalContext } = input;
 
   let prompt = `Generate a professional IT services proposal for this potential client.
 
@@ -77,6 +78,43 @@ export function getProposalGenerationPrompt(input: ProposalInput): string {
 - **User Count**: ${client.user_count || "TBD"}
 - **Website**: ${client.website || "N/A"}
 `;
+
+  // Include assessment data if available (provides rich context)
+  if (assessmentData || client.assessment_data) {
+    const data = assessmentData || client.assessment_data;
+    if (data) {
+      prompt += `
+## IT Assessment Results (Client Completed Form)
+This client completed our detailed IT assessment form, providing valuable context:
+
+### Current IT Situation
+- **Has IT Support**: ${data.hasItSupport ? "Yes" : "No"}
+${data.currentItProvider ? `- **Current Provider**: ${data.currentItProvider}` : ""}
+${data.currentItSpendMonthly ? `- **Current Monthly IT Spend**: $${data.currentItSpendMonthly} (use this for value comparison)` : ""}
+${data.supportType ? `- **Support Type Needed**: ${data.supportType}` : ""}
+- **Has Internal IT Staff**: ${data.hasItStaff ? `Yes (${data.itStaffCount || 1} staff)` : "No"}
+
+### Technology Inventory
+${data.deviceCount ? `- **Devices**: ${data.deviceCount} computers/laptops` : ""}
+${data.serverCount ? `- **Servers**: ${data.serverCount}` : ""}
+${data.cloudServices && data.cloudServices.length > 0 ? `- **Cloud Services in Use**: ${data.cloudServices.join(", ")}` : ""}
+
+### Pain Points & Priorities (CRITICAL - address these directly in proposal)
+${data.painPoints && data.painPoints.length > 0 ? `- **Pain Points**: ${data.painPoints.join(", ")}` : ""}
+${data.topPriorities && data.topPriorities.length > 0 ? `- **Top Priorities (ranked)**: ${data.topPriorities.join(" > ")}` : ""}
+${data.biggestChallenge ? `- **Their Biggest Challenge**: "${data.biggestChallenge}"` : ""}
+${data.idealOutcome ? `- **Their Ideal Outcome**: "${data.idealOutcome}"` : ""}
+
+### Decision Context
+${data.decisionTimeline ? `- **Timeline**: ${formatTimeline(data.decisionTimeline)}` : ""}
+${data.budgetRange ? `- **Budget Range**: ${formatBudgetRange(data.budgetRange)}` : ""}
+${data.servicesInterested && data.servicesInterested.length > 0 ? `- **Services Interested In**: ${data.servicesInterested.join(", ")}` : ""}
+${data.additionalNotes ? `- **Additional Notes**: "${data.additionalNotes}"` : ""}
+
+**IMPORTANT**: This proposal should directly address their pain points, align with their priorities, and compare favorably to their current spend (if provided). Use their own words where appropriate.
+`;
+    }
+  }
 
   if (websiteAnalysis) {
     prompt += `
@@ -113,17 +151,102 @@ Generate a complete proposal in markdown format with these sections:
 
 1. **Cover/Title** - Professional header with Forever Forward branding
 2. **Executive Summary** - 2-3 paragraphs personalized to their organization
-3. **Understanding Your Needs** - Show you understand their challenges
-4. **Proposed Solution** - Detailed service description
+3. **Understanding Your Needs** - Show you understand their challenges (reference their assessment responses!)
+4. **Proposed Solution** - Detailed service description aligned with their priorities
 5. **Implementation Timeline** - Realistic phases with milestones
-6. **Investment** - Clear pricing table (use realistic estimates)
+6. **Investment** - Clear pricing table${assessmentData?.currentItSpendMonthly ? " (show value comparison to current spend)" : " (use realistic estimates)"}
 7. **Why Forever Forward** - Our unique value (mission alignment, community impact)
-8. **Next Steps** - Clear call to action
+8. **Next Steps** - Clear call to action matching their decision timeline
 9. **About Forever Forward** - Brief company overview
 
-Make the proposal specific to their organization, not generic. Reference their mission and programs where possible.`;
+Make the proposal specific to their organization, not generic. Reference their mission, programs, and ESPECIALLY their stated pain points and ideal outcomes where possible.`;
 
   return prompt;
+}
+
+// Helper functions for formatting assessment data
+function formatTimeline(timeline: string): string {
+  const map: Record<string, string> = {
+    immediately: "As soon as possible (HOT LEAD)",
+    "1-2_weeks": "Within 1-2 weeks (warm lead)",
+    "1_month": "Within a month",
+    "3_months_plus": "3+ months out",
+    just_exploring: "Just exploring options",
+  };
+  return map[timeline] || timeline;
+}
+
+function formatBudgetRange(range: string): string {
+  const map: Record<string, string> = {
+    under_500: "Under $500/month",
+    "500_1000": "$500 - $1,000/month",
+    "1000_2500": "$1,000 - $2,500/month",
+    "2500_5000": "$2,500 - $5,000/month",
+    "5000_plus": "$5,000+/month",
+    not_sure: "Not sure yet",
+  };
+  return map[range] || range;
+}
+
+export interface AssessmentSummaryInput {
+  client: MspClient;
+  assessmentData: ITAssessmentData;
+}
+
+export function getAssessmentSummaryPrompt(input: AssessmentSummaryInput): string {
+  const { client, assessmentData } = input;
+
+  return `Analyze this IT assessment submission and generate a sales brief for the team.
+
+## Assessment Data
+- **Organization**: ${assessmentData.organizationName}
+- **Type**: ${assessmentData.organizationType}
+- **User Count**: ${assessmentData.userCount}
+- **Contact**: ${assessmentData.firstName} ${assessmentData.lastName} (${assessmentData.email})
+
+### Current IT Situation
+- Has IT Support: ${assessmentData.hasItSupport ? "Yes" : "No"}
+${assessmentData.currentItProvider ? `- Current Provider: ${assessmentData.currentItProvider}` : "- No current provider"}
+${assessmentData.currentItSpendMonthly ? `- Monthly Spend: $${assessmentData.currentItSpendMonthly}` : ""}
+${assessmentData.supportType ? `- Support Type: ${assessmentData.supportType}` : ""}
+- Internal IT Staff: ${assessmentData.hasItStaff ? `Yes (${assessmentData.itStaffCount || 1})` : "No"}
+
+### Technology
+${assessmentData.deviceCount ? `- Devices: ${assessmentData.deviceCount}` : ""}
+${assessmentData.serverCount ? `- Servers: ${assessmentData.serverCount}` : ""}
+${assessmentData.cloudServices.length > 0 ? `- Cloud Services: ${assessmentData.cloudServices.join(", ")}` : "- No cloud services"}
+
+### Pain Points & Priorities
+- Pain Points: ${assessmentData.painPoints.join(", ") || "None specified"}
+- Top Priorities: ${assessmentData.topPriorities.join(" > ") || "None specified"}
+${assessmentData.biggestChallenge ? `- Biggest Challenge: "${assessmentData.biggestChallenge}"` : ""}
+${assessmentData.idealOutcome ? `- Ideal Outcome: "${assessmentData.idealOutcome}"` : ""}
+
+### Decision Context
+- Timeline: ${formatTimeline(assessmentData.decisionTimeline)}
+- Budget: ${formatBudgetRange(assessmentData.budgetRange)}
+- Services Interested: ${assessmentData.servicesInterested.join(", ") || "Not specified"}
+${assessmentData.additionalNotes ? `- Notes: "${assessmentData.additionalNotes}"` : ""}
+
+## Output Format
+Generate a structured JSON object with:
+
+\`\`\`json
+{
+  "executive_summary": "2-3 sentence summary of this lead's situation and potential",
+  "recommended_package": "foundation | growth | enterprise",
+  "estimated_monthly_value": number,
+  "urgency_score": 1-10,
+  "urgency_reason": "Why this score",
+  "key_pain_points": ["top 3 pain points to address"],
+  "talking_points": ["3-5 points to discuss in first call"],
+  "competitive_intel": "Notes about their current provider if applicable",
+  "red_flags": ["Any concerns about this lead"],
+  "next_action": "Recommended next step"
+}
+\`\`\`
+
+Be honest and realistic in your assessment. This helps the sales team prioritize and prepare.`;
 }
 
 export function getContractGenerationPrompt(input: ContractInput): string {

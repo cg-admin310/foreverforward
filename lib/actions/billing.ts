@@ -11,7 +11,7 @@ import {
   getOrCreateCustomer,
   listCustomerInvoices,
 } from "@/lib/stripe";
-import { MspClient } from "@/types/database";
+import { MspClient, Invoice, InvoiceStatus, InvoiceType } from "@/types/database";
 import Stripe from "stripe";
 
 // =============================================================================
@@ -135,7 +135,7 @@ export async function createInvoice(data: {
       stripeCustomerId = customerResult.data;
     }
 
-    // Create Stripe invoice
+    // Create Stripe invoice with CRM source marker
     const invoice = await createStripeInvoice({
       customerId: stripeCustomerId,
       items: data.items,
@@ -144,7 +144,25 @@ export async function createInvoice(data: {
       metadata: {
         client_id: data.clientId,
         type: data.type || "one-time",
+        source: "forever_forward_crm",
       },
+    });
+
+    // Sync invoice to Supabase database
+    const adminClient = createAdminClient();
+    await adminClient.from("invoices").insert({
+      stripe_invoice_id: invoice.id,
+      stripe_customer_id: stripeCustomerId,
+      client_id: data.clientId,
+      number: invoice.number,
+      amount: (invoice.amount_due || invoice.total || 0) / 100,
+      status: invoice.status === "draft" ? "draft" : "open",
+      invoice_type: data.type || "one-time",
+      description: data.items.map(i => i.description).join(", "),
+      due_date: invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null,
+      hosted_invoice_url: invoice.hosted_invoice_url || null,
+      pdf_url: invoice.invoice_pdf || null,
+      metadata: invoice.metadata || null,
     });
 
     // Transform to display format
@@ -155,6 +173,7 @@ export async function createInvoice(data: {
     });
 
     revalidatePath("/billing");
+    revalidatePath(`/clients/${data.clientId}`);
     return { success: true, data: displayInvoice };
   } catch (error) {
     console.error("Error creating invoice:", error);
@@ -172,6 +191,19 @@ export async function sendInvoice(
   try {
     const invoice = await sendStripeInvoice(stripeInvoiceId);
 
+    // Update invoice status in Supabase
+    const adminClient = createAdminClient();
+    await adminClient
+      .from("invoices")
+      .update({
+        status: "open",
+        sent_at: new Date().toISOString(),
+        number: invoice.number,
+        hosted_invoice_url: invoice.hosted_invoice_url || null,
+        pdf_url: invoice.invoice_pdf || null,
+      })
+      .eq("stripe_invoice_id", stripeInvoiceId);
+
     // Get client info from metadata
     const clientId = invoice.metadata?.client_id || "";
     const clientName = typeof invoice.customer === "object" && invoice.customer
@@ -185,6 +217,9 @@ export async function sendInvoice(
     });
 
     revalidatePath("/billing");
+    if (clientId) {
+      revalidatePath(`/clients/${clientId}`);
+    }
     return { success: true, data: displayInvoice };
   } catch (error) {
     console.error("Error sending invoice:", error);
@@ -201,6 +236,14 @@ export async function voidInvoice(
 ): Promise<ActionResult> {
   try {
     await voidStripeInvoice(stripeInvoiceId);
+
+    // Update status in Supabase
+    const adminClient = createAdminClient();
+    await adminClient
+      .from("invoices")
+      .update({ status: "void" })
+      .eq("stripe_invoice_id", stripeInvoiceId);
+
     revalidatePath("/billing");
     return { success: true };
   } catch (error) {
@@ -420,6 +463,184 @@ export async function getClientsForBilling(): Promise<ActionResult<{ id: string;
   } catch (error) {
     console.error("Error in getClientsForBilling:", error);
     return { success: false, error: "Failed to fetch clients" };
+  }
+}
+
+// =============================================================================
+// GET INVOICES FROM DATABASE (Faster than Stripe API iteration)
+// =============================================================================
+
+export async function getInvoicesFromDatabase(options?: {
+  limit?: number;
+  offset?: number;
+  status?: string;
+  clientId?: string;
+}): Promise<ActionResult<{ invoices: InvoiceDisplay[]; total: number }>> {
+  try {
+    const adminClient = createAdminClient();
+
+    // Build query
+    let query = adminClient
+      .from("invoices")
+      .select(`
+        *,
+        msp_clients!invoices_client_id_fkey (
+          id,
+          organization_name
+        )
+      `, { count: "exact" });
+
+    // Apply filters
+    if (options?.status && options.status !== "all") {
+      query = query.eq("status", options.status);
+    }
+
+    if (options?.clientId) {
+      query = query.eq("client_id", options.clientId);
+    }
+
+    // Apply pagination and ordering
+    query = query
+      .order("created_at", { ascending: false })
+      .range(
+        options?.offset || 0,
+        (options?.offset || 0) + (options?.limit || 25) - 1
+      );
+
+    const { data: invoices, error, count } = await query;
+
+    if (error) {
+      console.error("Error fetching invoices:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Transform to display format
+    const displayInvoices: InvoiceDisplay[] = (invoices || []).map((inv) => {
+      const client = inv.msp_clients as { id: string; organization_name: string } | null;
+      return {
+        id: inv.id,
+        stripeInvoiceId: inv.stripe_invoice_id,
+        number: inv.number,
+        clientId: inv.client_id || "",
+        clientName: client?.organization_name || "Unknown Client",
+        amount: inv.amount,
+        status: inv.status as InvoiceDisplay["status"],
+        dueDate: inv.due_date,
+        sentAt: inv.sent_at,
+        paidAt: inv.paid_at,
+        hostedInvoiceUrl: inv.hosted_invoice_url,
+        pdfUrl: inv.pdf_url,
+        type: (inv.invoice_type as "recurring" | "one-time") || "one-time",
+        createdAt: inv.created_at,
+      };
+    });
+
+    return {
+      success: true,
+      data: {
+        invoices: displayInvoices,
+        total: count || 0,
+      },
+    };
+  } catch (error) {
+    console.error("Error in getInvoicesFromDatabase:", error);
+    return { success: false, error: "Failed to fetch invoices" };
+  }
+}
+
+// =============================================================================
+// SYNC STRIPE INVOICES TO DATABASE
+// =============================================================================
+
+export async function syncStripeInvoicesToDatabase(
+  clientId?: string
+): Promise<ActionResult<{ synced: number }>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const adminClient = createAdminClient();
+
+    // Get clients with Stripe customer IDs
+    let clientQuery = supabase
+      .from("msp_clients")
+      .select("id, organization_name, stripe_customer_id")
+      .not("stripe_customer_id", "is", null);
+
+    if (clientId) {
+      clientQuery = clientQuery.eq("id", clientId);
+    }
+
+    const { data: clients, error: clientsError } = await clientQuery;
+
+    if (clientsError || !clients) {
+      return { success: false, error: "Failed to fetch clients" };
+    }
+
+    let synced = 0;
+
+    for (const client of clients) {
+      if (!client.stripe_customer_id) continue;
+
+      try {
+        const invoices = await stripe.invoices.list({
+          customer: client.stripe_customer_id,
+          limit: 100,
+        });
+
+        for (const invoice of invoices.data) {
+          // Upsert each invoice to database
+          const { error } = await adminClient.from("invoices").upsert(
+            {
+              stripe_invoice_id: invoice.id,
+              stripe_customer_id: client.stripe_customer_id,
+              client_id: client.id,
+              number: invoice.number,
+              amount: (invoice.amount_due || invoice.total || 0) / 100,
+              status: mapStripeStatus(invoice.status),
+              invoice_type: (invoice.metadata?.type as "one-time" | "recurring") || "one-time",
+              description: invoice.description || null,
+              due_date: invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null,
+              sent_at: invoice.status_transitions?.finalized_at
+                ? new Date(invoice.status_transitions.finalized_at * 1000).toISOString()
+                : null,
+              paid_at: invoice.status_transitions?.paid_at
+                ? new Date(invoice.status_transitions.paid_at * 1000).toISOString()
+                : null,
+              hosted_invoice_url: invoice.hosted_invoice_url || null,
+              pdf_url: invoice.invoice_pdf || null,
+              metadata: invoice.metadata || null,
+            },
+            { onConflict: "stripe_invoice_id" }
+          );
+
+          if (!error) synced++;
+        }
+      } catch (err) {
+        console.error(`Error syncing invoices for ${client.stripe_customer_id}:`, err);
+      }
+    }
+
+    revalidatePath("/billing");
+    return { success: true, data: { synced } };
+  } catch (error) {
+    console.error("Error in syncStripeInvoicesToDatabase:", error);
+    return { success: false, error: "Failed to sync invoices" };
+  }
+}
+
+function mapStripeStatus(status: Stripe.Invoice.Status | null): InvoiceStatus {
+  switch (status) {
+    case "draft":
+      return "draft";
+    case "open":
+      return "open";
+    case "paid":
+      return "paid";
+    case "uncollectible":
+      return "uncollectible";
+    case "void":
+      return "void";
+    default:
+      return "draft";
   }
 }
 

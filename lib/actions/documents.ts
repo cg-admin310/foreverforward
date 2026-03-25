@@ -12,6 +12,11 @@ import {
   type ContractInput,
 } from "@/lib/ai/prompts/document-generator";
 import { analyzeClientWebsite } from "./website-scraper";
+import {
+  generateDocumentPdf,
+  generateCertificatePdf,
+  type DocumentTemplateType,
+} from "@/lib/pdf/document-generator";
 import type { MspClient } from "@/types/database";
 
 // ============================================================================
@@ -392,5 +397,112 @@ export async function deleteDocument(
   } catch (error) {
     console.error("Error in deleteDocument:", error);
     return { success: false, error: "Failed to delete document" };
+  }
+}
+
+// ============================================================================
+// GENERATE PDF FROM DOCUMENT
+// ============================================================================
+
+export async function generatePdfFromDocument(
+  documentId: string
+): Promise<ActionResult<{ buffer: string; filename: string }>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get document with client info
+    const { data: document, error: docError } = await supabase
+      .from("documents")
+      .select(`
+        *,
+        msp_clients (
+          organization_name
+        )
+      `)
+      .eq("id", documentId)
+      .single();
+
+    if (docError || !document) {
+      return { success: false, error: "Document not found" };
+    }
+
+    const clientName = (document.msp_clients as { organization_name: string } | null)?.organization_name || "Client";
+    const docType = document.document_type as DocumentTemplateType;
+
+    // Generate PDF
+    const pdfBuffer = await generateDocumentPdf(
+      document.content,
+      document.title,
+      docType,
+      clientName
+    );
+
+    // Convert to base64 for transport
+    const base64 = pdfBuffer.toString("base64");
+    const filename = `${document.title.replace(/[^a-zA-Z0-9]/g, "-")}.pdf`;
+
+    return {
+      success: true,
+      data: {
+        buffer: base64,
+        filename,
+      },
+    };
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    return { success: false, error: "Failed to generate PDF" };
+  }
+}
+
+// ============================================================================
+// GENERATE CERTIFICATE PDF
+// ============================================================================
+
+export async function generateCertificate(data: {
+  participantId: string;
+  programName: string;
+}): Promise<ActionResult<{ buffer: string; filename: string }>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get participant info
+    const { data: participant, error: participantError } = await supabase
+      .from("participants")
+      .select("*")
+      .eq("id", data.participantId)
+      .single();
+
+    if (participantError || !participant) {
+      return { success: false, error: "Participant not found" };
+    }
+
+    const participantName = `${participant.first_name} ${participant.last_name}`;
+    const completionDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    // Generate certificate PDF
+    const pdfBuffer = await generateCertificatePdf({
+      participantName,
+      programName: data.programName,
+      completionDate,
+    });
+
+    // Convert to base64 for transport
+    const base64 = pdfBuffer.toString("base64");
+    const filename = `Certificate-${participantName.replace(/[^a-zA-Z0-9]/g, "-")}.pdf`;
+
+    return {
+      success: true,
+      data: {
+        buffer: base64,
+        filename,
+      },
+    };
+  } catch (error) {
+    console.error("Error generating certificate:", error);
+    return { success: false, error: "Failed to generate certificate" };
   }
 }

@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { markDonationAcknowledged } from "@/lib/actions/donations";
+import { markDonationAcknowledged, exportDonationsToCSV } from "@/lib/actions/donations";
 import { Donation } from "@/types/database";
 
 interface DonorSummary {
@@ -52,6 +52,33 @@ export function DonationsClient({ stats, donors, recentDonations }: DonationsCli
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [isAcknowledging, setIsAcknowledging] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const result = await exportDonationsToCSV();
+      if (result.success && result.data) {
+        // Create and download CSV file
+        const blob = new Blob([result.data], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `donations-${new Date().toISOString().split("T")[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } else {
+        alert(result.error || "Failed to export donations");
+      }
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Failed to export donations");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const filteredDonors = donors.filter((donor) => {
     const matchesSearch = donor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -91,9 +118,9 @@ export function DonationsClient({ stats, donors, recentDonations }: DonationsCli
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleExport} disabled={isExporting}>
             <Download className="h-4 w-4 mr-2" />
-            Export
+            {isExporting ? "Exporting..." : "Export"}
           </Button>
           <Button asChild>
             <a href="/get-involved/donate" target="_blank" rel="noopener noreferrer">

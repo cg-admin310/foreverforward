@@ -14,6 +14,10 @@ import {
   Award,
   CheckCircle2,
   MapPin,
+  Sparkles,
+  Clock,
+  Target,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -151,7 +155,10 @@ export default function ServicesPage() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button asChild size="lg">
-                <Link href="#assessment">Get a Free Assessment</Link>
+                <Link href="/services/free-assessment">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Take Free IT Assessment
+                </Link>
               </Button>
               <Button asChild variant="secondary" size="lg">
                 <Link href="#services">View Services</Link>
@@ -366,153 +373,162 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Assessment Form */}
-      <section
-        id="assessment"
-        className="py-16 lg:py-24 bg-[#1A1A1A] scroll-mt-20"
-      >
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Content */}
+      {/* Free Assessment CTA */}
+      <section className="py-16 lg:py-24 bg-gradient-to-br from-[#1A1A1A] to-[#2D2D2D]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#C9A84C]/30 text-sm text-[#C9A84C] mb-6">
+              <Sparkles className="h-4 w-4" />
+              Two Ways to Get Started
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              Ready to Transform Your IT?
+            </h2>
+            <p className="text-white/70 max-w-2xl mx-auto">
+              Choose the option that works best for you—either way, you&apos;ll get
+              personalized recommendations with no obligation.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
+            {/* Option 1: Comprehensive Assessment */}
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
+              initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              className="relative bg-gradient-to-br from-[#C9A84C]/10 to-[#C9A84C]/5 rounded-2xl p-6 lg:p-8 border-2 border-[#C9A84C]/50"
             >
-              <span className="text-sm font-semibold text-[#C9A84C] uppercase tracking-wider">
-                Free Assessment
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-6">
-                Let&apos;s Talk About Your IT Needs
-              </h2>
-              <p className="text-white/70 leading-relaxed mb-6">
-                Schedule a free consultation to discuss your organization&apos;s
-                technology challenges. We&apos;ll provide an honest assessment and
-                recommendations—no pressure, no obligation.
+              <div className="absolute -top-3 left-6 px-3 py-1 bg-[#C9A84C] rounded-full text-xs font-semibold text-[#1A1A1A]">
+                RECOMMENDED
+              </div>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 rounded-xl bg-[#C9A84C]/20 flex items-center justify-center">
+                  <FileText className="h-7 w-7 text-[#C9A84C]" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-white">
+                    Free IT Assessment
+                  </h3>
+                  <p className="text-sm text-white/60">5 minutes • No obligation</p>
+                </div>
+              </div>
+              <p className="text-white/70 mb-6">
+                Complete our detailed assessment form and we&apos;ll prepare
+                personalized recommendations based on your specific needs, challenges,
+                and goals.
               </p>
-              <ul className="space-y-3">
+              <ul className="space-y-3 mb-8">
                 {[
-                  "30-minute discovery call",
-                  "Infrastructure assessment",
-                  "Detailed recommendations",
-                  "Transparent pricing",
+                  { icon: Target, text: "Tailored recommendations" },
+                  { icon: Clock, text: "Custom quote within 24 hours" },
+                  { icon: Shield, text: "Security & compliance review" },
+                  { icon: Users, text: "Right-sized package for your org" },
                 ].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-white/70">
-                    <CheckCircle2 className="h-5 w-5 text-[#7A9A63]" />
-                    {item}
+                  <li key={item.text} className="flex items-center gap-3 text-white/70">
+                    <item.icon className="h-4 w-4 text-[#C9A84C]" />
+                    <span className="text-sm">{item.text}</span>
                   </li>
                 ))}
               </ul>
+              <Button asChild size="lg" className="w-full">
+                <Link href="/services/free-assessment">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Start Free Assessment
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
             </motion.div>
 
-            {/* Form */}
+            {/* Option 2: Quick Contact */}
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
+              initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              className="bg-[#2D2D2D] rounded-2xl p-6 lg:p-8 border border-[#444444]"
             >
-              {isSubmitted ? (
-                <div className="bg-[#2D2D2D] rounded-xl p-8 border border-[#444444] text-center">
-                  <div className="w-16 h-16 rounded-full bg-[#EFF4EB] flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle2 className="h-8 w-8 text-[#5A7247]" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">
-                    Thank You!
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 rounded-xl bg-[#5A7247]/20 flex items-center justify-center">
+                  <Users className="h-7 w-7 text-[#7A9A63]" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-white">
+                    Quick Contact
                   </h3>
-                  <p className="text-white/70">
-                    We&apos;ll be in touch within 24 hours to schedule your
-                    assessment.
+                  <p className="text-sm text-white/60">We&apos;ll call you back</p>
+                </div>
+              </div>
+              <p className="text-white/70 mb-6">
+                Prefer to talk first? Leave your info and we&apos;ll schedule a call
+                to discuss your needs.
+              </p>
+
+              {isSubmitted ? (
+                <div className="text-center py-8">
+                  <div className="w-14 h-14 rounded-full bg-[#EFF4EB] flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="h-7 w-7 text-[#5A7247]" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-white mb-2">
+                    Thank You!
+                  </h4>
+                  <p className="text-white/70 text-sm">
+                    We&apos;ll be in touch within 24 hours.
                   </p>
                 </div>
               ) : (
-                <form
-                  onSubmit={handleSubmit}
-                  className="bg-[#2D2D2D] rounded-xl p-6 lg:p-8 border border-[#444444]"
-                >
-                  <div className="space-y-4">
-                    <div>
-                      <label
-                        htmlFor="name"
-                        className="block text-sm font-medium text-white/80 mb-1"
-                      >
-                        Your Name
-                      </label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
-                        className="bg-[#444444] border-[#555555] text-white"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block text-sm font-medium text-white/80 mb-1"
-                      >
-                        Email Address
-                      </label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
-                        className="bg-[#444444] border-[#555555] text-white"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="organization"
-                        className="block text-sm font-medium text-white/80 mb-1"
-                      >
-                        Organization Name
-                      </label>
-                      <Input
-                        id="organization"
-                        value={formData.organization}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            organization: e.target.value,
-                          })
-                        }
-                        className="bg-[#444444] border-[#555555] text-white"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="phone"
-                        className="block text-sm font-medium text-white/80 mb-1"
-                      >
-                        Phone Number (optional)
-                      </label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) =>
-                          setFormData({ ...formData, phone: e.target.value })
-                        }
-                        className="bg-[#444444] border-[#555555] text-white"
-                      />
-                    </div>
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full"
-                      size="lg"
-                    >
-                      {isSubmitting
-                        ? "Submitting..."
-                        : "Request Free Assessment"}
-                    </Button>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input
+                      placeholder="Your Name"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      className="bg-[#444444] border-[#555555] text-white placeholder:text-white/40"
+                      required
+                    />
+                    <Input
+                      type="tel"
+                      placeholder="Phone"
+                      value={formData.phone}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                      className="bg-[#444444] border-[#555555] text-white placeholder:text-white/40"
+                    />
                   </div>
+                  <Input
+                    type="email"
+                    placeholder="Email Address"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    className="bg-[#444444] border-[#555555] text-white placeholder:text-white/40"
+                    required
+                  />
+                  <Input
+                    placeholder="Organization Name"
+                    value={formData.organization}
+                    onChange={(e) =>
+                      setFormData({ ...formData, organization: e.target.value })
+                    }
+                    className="bg-[#444444] border-[#555555] text-white placeholder:text-white/40"
+                    required
+                  />
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    disabled={isSubmitting}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {isSubmitting ? "Sending..." : "Request Callback"}
+                  </Button>
                 </form>
               )}
             </motion.div>

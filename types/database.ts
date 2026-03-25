@@ -94,6 +94,18 @@ export type DonationFrequency =
   | "quarterly"
   | "annual";
 
+export type InvoiceStatus =
+  | "draft"
+  | "open"
+  | "paid"
+  | "uncollectible"
+  | "void"
+  | "failed";
+
+export type InvoiceType =
+  | "one-time"
+  | "recurring";
+
 // ============================================================================
 // DATABASE TABLES
 // ============================================================================
@@ -146,6 +158,7 @@ export interface Cohort {
   start_date: string;
   end_date: string | null;
   max_participants: number | null;
+  total_weeks: number | null;
   primary_instructor: string | null;
   case_worker: string | null;
   is_active: boolean;
@@ -201,6 +214,51 @@ export interface Participant {
   completed_at: string | null;
 }
 
+// IT Assessment Support Types
+export type SupportType = "ongoing" | "project" | "both" | "none";
+export type DecisionTimeline = "immediately" | "1-2_weeks" | "1_month" | "3_months_plus" | "just_exploring";
+export type BudgetRange = "under_500" | "500_1000" | "1000_2500" | "2500_5000" | "5000_plus" | "not_sure";
+
+// Structured IT Assessment Data (stored as JSONB)
+export interface ITAssessmentData {
+  // Step 1: Contact & Organization
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  organizationName: string;
+  organizationType: string;
+  website?: string;
+  userCount: number;
+
+  // Step 2: Current IT Situation
+  hasItSupport: boolean;
+  currentItProvider?: string;
+  currentItSpendMonthly?: number;
+  supportType?: SupportType;
+  hasItStaff: boolean;
+  itStaffCount?: number;
+  deviceCount?: number;
+  serverCount?: number;
+  cloudServices: string[];
+
+  // Step 3: Challenges & Priorities
+  painPoints: string[];
+  topPriorities: string[];
+  biggestChallenge?: string;
+  idealOutcome?: string;
+
+  // Step 4: Next Steps
+  servicesInterested: string[];
+  decisionTimeline: DecisionTimeline;
+  budgetRange: BudgetRange;
+  additionalNotes?: string;
+
+  // Metadata
+  submittedAt: string;
+  formVersion: string;
+}
+
 export interface MspClient {
   id: string;
   lead_id: string | null;
@@ -233,6 +291,34 @@ export interface MspClient {
   tags: string[] | null;
   created_at: string;
   updated_at: string;
+
+  // Assessment tracking
+  assessment_completed_at: string | null;
+  assessment_data: ITAssessmentData | null;
+
+  // Current IT situation
+  current_it_spend_monthly: number | null;
+  current_it_provider: string | null;
+  support_type: SupportType | null;
+  has_it_staff: boolean | null;
+  it_staff_count: number | null;
+
+  // Technology inventory
+  device_count: number | null;
+  server_count: number | null;
+  cloud_services: string[] | null;
+  current_tools: string[] | null;
+
+  // Challenges & priorities
+  pain_points: string[] | null;
+  top_priorities: string[] | null;
+  biggest_challenge: string | null;
+  ideal_outcome: string | null;
+
+  // Decision context
+  decision_timeline: DecisionTimeline | null;
+  budget_range: BudgetRange | null;
+  services_interested: string[] | null;
 }
 
 export interface Document {
@@ -508,6 +594,27 @@ export interface Donation {
   updated_at: string;
 }
 
+export interface Invoice {
+  id: string;
+  client_id: string | null;
+  stripe_invoice_id: string;
+  stripe_customer_id: string | null;
+  number: string | null;
+  amount: number;
+  status: InvoiceStatus;
+  invoice_type: InvoiceType | null;
+  description: string | null;
+  due_date: string | null;
+  sent_at: string | null;
+  paid_at: string | null;
+  stripe_payment_intent_id: string | null;
+  hosted_invoice_url: string | null;
+  pdf_url: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Checkin {
   id: string;
   participant_id: string;
@@ -641,6 +748,9 @@ export type ResourceUpdate = Partial<ResourceInsert>;
 export type DonationInsert = Omit<Donation, "id" | "created_at" | "updated_at">;
 export type DonationUpdate = Partial<DonationInsert>;
 
+export type InvoiceInsert = Omit<Invoice, "id" | "created_at" | "updated_at">;
+export type InvoiceUpdate = Partial<InvoiceInsert>;
+
 export type CheckinInsert = Omit<Checkin, "id" | "created_at">;
 
 export type BlogCategoryInsert = Omit<BlogCategory, "id" | "created_at" | "updated_at">;
@@ -746,6 +856,11 @@ export interface Database {
         Insert: DonationInsert;
         Update: DonationUpdate;
       };
+      invoices: {
+        Row: Invoice;
+        Insert: InvoiceInsert;
+        Update: InvoiceUpdate;
+      };
       checkins: {
         Row: Checkin;
         Insert: CheckinInsert;
@@ -784,6 +899,8 @@ export interface Database {
       email_status: EmailStatus;
       event_type: EventType;
       donation_frequency: DonationFrequency;
+      invoice_status: InvoiceStatus;
+      invoice_type: InvoiceType;
     };
   };
 }

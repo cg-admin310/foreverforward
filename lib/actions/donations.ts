@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Donation, DonationInsert, DonationFrequency } from "@/types/database";
+import { sendEmail, donationThankYouEmail, donationReceiptEmail } from "@/lib/resend";
 
 // =============================================================================
 // TYPES
@@ -474,7 +475,7 @@ export async function getRecentDonations(
 }
 
 // =============================================================================
-// MARK DONATION ACKNOWLEDGED
+// MARK DONATION ACKNOWLEDGED (Sends Thank You Email)
 // =============================================================================
 
 export async function markDonationAcknowledged(
@@ -483,7 +484,46 @@ export async function markDonationAcknowledged(
   try {
     const adminClient = createAdminClient();
 
-    const { data, error } = await adminClient
+    // First, get the donation details for the email
+    const { data: donation, error: fetchError } = await adminClient
+      .from("donations")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !donation) {
+      console.error("Error fetching donation:", fetchError);
+      return { success: false, error: "Donation not found" };
+    }
+
+    // Don't send if already acknowledged
+    if (donation.acknowledgment_sent) {
+      return { success: true, data: donation };
+    }
+
+    // Prepare and send the thank you email
+    const donorName = `${donation.donor_first_name} ${donation.donor_last_name}`;
+    const emailContent = donationThankYouEmail({
+      donorName,
+      amount: donation.amount,
+      donationDate: donation.created_at,
+      isRecurring: donation.frequency === "monthly",
+      designation: donation.designation || undefined,
+    });
+
+    const emailResult = await sendEmail({
+      to: donation.donor_email,
+      subject: emailContent.subject,
+      html: emailContent.html,
+    });
+
+    if (!emailResult.success) {
+      console.error("Failed to send thank you email:", emailResult.error);
+      // Continue anyway - we'll mark as acknowledged but note the email failure
+    }
+
+    // Update the donation record
+    const { data: updatedDonation, error: updateError } = await adminClient
       .from("donations")
       .update({
         acknowledgment_sent: true,
@@ -493,15 +533,158 @@ export async function markDonationAcknowledged(
       .select()
       .single();
 
-    if (error) {
-      console.error("Error marking donation acknowledged:", error);
-      return { success: false, error: error.message };
+    if (updateError) {
+      console.error("Error updating donation:", updateError);
+      return { success: false, error: updateError.message };
     }
 
     revalidatePath("/donations");
-    return { success: true, data };
+    return { success: true, data: updatedDonation };
   } catch (error) {
     console.error("Error in markDonationAcknowledged:", error);
-    return { success: false, error: "Failed to mark donation acknowledged" };
+    return { success: false, error: "Failed to send acknowledgment" };
+  }
+}
+
+// =============================================================================
+// SEND DONATION RECEIPT (Tax Receipt Email)
+// =============================================================================
+
+export async function sendDonationReceipt(
+  id: string
+): Promise<ActionResult<{ sent: boolean }>> {
+  try {
+    const adminClient = createAdminClient();
+
+    // Get the donation details
+    const { data: donation, error: fetchError } = await adminClient
+      .from("donations")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !donation) {
+      console.error("Error fetching donation:", fetchError);
+      return { success: false, error: "Donation not found" };
+    }
+
+    // Build address string if available
+    let donorAddress: string | undefined;
+    if (donation.address_line1) {
+      donorAddress = donation.address_line1;
+      if (donation.address_line2) donorAddress += `, ${donation.address_line2}`;
+      if (donation.city) donorAddress += `, ${donation.city}`;
+      if (donation.state) donorAddress += `, ${donation.state}`;
+      if (donation.zip_code) donorAddress += ` ${donation.zip_code}`;
+    }
+
+    // Prepare and send the receipt email
+    const donorName = `${donation.donor_first_name} ${donation.donor_last_name}`;
+    const emailContent = donationReceiptEmail({
+      donorName,
+      donorAddress,
+      amount: donation.amount,
+      donationDate: donation.created_at,
+      donationId: donation.id,
+      isRecurring: donation.frequency === "monthly",
+    });
+
+    const emailResult = await sendEmail({
+      to: donation.donor_email,
+      subject: emailContent.subject,
+      html: emailContent.html,
+    });
+
+    if (!emailResult.success) {
+      console.error("Failed to send receipt email:", emailResult.error);
+      return { success: false, error: "Failed to send receipt email" };
+    }
+
+    return { success: true, data: { sent: true } };
+  } catch (error) {
+    console.error("Error in sendDonationReceipt:", error);
+    return { success: false, error: "Failed to send receipt" };
+  }
+}
+
+// =============================================================================
+// EXPORT DONATIONS TO CSV
+// =============================================================================
+
+export async function exportDonationsToCSV(options?: {
+  startDate?: string;
+  endDate?: string;
+  frequency?: DonationFrequency;
+}): Promise<ActionResult<string>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    let query = supabase
+      .from("donations")
+      .select("*")
+      .eq("payment_status", "succeeded")
+      .order("created_at", { ascending: false });
+
+    if (options?.startDate) {
+      query = query.gte("created_at", options.startDate);
+    }
+
+    if (options?.endDate) {
+      query = query.lte("created_at", options.endDate);
+    }
+
+    if (options?.frequency) {
+      query = query.eq("frequency", options.frequency);
+    }
+
+    const { data: donations, error } = await query;
+
+    if (error) {
+      console.error("Error fetching donations for export:", error);
+      return { success: false, error: error.message };
+    }
+
+    if (!donations || donations.length === 0) {
+      return { success: false, error: "No donations found for export" };
+    }
+
+    // Build CSV
+    const headers = [
+      "Date",
+      "First Name",
+      "Last Name",
+      "Email",
+      "Amount",
+      "Frequency",
+      "Designation",
+      "Campaign",
+      "Acknowledgment Sent",
+      "Donation ID",
+    ];
+
+    const rows = donations.map((d) => [
+      new Date(d.created_at).toLocaleDateString(),
+      d.donor_first_name,
+      d.donor_last_name,
+      d.donor_email,
+      d.amount.toString(),
+      d.frequency,
+      d.designation || "",
+      d.campaign || "",
+      d.acknowledgment_sent ? "Yes" : "No",
+      d.id,
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")
+      ),
+    ].join("\n");
+
+    return { success: true, data: csvContent };
+  } catch (error) {
+    console.error("Error in exportDonationsToCSV:", error);
+    return { success: false, error: "Failed to export donations" };
   }
 }

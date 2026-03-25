@@ -10,6 +10,10 @@ import {
   MapPin,
   Phone,
   Mail,
+  Sparkles,
+  Clock,
+  Target,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -105,10 +109,13 @@ export function ServicePageClient({ service }: ServicePageClientProps) {
             </p>
             <div className="flex flex-col sm:flex-row items-start gap-4">
               <Button asChild size="lg">
-                <Link href="#contact">Get a Quote</Link>
+                <Link href="/services/free-assessment">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Free IT Assessment
+                </Link>
               </Button>
               <Button asChild variant="secondary" size="lg">
-                <Link href="#pricing">View Pricing</Link>
+                <Link href="#contact">Quick Contact</Link>
               </Button>
             </div>
           </motion.div>
@@ -332,6 +339,65 @@ export function ServicePageClient({ service }: ServicePageClientProps) {
             <MapPin className="h-5 w-5 text-[#C9A84C]" />
             <span>{service.serviceArea}</span>
           </div>
+        </div>
+      </section>
+
+      {/* Free Assessment CTA */}
+      <section className="py-16 lg:py-20 bg-gradient-to-br from-[#1A1A1A] via-[#2D2D2D] to-[#1A1A1A] relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-32 h-32 border border-[#C9A84C] rounded-full" />
+          <div className="absolute bottom-10 right-10 w-48 h-48 border border-[#C9A84C] rounded-full" />
+          <div className="absolute top-1/2 left-1/4 w-24 h-24 border border-[#5A7247] rounded-full" />
+        </div>
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#C9A84C]/20 rounded-full mb-6">
+              <Sparkles className="h-4 w-4 text-[#C9A84C]" />
+              <span className="text-[#C9A84C] text-sm font-medium">
+                Get a Personalized Recommendation
+              </span>
+            </div>
+
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              Not Sure What You Need?
+            </h2>
+            <p className="text-lg text-white/70 mb-8 max-w-2xl mx-auto">
+              Take our free 5-minute IT assessment and get a customized service
+              recommendation with pricing tailored to your organization.
+            </p>
+
+            <div className="grid sm:grid-cols-4 gap-4 mb-10 max-w-2xl mx-auto">
+              {[
+                { icon: Clock, label: "5 Minutes" },
+                { icon: Target, label: "Personalized" },
+                { icon: Shield, label: "No Obligation" },
+                { icon: CheckCircle2, label: "Free Quote" },
+              ].map(({ icon: Icon, label }) => (
+                <div
+                  key={label}
+                  className="flex flex-col items-center gap-2 text-white/60"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                    <Icon className="h-5 w-5 text-[#C9A84C]" />
+                  </div>
+                  <span className="text-sm">{label}</span>
+                </div>
+              ))}
+            </div>
+
+            <Button asChild size="lg" className="px-8">
+              <Link href="/services/free-assessment">
+                Start Free Assessment
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+            </Button>
+          </motion.div>
         </div>
       </section>
 

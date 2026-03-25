@@ -16,6 +16,7 @@ import {
   Award,
   Target,
   Loader2,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,7 +38,8 @@ import type {
   Cohort,
   User,
 } from "@/types/database";
-import { addCheckin } from "@/lib/actions/participants";
+import { addCheckin, updateParticipant } from "@/lib/actions/participants";
+import { PathForwardEditor, PathForwardPlan } from "@/components/admin/path-forward-editor";
 
 interface ParticipantDetailClientProps {
   participant: Participant;
@@ -84,6 +86,8 @@ export function ParticipantDetailClient({
   const [isSubmittingCheckin, setIsSubmittingCheckin] = useState(false);
   const [checkinError, setCheckinError] = useState<string | null>(null);
   const [localCheckins, setLocalCheckins] = useState<Checkin[]>(checkins);
+  const [showPathForwardEditor, setShowPathForwardEditor] = useState(false);
+  const [localParticipant, setLocalParticipant] = useState<Participant>(participant);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -144,13 +148,21 @@ export function ParticipantDetailClient({
   };
 
   // Parse path forward plan from JSON
-  const pathForwardPlan = participant.path_forward_plan as {
-    career_goal?: string;
-    short_term_goals?: { goal: string; completed: boolean }[];
-    long_term_goals?: { goal: string; completed: boolean }[];
-    barriers?: string[];
-    support_plan?: string;
-  } | null;
+  const pathForwardPlan = localParticipant.path_forward_plan as PathForwardPlan | null;
+
+  // Handle saving Path Forward plan
+  const handleSavePathForwardPlan = async (plan: PathForwardPlan) => {
+    const result = await updateParticipant(localParticipant.id, {
+      path_forward_plan: plan as unknown as Participant["path_forward_plan"],
+    });
+
+    if (result.success && result.data) {
+      setLocalParticipant(result.data);
+      setShowPathForwardEditor(false);
+    } else {
+      throw new Error(result.error || "Failed to save plan");
+    }
+  };
 
   // Handle check-in submission
   const handleSubmitCheckin = async () => {
@@ -417,6 +429,18 @@ export function ParticipantDetailClient({
             >
               {pathForwardPlan ? (
                 <>
+                  {/* Edit Button */}
+                  <div className="flex justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowPathForwardEditor(true)}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Plan
+                    </Button>
+                  </div>
+
                   {/* Career Goal */}
                   {pathForwardPlan.career_goal && (
                     <div className="bg-white rounded-xl border border-[#DDDDDD] p-6">
@@ -531,10 +555,36 @@ export function ParticipantDetailClient({
                   <p className="text-sm text-[#888888] mb-4">
                     Create a personalized development plan for this participant.
                   </p>
-                  <Button>Create Plan</Button>
+                  <Button onClick={() => setShowPathForwardEditor(true)}>Create Plan</Button>
                 </div>
               )}
             </motion.div>
+          )}
+
+          {/* Path Forward Editor Modal */}
+          {showPathForwardEditor && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6"
+              >
+                <div className="flex justify-end mb-2">
+                  <button
+                    onClick={() => setShowPathForwardEditor(false)}
+                    className="p-1 rounded hover:bg-[#F5F3EF] text-[#888888]"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <PathForwardEditor
+                  initialPlan={pathForwardPlan}
+                  participantName={`${localParticipant.first_name} ${localParticipant.last_name}`}
+                  onSave={handleSavePathForwardPlan}
+                  onCancel={() => setShowPathForwardEditor(false)}
+                />
+              </motion.div>
+            </div>
           )}
 
           {activeTab === "checkins" && (

@@ -78,6 +78,25 @@ export async function createClient(
       assigned_technicians: null,
       notes: null,
       tags: null,
+      // Assessment fields - null when not from assessment form
+      assessment_completed_at: null,
+      assessment_data: null,
+      current_it_spend_monthly: null,
+      current_it_provider: null,
+      support_type: null,
+      has_it_staff: false,
+      it_staff_count: null,
+      device_count: null,
+      server_count: null,
+      cloud_services: null,
+      current_tools: null,
+      pain_points: null,
+      top_priorities: null,
+      biggest_challenge: null,
+      ideal_outcome: null,
+      decision_timeline: null,
+      budget_range: null,
+      services_interested: null,
     };
 
     const { data, error } = await adminClient

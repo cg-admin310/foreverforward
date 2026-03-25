@@ -23,6 +23,13 @@ import {
   Trash2,
   MapPin,
   Globe,
+  Sparkles,
+  Target,
+  AlertTriangle,
+  Server,
+  Cloud,
+  Shield,
+  TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -264,18 +271,22 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
                     client.organization_type.slice(1).replace("_", " ")
                   : "Organization"}
               </p>
-              {client.services && client.services.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 mt-2">
-                  {client.services.map((service) => (
-                    <span
-                      key={service}
-                      className="px-2 py-1 bg-[#FBF6E9] text-[#C9A84C] text-xs font-medium rounded-full"
-                    >
-                      {service}
-                    </span>
-                  ))}
-                </div>
-              )}
+              <div className="flex flex-wrap items-center gap-2 mt-2">
+                {client.assessment_completed_at && (
+                  <span className="px-2 py-1 bg-[#EFF4EB] text-[#5A7247] text-xs font-medium rounded-full flex items-center gap-1">
+                    <Sparkles className="h-3 w-3" />
+                    Assessment Complete
+                  </span>
+                )}
+                {client.services && client.services.map((service) => (
+                  <span
+                    key={service}
+                    className="px-2 py-1 bg-[#FBF6E9] text-[#C9A84C] text-xs font-medium rounded-full"
+                  >
+                    {service}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -507,6 +518,216 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
                 </div>
               </motion.div>
 
+              {/* Assessment Data - shown if client completed assessment */}
+              {client.assessment_completed_at && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
+                  className="bg-gradient-to-br from-[#FBF6E9] to-white rounded-xl border-2 border-[#C9A84C]/30 p-6"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-[#C9A84C]/20">
+                        <Sparkles className="h-5 w-5 text-[#C9A84C]" />
+                      </div>
+                      <div>
+                        <h2 className="font-semibold text-[#1A1A1A]">IT Assessment Data</h2>
+                        <p className="text-xs text-[#888888]">
+                          Completed {formatDate(client.assessment_completed_at)}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="px-3 py-1 rounded-full bg-[#5A7247]/10 text-[#5A7247] text-xs font-semibold">
+                      <CheckCircle className="inline h-3 w-3 mr-1" />
+                      Assessment Complete
+                    </span>
+                  </div>
+
+                  {/* Current IT Spend Comparison */}
+                  {client.current_it_spend_monthly && (
+                    <div className="mb-6 p-4 rounded-lg bg-white border border-[#DDDDDD]">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-xs text-[#888888]">Their Current IT Spend</p>
+                          <p className="text-2xl font-bold text-[#1A1A1A]">
+                            ${client.current_it_spend_monthly.toLocaleString()}/mo
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-[#888888]">Our Estimate</p>
+                          <p className="text-2xl font-bold text-[#5A7247]">
+                            ${(client.monthly_value || 0).toLocaleString()}/mo
+                          </p>
+                        </div>
+                        {client.current_it_spend_monthly && client.monthly_value && (
+                          <div className="text-right">
+                            <p className="text-xs text-[#888888]">Potential Savings</p>
+                            <p className={`text-lg font-bold ${
+                              client.current_it_spend_monthly > client.monthly_value
+                                ? "text-[#5A7247]"
+                                : "text-[#888888]"
+                            }`}>
+                              {client.current_it_spend_monthly > client.monthly_value ? (
+                                <>
+                                  <TrendingUp className="inline h-4 w-4 mr-1" />
+                                  ${(client.current_it_spend_monthly - client.monthly_value).toLocaleString()}/mo
+                                </>
+                              ) : (
+                                "Premium value"
+                              )}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* IT Situation Grid */}
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div className="p-3 rounded-lg bg-white border border-[#DDDDDD]">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Shield className="h-4 w-4 text-[#C9A84C]" />
+                        <span className="text-xs text-[#888888]">IT Support</span>
+                      </div>
+                      <p className="text-sm font-medium text-[#1A1A1A]">
+                        {client.has_it_staff ? "Has internal IT" : "No internal IT"}
+                      </p>
+                      {client.current_it_provider && (
+                        <p className="text-xs text-[#888888]">Provider: {client.current_it_provider}</p>
+                      )}
+                    </div>
+                    <div className="p-3 rounded-lg bg-white border border-[#DDDDDD]">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Server className="h-4 w-4 text-[#C9A84C]" />
+                        <span className="text-xs text-[#888888]">Infrastructure</span>
+                      </div>
+                      <p className="text-sm font-medium text-[#1A1A1A]">
+                        {client.device_count || "?"} devices, {client.server_count || 0} servers
+                      </p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-white border border-[#DDDDDD]">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Cloud className="h-4 w-4 text-[#C9A84C]" />
+                        <span className="text-xs text-[#888888]">Cloud Services</span>
+                      </div>
+                      <p className="text-sm font-medium text-[#1A1A1A]">
+                        {client.cloud_services && client.cloud_services.length > 0
+                          ? client.cloud_services.slice(0, 2).join(", ") + (client.cloud_services.length > 2 ? ` +${client.cloud_services.length - 2}` : "")
+                          : "None specified"}
+                      </p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-white border border-[#DDDDDD]">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Clock className="h-4 w-4 text-[#C9A84C]" />
+                        <span className="text-xs text-[#888888]">Timeline</span>
+                      </div>
+                      <p className={`text-sm font-medium ${
+                        client.decision_timeline === "immediately" ? "text-[#5A7247]" :
+                        client.decision_timeline === "1-2_weeks" ? "text-[#C9A84C]" : "text-[#1A1A1A]"
+                      }`}>
+                        {client.decision_timeline === "immediately" ? "ASAP (Hot)" :
+                         client.decision_timeline === "1-2_weeks" ? "1-2 weeks" :
+                         client.decision_timeline === "1_month" ? "Within month" :
+                         client.decision_timeline === "3_months_plus" ? "3+ months" :
+                         client.decision_timeline === "just_exploring" ? "Exploring" : "Not specified"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Pain Points & Priorities */}
+                  <div className="grid sm:grid-cols-2 gap-4 mb-6">
+                    {client.pain_points && client.pain_points.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-[#888888] uppercase tracking-wider mb-2">
+                          Pain Points
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {client.pain_points.map((point) => (
+                            <span
+                              key={point}
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-50 text-red-700 text-xs"
+                            >
+                              <AlertTriangle className="h-3 w-3" />
+                              {point.replace(/_/g, " ")}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {client.top_priorities && client.top_priorities.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-[#888888] uppercase tracking-wider mb-2">
+                          Top Priorities
+                        </p>
+                        <div className="space-y-1">
+                          {client.top_priorities.map((priority, idx) => (
+                            <div
+                              key={priority}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              <span className="w-5 h-5 rounded-full bg-[#5A7247] text-white text-xs flex items-center justify-center font-bold">
+                                {idx + 1}
+                              </span>
+                              <span className="text-[#1A1A1A]">{priority}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Challenges & Outcomes */}
+                  {(client.biggest_challenge || client.ideal_outcome) && (
+                    <div className="grid sm:grid-cols-2 gap-4 mb-6">
+                      {client.biggest_challenge && (
+                        <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
+                          <p className="text-xs font-semibold text-amber-800 mb-1">Biggest Challenge</p>
+                          <p className="text-sm text-amber-900 italic">&ldquo;{client.biggest_challenge}&rdquo;</p>
+                        </div>
+                      )}
+                      {client.ideal_outcome && (
+                        <div className="p-3 rounded-lg bg-green-50 border border-green-200">
+                          <p className="text-xs font-semibold text-green-800 mb-1">Ideal Outcome</p>
+                          <p className="text-sm text-green-900 italic">&ldquo;{client.ideal_outcome}&rdquo;</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Services Interested & Budget */}
+                  <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-[#DDDDDD]">
+                    {client.services_interested && client.services_interested.length > 0 && (
+                      <div>
+                        <span className="text-xs text-[#888888] mr-2">Interested in:</span>
+                        {client.services_interested.map((service) => (
+                          <span
+                            key={service}
+                            className="inline-flex mr-1 px-2 py-1 rounded-full bg-[#EFF4EB] text-[#5A7247] text-xs font-medium"
+                          >
+                            {service.replace(/_/g, " ")}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {client.budget_range && (
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-[#888888]" />
+                        <span className="text-sm text-[#555555]">
+                          Budget: {
+                            client.budget_range === "under_500" ? "Under $500/mo" :
+                            client.budget_range === "500_1000" ? "$500-1K/mo" :
+                            client.budget_range === "1000_2500" ? "$1K-2.5K/mo" :
+                            client.budget_range === "2500_5000" ? "$2.5K-5K/mo" :
+                            client.budget_range === "5000_plus" ? "$5K+/mo" : "TBD"
+                          }
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
               {/* Notes */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -562,13 +783,21 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
                     </Button>
                   )}
                   <Button
-                    variant="outline"
+                    variant={client.assessment_completed_at ? "default" : "outline"}
                     size="sm"
                     onClick={handleGenerateProposal}
                     disabled={isGeneratingProposal}
+                    className={client.assessment_completed_at ? "bg-[#5A7247] hover:bg-[#3D5030]" : ""}
                   >
                     <FileText className="h-4 w-4 mr-2" />
-                    {isGeneratingProposal ? "Generating..." : "Generate Proposal"}
+                    {isGeneratingProposal ? "Generating..." : (
+                      <>
+                        Generate Proposal
+                        {client.assessment_completed_at && (
+                          <Sparkles className="h-3 w-3 ml-1.5" />
+                        )}
+                      </>
+                    )}
                   </Button>
                   <Button
                     variant="outline"
