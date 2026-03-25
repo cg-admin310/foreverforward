@@ -826,10 +826,12 @@ export async function syncStripeDonations(startDate?: Date): Promise<ActionResul
       }
 
       // Check if already synced
+      // Cast to access payment_intent which may not be in Stripe v20 types
+      const invoiceAny = invoice as unknown as { payment_intent?: string | { id?: string } | null };
       const paymentIntentId =
-        typeof invoice.payment_intent === "string"
-          ? invoice.payment_intent
-          : (invoice.payment_intent as { id?: string })?.id;
+        typeof invoiceAny.payment_intent === "string"
+          ? invoiceAny.payment_intent
+          : (invoiceAny.payment_intent as { id?: string })?.id;
 
       const { data: existing } = await adminClient
         .from("donations")
