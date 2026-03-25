@@ -394,7 +394,29 @@ export async function createInvoice(
 ): Promise<Stripe.Invoice> {
   const { customerId, items, dueDate, autoSend = false, metadata } = params;
 
-  // Create invoice items first
+  // Calculate days until due (minimum 1 day, default 30)
+  let daysUntilDue = 30;
+  if (dueDate) {
+    const calculatedDays = Math.ceil((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    daysUntilDue = Math.max(1, calculatedDays); // Stripe requires at least 1 day
+  }
+
+  // Create the invoice FIRST (as draft)
+  const invoiceParams: Stripe.InvoiceCreateParams = {
+    customer: customerId,
+    collection_method: "send_invoice",
+    days_until_due: daysUntilDue,
+    // Explicitly set to exclude pending items - we'll add items directly
+    pending_invoice_items_behavior: "exclude",
+    metadata: {
+      source: "forever_forward_crm",
+      ...metadata,
+    },
+  };
+
+  const invoice = await stripe.invoices.create(invoiceParams);
+
+  // Now add invoice items directly to this invoice
   for (const item of items) {
     // Validate amount is a positive number
     const amount = Number(item.amount);
@@ -407,6 +429,7 @@ export async function createInvoice(
     const totalAmount = Math.round(amount * 100) * (item.quantity || 1);
     await stripe.invoiceItems.create({
       customer: customerId,
+      invoice: invoice.id, // Attach directly to this invoice
       amount: totalAmount,
       currency: "usd",
       description: item.quantity && item.quantity > 1
@@ -414,26 +437,6 @@ export async function createInvoice(
         : item.description,
     });
   }
-
-  // Calculate days until due (minimum 1 day, default 30)
-  let daysUntilDue = 30;
-  if (dueDate) {
-    const calculatedDays = Math.ceil((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-    daysUntilDue = Math.max(1, calculatedDays); // Stripe requires at least 1 day
-  }
-
-  // Create the invoice
-  const invoiceParams: Stripe.InvoiceCreateParams = {
-    customer: customerId,
-    collection_method: "send_invoice",
-    days_until_due: daysUntilDue,
-    metadata: {
-      source: "forever_forward_crm",
-      ...metadata,
-    },
-  };
-
-  const invoice = await stripe.invoices.create(invoiceParams);
 
   // Finalize the invoice (generates the PDF and invoice number)
   const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id);
