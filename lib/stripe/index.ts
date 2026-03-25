@@ -396,9 +396,15 @@ export async function createInvoice(
 
   // Create invoice items first
   for (const item of items) {
+    // Validate amount is a positive number
+    const amount = Number(item.amount);
+    if (isNaN(amount) || amount <= 0) {
+      throw new Error(`Invalid amount: ${item.amount}`);
+    }
+
     // When using amount, don't specify quantity (Stripe doesn't allow both)
     // If quantity > 1, multiply the amount
-    const totalAmount = Math.round(item.amount * 100) * (item.quantity || 1);
+    const totalAmount = Math.round(amount * 100) * (item.quantity || 1);
     await stripe.invoiceItems.create({
       customer: customerId,
       amount: totalAmount,
@@ -409,13 +415,18 @@ export async function createInvoice(
     });
   }
 
+  // Calculate days until due (minimum 1 day, default 30)
+  let daysUntilDue = 30;
+  if (dueDate) {
+    const calculatedDays = Math.ceil((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    daysUntilDue = Math.max(1, calculatedDays); // Stripe requires at least 1 day
+  }
+
   // Create the invoice
   const invoiceParams: Stripe.InvoiceCreateParams = {
     customer: customerId,
     collection_method: "send_invoice",
-    days_until_due: dueDate
-      ? Math.ceil((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-      : 30,
+    days_until_due: daysUntilDue,
     metadata: {
       source: "forever_forward_crm",
       ...metadata,
