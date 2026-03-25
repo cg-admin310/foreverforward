@@ -190,9 +190,10 @@ export async function getClientsByPipeline(): Promise<
   ActionResult<Record<PipelineStage, MspClient[]>>
 > {
   try {
-    const supabase = await createServerSupabaseClient();
+    // Use admin client to bypass RLS for internal server actions
+    const adminClient = createAdminClient();
 
-    const { data, error } = await supabase
+    const { data, error } = await adminClient
       .from("msp_clients")
       .select("*")
       .order("stage_entered_at", { ascending: true });
@@ -536,9 +537,10 @@ export async function getClientStats(): Promise<ActionResult<{
   byPackage: Record<string, number>;
 }>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    // Use admin client to bypass RLS for internal server actions
+    const adminClient = createAdminClient();
 
-    const { data, error } = await supabase
+    const { data, error } = await adminClient
       .from("msp_clients")
       .select("pipeline_stage, service_package, monthly_value");
 

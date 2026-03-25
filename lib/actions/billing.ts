@@ -452,9 +452,10 @@ export async function getBillingStats(): Promise<ActionResult<BillingStats>> {
 
 export async function getClientsForBilling(): Promise<ActionResult<{ id: string; name: string; hasStripeCustomer: boolean }[]>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    // Use admin client to bypass RLS for internal server actions
+    const adminClient = createAdminClient();
 
-    const { data: clients, error } = await supabase
+    const { data: clients, error } = await adminClient
       .from("msp_clients")
       .select("id, organization_name, stripe_customer_id")
       .in("pipeline_stage", ["active", "proposal", "negotiation"])
