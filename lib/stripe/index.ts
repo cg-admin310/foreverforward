@@ -396,12 +396,16 @@ export async function createInvoice(
 
   // Create invoice items first
   for (const item of items) {
+    // When using amount, don't specify quantity (Stripe doesn't allow both)
+    // If quantity > 1, multiply the amount
+    const totalAmount = Math.round(item.amount * 100) * (item.quantity || 1);
     await stripe.invoiceItems.create({
       customer: customerId,
-      amount: Math.round(item.amount * 100), // Convert to cents
+      amount: totalAmount,
       currency: "usd",
-      description: item.description,
-      quantity: item.quantity || 1,
+      description: item.quantity && item.quantity > 1
+        ? `${item.description} (x${item.quantity})`
+        : item.description,
     });
   }
 
@@ -674,13 +678,14 @@ export async function addInvoiceItem(params: {
     throw new Error("Can only add items to draft invoices");
   }
 
+  // When using amount, don't specify quantity (Stripe doesn't allow both)
+  const totalAmount = Math.round(amount * 100) * quantity;
   return stripe.invoiceItems.create({
     customer: invoice.customer as string,
     invoice: invoiceId,
-    amount: Math.round(amount * 100),
+    amount: totalAmount,
     currency: "usd",
-    description,
-    quantity,
+    description: quantity > 1 ? `${description} (x${quantity})` : description,
   });
 }
 
