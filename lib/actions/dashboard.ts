@@ -45,11 +45,11 @@ export async function getDashboardMetrics(): Promise<ActionResult<DashboardMetri
       .lt("created_at", startOfMonth.toISOString());
     const lastMonthLeads = lastMonthResult.error ? 0 : lastMonthResult.count;
 
-    // Active participants
+    // Active participants (valid statuses: applicant, enrolled, active, on_hold, completed, withdrawn)
     const participantsResult = await supabase
       .from("participants")
       .select("*", { count: "exact", head: true })
-      .in("status", ["enrolled", "active", "in_progress"]);
+      .in("status", ["enrolled", "active"]);
     const activeParticipants = participantsResult.error ? 0 : participantsResult.count;
 
     // MSP Clients
