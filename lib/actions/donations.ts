@@ -826,8 +826,11 @@ export async function syncStripeDonations(startDate?: Date): Promise<ActionResul
       }
 
       // Check if already synced
-      // Cast to access payment_intent which may not be in Stripe v20 types
-      const invoiceAny = invoice as unknown as { payment_intent?: string | { id?: string } | null };
+      // Cast to access properties which may not be in Stripe v20 types
+      const invoiceAny = invoice as unknown as {
+        payment_intent?: string | { id?: string } | null;
+        subscription?: string | null;
+      };
       const paymentIntentId =
         typeof invoiceAny.payment_intent === "string"
           ? invoiceAny.payment_intent
@@ -864,13 +867,10 @@ export async function syncStripeDonations(startDate?: Date): Promise<ActionResul
           donor_last_name: nameParts.slice(1).join(" ") || "Donor",
           donor_email: donorEmail,
           amount: (invoice.amount_paid || 0) / 100,
-          frequency: invoice.subscription ? "monthly" : "one_time",
+          frequency: invoiceAny.subscription ? "monthly" : "one_time",
           designation: metadata.designation || null,
           stripe_payment_intent_id: paymentIntentId || null,
-          stripe_subscription_id:
-            typeof invoice.subscription === "string"
-              ? invoice.subscription
-              : null,
+          stripe_subscription_id: invoiceAny.subscription || null,
           stripe_customer_id:
             typeof invoice.customer === "string" ? invoice.customer : null,
           payment_status: "succeeded",
