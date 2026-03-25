@@ -1,6 +1,6 @@
 "use server";
 
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { ActionResult } from "./leads";
 
 // ============================================================================
@@ -31,7 +31,7 @@ const DEFAULT_METRICS: DashboardMetrics = {
 
 export async function getDashboardMetrics(): Promise<ActionResult<DashboardMetrics>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createAdminClient();
 
     // Calculate date ranges
     const startOfMonth = new Date();
@@ -173,7 +173,7 @@ export interface Activity {
 
 export async function getRecentActivity(limit = 10): Promise<ActionResult<Activity[]>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createAdminClient();
 
     const { data, error } = await supabase
       .from("activities")
@@ -208,7 +208,7 @@ export interface UpcomingEvent {
 
 export async function getUpcomingEvents(limit = 5): Promise<ActionResult<UpcomingEvent[]>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createAdminClient();
 
     const { data, error } = await supabase
       .from("events")
@@ -245,7 +245,7 @@ export interface TravisAlert {
 
 export async function getTravisAlerts(): Promise<ActionResult<TravisAlert[]>> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createAdminClient();
     const alerts: TravisAlert[] = [];
 
     // Query 1: Participants with Travis escalation flags (high severity)
