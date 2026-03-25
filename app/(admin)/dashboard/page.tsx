@@ -20,27 +20,39 @@ import {
   getRecentActivity,
   getUpcomingEvents,
   getTravisAlerts,
+  type DashboardMetrics,
+  type Activity,
+  type UpcomingEvent,
+  type TravisAlert,
 } from "@/lib/actions/dashboard";
 
 function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
+  try {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
 
-  if (diffMins < 1) return "Just now";
-  if (diffMins < 60) return `${diffMins} minutes ago`;
-  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
-  return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins} minutes ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+    return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+  } catch {
+    return "Unknown";
+  }
 }
 
 function formatCurrency(amount: number): string {
-  if (amount >= 1000) {
-    return `$${(amount / 1000).toFixed(1)}K`;
+  try {
+    if (amount >= 1000) {
+      return `$${(amount / 1000).toFixed(1)}K`;
+    }
+    return `$${amount}`;
+  } catch {
+    return "$0";
   }
-  return `$${amount}`;
 }
 
 function getActivityIcon(type: string) {
@@ -63,43 +75,78 @@ function getActivityIcon(type: string) {
   }
 }
 
-export default async function DashboardPage() {
-  // Fetch all dashboard data in parallel with error handling
-  let metricsResult, activityResult, eventsResult, alertsResult;
+// Default values to prevent crashes
+const defaultMetrics: DashboardMetrics = {
+  newLeads: 0,
+  leadsChange: 0,
+  activeParticipants: 0,
+  participantsChange: 0,
+  mspClients: 0,
+  clientsChange: 0,
+  monthlyRevenue: 0,
+  revenueChange: 0,
+};
 
+export default async function DashboardPage() {
+  // Fetch all dashboard data with individual error handling
+  let metrics: DashboardMetrics = defaultMetrics;
+  let activities: Activity[] = [];
+  let events: UpcomingEvent[] = [];
+  let alerts: TravisAlert[] = [];
+
+  // Fetch metrics
   try {
-    [metricsResult, activityResult, eventsResult, alertsResult] = await Promise.all([
-      getDashboardMetrics().catch(() => ({ success: false, data: null })),
-      getRecentActivity(5).catch(() => ({ success: false, data: [] })),
-      getUpcomingEvents(3).catch(() => ({ success: false, data: [] })),
-      getTravisAlerts().catch(() => ({ success: false, data: [] })),
-    ]);
-  } catch (error) {
-    console.error("Dashboard data fetch error:", error);
-    metricsResult = { success: false, data: null };
-    activityResult = { success: false, data: [] };
-    eventsResult = { success: false, data: [] };
-    alertsResult = { success: false, data: [] };
+    const result = await getDashboardMetrics();
+    if (result.success && result.data) {
+      metrics = result.data;
+    }
+  } catch (e) {
+    console.error("Dashboard: metrics fetch failed:", e);
   }
 
-  const metrics = metricsResult?.data;
-  const activities = activityResult?.data || [];
-  const events = eventsResult?.data || [];
-  const alerts = alertsResult?.data || [];
+  // Fetch activities
+  try {
+    const result = await getRecentActivity(5);
+    if (result.success && result.data) {
+      activities = result.data;
+    }
+  } catch (e) {
+    console.error("Dashboard: activities fetch failed:", e);
+  }
+
+  // Fetch events
+  try {
+    const result = await getUpcomingEvents(3);
+    if (result.success && result.data) {
+      events = result.data;
+    }
+  } catch (e) {
+    console.error("Dashboard: events fetch failed:", e);
+  }
+
+  // Fetch alerts
+  try {
+    const result = await getTravisAlerts();
+    if (result.success && result.data) {
+      alerts = result.data;
+    }
+  } catch (e) {
+    console.error("Dashboard: alerts fetch failed:", e);
+  }
 
   const metricCards = [
     {
       title: "New Leads",
-      value: metrics?.newLeads || 0,
-      change: metrics?.leadsChange
+      value: metrics.newLeads,
+      change: metrics.leadsChange
         ? { value: Math.abs(metrics.leadsChange), type: metrics.leadsChange >= 0 ? "increase" as const : "decrease" as const }
         : undefined,
       icon: Users,
     },
     {
       title: "Active Participants",
-      value: metrics?.activeParticipants || 0,
-      change: metrics?.participantsChange
+      value: metrics.activeParticipants,
+      change: metrics.participantsChange
         ? { value: Math.abs(metrics.participantsChange), type: metrics.participantsChange >= 0 ? "increase" as const : "decrease" as const }
         : undefined,
       icon: GraduationCap,
@@ -108,16 +155,16 @@ export default async function DashboardPage() {
     },
     {
       title: "MSP Clients",
-      value: metrics?.mspClients || 0,
-      change: metrics?.clientsChange
+      value: metrics.mspClients,
+      change: metrics.clientsChange
         ? { value: Math.abs(metrics.clientsChange), type: metrics.clientsChange >= 0 ? "increase" as const : "decrease" as const }
         : undefined,
       icon: Building2,
     },
     {
       title: "Monthly Revenue",
-      value: formatCurrency(metrics?.monthlyRevenue || 0),
-      change: metrics?.revenueChange
+      value: formatCurrency(metrics.monthlyRevenue),
+      change: metrics.revenueChange
         ? { value: Math.abs(metrics.revenueChange), type: metrics.revenueChange >= 0 ? "increase" as const : "decrease" as const }
         : undefined,
       icon: DollarSign,
