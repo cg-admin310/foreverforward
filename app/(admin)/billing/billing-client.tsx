@@ -116,8 +116,13 @@ export function BillingClient({ stats, invoices, clients, revenueHistory }: Bill
     setIsCreating(true);
     setError(null);
 
+    // Debug logging
+    console.log("[handleCreateInvoice] invoiceAmount:", invoiceAmount);
+    console.log("[handleCreateInvoice] parseFloat result:", parseFloat(invoiceAmount));
+    console.log("[handleCreateInvoice] invoiceDescription:", invoiceDescription);
+
     try {
-      const result = await createInvoice({
+      const invoiceData = {
         clientId: selectedClient,
         items: [
           {
@@ -128,7 +133,10 @@ export function BillingClient({ stats, invoices, clients, revenueHistory }: Bill
         dueDate: dueDate ? new Date(dueDate) : undefined,
         autoSend,
         type: invoiceType,
-      });
+      };
+      console.log("[handleCreateInvoice] Sending data:", JSON.stringify(invoiceData, null, 2));
+
+      const result = await createInvoice(invoiceData);
 
       if (result.success) {
         setShowInvoiceModal(false);

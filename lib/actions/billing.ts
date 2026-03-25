@@ -122,6 +122,10 @@ export async function createInvoice(data: {
   type?: "recurring" | "one-time";
 }): Promise<ActionResult<InvoiceDisplay>> {
   try {
+    // Debug logging
+    console.log("[createInvoice] Received data:", JSON.stringify(data, null, 2));
+    console.log("[createInvoice] Items:", data.items);
+
     // Use admin client to bypass RLS
     const adminClient = createAdminClient();
 

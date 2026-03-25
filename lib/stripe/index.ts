@@ -394,6 +394,10 @@ export async function createInvoice(
 ): Promise<Stripe.Invoice> {
   const { customerId, items, dueDate, autoSend = false, metadata } = params;
 
+  // Debug logging
+  console.log("[Stripe createInvoice] Items received:", JSON.stringify(items, null, 2));
+  console.log("[Stripe createInvoice] Items count:", items.length);
+
   // Calculate days until due (minimum 1 day, default 30)
   let daysUntilDue = 30;
   if (dueDate) {
