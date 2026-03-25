@@ -398,6 +398,11 @@ export async function createInvoice(
   console.log("[Stripe createInvoice] Items received:", JSON.stringify(items, null, 2));
   console.log("[Stripe createInvoice] Items count:", items.length);
 
+  // Validate items are provided
+  if (!items || items.length === 0) {
+    throw new Error("No items provided for invoice");
+  }
+
   // Calculate days until due (minimum 1 day, default 30)
   let daysUntilDue = 30;
   if (dueDate) {
