@@ -200,72 +200,61 @@ export async function getTravisAlerts(): Promise<ActionResult<TravisAlert[]>> {
 
     const alerts: TravisAlert[] = [];
 
-    // Get participants with check-ins flagged for escalation
+    // Get participants with Travis escalation flags
     try {
-      const { data: escalations, error: escError } = await supabase
-        .from("checkins")
-        .select(`
-          id,
-          created_at,
-          escalation_flag,
-          escalation_reason,
-          participant_id,
-          participants (
-            first_name,
-            last_name
-          )
-        `)
-        .eq("escalation_flag", true)
-        .order("created_at", { ascending: false })
-        .limit(10);
+      const { data: escalatedParticipants, error: escError } = await supabase
+        .from("participants")
+        .select("id, first_name, last_name, travis_escalation_flags, updated_at")
+        .in("status", ["enrolled", "active"])
+        .not("travis_escalation_flags", "is", null);
 
-      if (!escError && escalations) {
-        // Add escalations
-        escalations.forEach((esc) => {
-          const participants = esc.participants as unknown as { first_name: string; last_name: string } | { first_name: string; last_name: string }[] | null;
-          const participant = Array.isArray(participants) ? participants[0] : participants;
-          if (participant) {
+      if (!escError && escalatedParticipants) {
+        escalatedParticipants.forEach((p) => {
+          const flags = p.travis_escalation_flags as string[] | null;
+          if (flags && flags.length > 0) {
             alerts.push({
-              id: esc.id,
-              participant_name: `${participant.first_name} ${participant.last_name}`,
-              issue: esc.escalation_reason || "Escalation flagged",
+              id: `escalation-${p.id}`,
+              participant_name: `${p.first_name} ${p.last_name}`,
+              issue: flags[0] || "Escalation flagged",
               severity: "high",
-              created_at: esc.created_at,
-              participant_id: esc.participant_id,
+              created_at: p.updated_at,
+              participant_id: p.id,
             });
           }
         });
       }
     } catch {
-      // Table might not exist, continue without escalations
+      // Column might not exist, continue without escalations
     }
 
-    // Get participants who missed check-ins (no check-in in last 7 days)
+    // Get participants with low progress (enrolled but stuck at 0%)
     try {
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-
-      const { data: activeParticipants, error: participantsError } = await supabase
+      const { data: stuckParticipants, error: stuckError } = await supabase
         .from("participants")
-        .select("id, first_name, last_name, last_checkin_at")
+        .select("id, first_name, last_name, created_at")
         .in("status", ["enrolled", "active"])
-        .or(`last_checkin_at.is.null,last_checkin_at.lt.${weekAgo.toISOString()}`);
+        .eq("progress_percentage", 0);
 
-      if (!participantsError && activeParticipants) {
-        // Add missed check-ins
-        activeParticipants.forEach((p) => {
-          alerts.push({
-            id: `missed-${p.id}`,
-            participant_name: `${p.first_name} ${p.last_name}`,
-            issue: "Missed check-in (7+ days)",
-            severity: "medium",
-            created_at: new Date().toISOString(),
-            participant_id: p.id,
-          });
+      if (!stuckError && stuckParticipants) {
+        // Only flag if enrolled more than 14 days ago
+        const twoWeeksAgo = new Date();
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+        stuckParticipants.forEach((p) => {
+          if (new Date(p.created_at) < twoWeeksAgo) {
+            alerts.push({
+              id: `stuck-${p.id}`,
+              participant_name: `${p.first_name} ${p.last_name}`,
+              issue: "No progress in 14+ days",
+              severity: "medium",
+              created_at: p.created_at,
+              participant_id: p.id,
+            });
+          }
         });
       }
     } catch {
-      // Table might not exist, continue without missed check-ins
+      // Continue without stuck participants check
     }
 
     return { success: true, data: alerts.slice(0, 5) };
