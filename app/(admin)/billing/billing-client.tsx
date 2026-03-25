@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -58,6 +58,8 @@ export function BillingClient({ stats, invoices, clients, revenueHistory }: Bill
   const [selectedClient, setSelectedClient] = useState("");
   const [invoiceAmount, setInvoiceAmount] = useState("");
   const [invoiceDescription, setInvoiceDescription] = useState("");
+  const amountInputRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const [invoiceType, setInvoiceType] = useState<"recurring" | "one-time">("one-time");
   const [dueDate, setDueDate] = useState("");
 
@@ -108,7 +110,11 @@ export function BillingClient({ stats, invoices, clients, revenueHistory }: Bill
   };
 
   const handleCreateInvoice = async (autoSend: boolean) => {
-    if (!selectedClient || !invoiceAmount || !invoiceDescription) {
+    // Get values from refs as fallback (for browser automation compatibility)
+    const amountValue = amountInputRef.current?.value || invoiceAmount;
+    const descValue = descriptionRef.current?.value || invoiceDescription;
+
+    if (!selectedClient || !amountValue || !descValue) {
       setError("Please fill in all required fields");
       return;
     }
@@ -117,17 +123,18 @@ export function BillingClient({ stats, invoices, clients, revenueHistory }: Bill
     setError(null);
 
     // Debug logging
-    console.log("[handleCreateInvoice] invoiceAmount:", invoiceAmount);
-    console.log("[handleCreateInvoice] parseFloat result:", parseFloat(invoiceAmount));
-    console.log("[handleCreateInvoice] invoiceDescription:", invoiceDescription);
+    console.log("[handleCreateInvoice] invoiceAmount state:", invoiceAmount);
+    console.log("[handleCreateInvoice] amountValue (ref):", amountValue);
+    console.log("[handleCreateInvoice] parseFloat result:", parseFloat(amountValue));
+    console.log("[handleCreateInvoice] descValue:", descValue);
 
     try {
       const invoiceData = {
         clientId: selectedClient,
         items: [
           {
-            description: invoiceDescription,
-            amount: parseFloat(invoiceAmount),
+            description: descValue,
+            amount: parseFloat(amountValue),
           },
         ],
         dueDate: dueDate ? new Date(dueDate) : undefined,
@@ -562,6 +569,7 @@ export function BillingClient({ stats, invoices, clients, revenueHistory }: Bill
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#888888]" />
                   <Input
+                    ref={amountInputRef}
                     type="number"
                     placeholder="0.00"
                     value={invoiceAmount}
@@ -587,6 +595,7 @@ export function BillingClient({ stats, invoices, clients, revenueHistory }: Bill
                   Description *
                 </label>
                 <textarea
+                  ref={descriptionRef}
                   value={invoiceDescription}
                   onChange={(e) => setInvoiceDescription(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg border border-[#DDDDDD] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
