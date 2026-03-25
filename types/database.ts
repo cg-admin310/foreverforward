@@ -106,6 +106,23 @@ export type InvoiceType =
   | "one-time"
   | "recurring";
 
+export type BillingEventType =
+  | "created"
+  | "sent"
+  | "viewed"
+  | "paid"
+  | "reminder_sent"
+  | "voided"
+  | "edited"
+  | "recurring_enabled"
+  | "recurring_disabled"
+  | "portal_accessed";
+
+export type RevenueSource =
+  | "billing"
+  | "donations"
+  | "events";
+
 // ============================================================================
 // DATABASE TABLES
 // ============================================================================
@@ -319,6 +336,13 @@ export interface MspClient {
   decision_timeline: DecisionTimeline | null;
   budget_range: BudgetRange | null;
   services_interested: string[] | null;
+
+  // Recurring billing configuration
+  billing_enabled: boolean | null;
+  billing_day_of_month: number | null;
+  auto_invoice_enabled: boolean | null;
+  stripe_subscription_id: string | null;
+  last_invoice_generated_at: string | null;
 }
 
 export interface Document {
@@ -594,6 +618,14 @@ export interface Donation {
   updated_at: string;
 }
 
+// Line item for invoice breakdown
+export interface InvoiceLineItem {
+  id?: string;
+  description: string;
+  amount: number;
+  quantity?: number;
+}
+
 export interface Invoice {
   id: string;
   client_id: string | null;
@@ -613,6 +645,39 @@ export interface Invoice {
   metadata: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
+
+  // Enhanced billing fields
+  line_items: InvoiceLineItem[] | null;
+  reminder_sent_at: string | null;
+  reminder_count: number | null;
+  notes: string | null;
+  internal_notes: string | null;
+}
+
+// Revenue history for accurate historical charts
+export interface RevenueHistory {
+  id: string;
+  source: RevenueSource;
+  month_year: string; // '2026-03' format
+  total_amount: number;
+  collected_amount: number;
+  outstanding_amount: number;
+  record_count: number | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Billing events audit log
+export interface BillingEvent {
+  id: string;
+  invoice_id: string | null;
+  client_id: string | null;
+  event_type: BillingEventType;
+  description: string | null;
+  metadata: Record<string, unknown> | null;
+  performed_by: string | null;
+  created_at: string;
 }
 
 export interface Checkin {
@@ -711,7 +776,13 @@ export type CohortUpdate = Partial<CohortInsert>;
 export type ParticipantInsert = Omit<Participant, "id" | "created_at" | "updated_at">;
 export type ParticipantUpdate = Partial<ParticipantInsert>;
 
-export type MspClientInsert = Omit<MspClient, "id" | "created_at" | "updated_at">;
+export type MspClientInsert = Omit<MspClient, "id" | "created_at" | "updated_at" | "billing_enabled" | "billing_day_of_month" | "auto_invoice_enabled" | "stripe_subscription_id" | "last_invoice_generated_at"> & {
+  billing_enabled?: boolean | null;
+  billing_day_of_month?: number | null;
+  auto_invoice_enabled?: boolean | null;
+  stripe_subscription_id?: string | null;
+  last_invoice_generated_at?: string | null;
+};
 export type MspClientUpdate = Partial<MspClientInsert>;
 
 export type DocumentInsert = Omit<Document, "id" | "created_at" | "updated_at">;
@@ -763,6 +834,13 @@ export type NewsletterSubscriberInsert = Omit<NewsletterSubscriber, "id" | "crea
 export type NewsletterSubscriberUpdate = Partial<NewsletterSubscriberInsert>;
 
 export type TravisConversationInsert = Omit<TravisConversation, "id" | "created_at">;
+
+export type RevenueHistoryInsert = Omit<RevenueHistory, "id" | "created_at" | "updated_at">;
+export type RevenueHistoryUpdate = Partial<RevenueHistoryInsert>;
+
+export type BillingEventInsert = Omit<BillingEvent, "id" | "created_at">;
+
+export type InvoiceLineItemInsert = Omit<InvoiceLineItem, "id">;
 
 // ============================================================================
 // DATABASE SCHEMA TYPE (for Supabase client)
@@ -884,6 +962,16 @@ export interface Database {
       travis_conversations: {
         Row: TravisConversation;
         Insert: TravisConversationInsert;
+        Update: never;
+      };
+      revenue_history: {
+        Row: RevenueHistory;
+        Insert: RevenueHistoryInsert;
+        Update: RevenueHistoryUpdate;
+      };
+      billing_events: {
+        Row: BillingEvent;
+        Insert: BillingEventInsert;
         Update: never;
       };
     };

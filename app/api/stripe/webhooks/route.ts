@@ -91,6 +91,10 @@ export async function POST(request: NextRequest) {
         await handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
         break;
 
+      case "invoice.marked_uncollectible":
+        await handleInvoiceMarkedUncollectible(event.data.object as Stripe.Invoice);
+        break;
+
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
@@ -324,43 +328,75 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
 async function handleInvoiceCreated(invoice: Stripe.Invoice) {
   console.log("[Webhook] Invoice created:", invoice.id);
 
-  // Only sync invoices that originated from our CRM
-  if (invoice.metadata?.source !== "forever_forward_crm") {
-    console.log("[Webhook] Skipping non-CRM invoice:", invoice.id);
-    return;
-  }
-
   const adminClient = createAdminClient();
-  const clientId = invoice.metadata?.client_id;
+  const clientId = invoice.metadata?.client_id || null;
   const customerId = typeof invoice.customer === "string"
     ? invoice.customer
     : (invoice.customer as Stripe.Customer | null)?.id || null;
 
-  // Upsert invoice record to Supabase
-  const { error } = await adminClient
+  // If no client_id in metadata, try to find client by Stripe customer ID
+  let resolvedClientId = clientId;
+  if (!resolvedClientId && customerId) {
+    const { data: client } = await adminClient
+      .from("msp_clients")
+      .select("id")
+      .eq("stripe_customer_id", customerId)
+      .single();
+
+    if (client) {
+      resolvedClientId = client.id;
+    }
+  }
+
+  // Extract line items from Stripe invoice
+  const lineItems = invoice.lines?.data?.map((item) => ({
+    description: item.description || "Line item",
+    amount: (item.amount || 0) / 100,
+    quantity: item.quantity || 1,
+    stripe_line_item_id: item.id,
+  })) || [];
+
+  // Upsert invoice record to Supabase - sync ALL invoices, not just CRM-created
+  const { error, data: upserted } = await adminClient
     .from("invoices")
     .upsert({
       stripe_invoice_id: invoice.id,
       stripe_customer_id: customerId,
-      client_id: clientId || null,
+      client_id: resolvedClientId,
       number: invoice.number,
       amount: (invoice.amount_due || invoice.total || 0) / 100,
-      status: "draft",
-      invoice_type: (invoice.metadata?.type as "one-time" | "recurring") || "one-time",
+      status: invoice.status === "draft" ? "draft" : invoice.status || "draft",
+      invoice_type: (invoice as unknown as { subscription?: string | null }).subscription ? "recurring" : "one-time",
       description: invoice.description || null,
       due_date: invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null,
       hosted_invoice_url: invoice.hosted_invoice_url || null,
       pdf_url: invoice.invoice_pdf || null,
+      line_items: lineItems,
       metadata: invoice.metadata || null,
       created_at: new Date(invoice.created * 1000).toISOString(),
     }, {
       onConflict: "stripe_invoice_id",
-    });
+    })
+    .select("id")
+    .single();
 
   if (error) {
     console.error("[Webhook] Failed to create invoice record:", error);
   } else {
-    console.log("[Webhook] Invoice record created:", invoice.id);
+    console.log("[Webhook] Invoice record synced:", invoice.id);
+
+    // Log billing event
+    await logBillingEvent({
+      invoiceId: upserted?.id,
+      clientId: resolvedClientId,
+      eventType: "created",
+      description: `Invoice ${invoice.number || invoice.id} created - $${(invoice.amount_due || 0) / 100}`,
+      metadata: {
+        stripe_invoice_id: invoice.id,
+        amount: (invoice.amount_due || 0) / 100,
+        source: invoice.metadata?.source || "stripe",
+      },
+    });
   }
 }
 
@@ -370,7 +406,7 @@ async function handleInvoiceFinalized(invoice: Stripe.Invoice) {
   const adminClient = createAdminClient();
 
   // Update invoice to 'open' status when finalized (sent)
-  const { error } = await adminClient
+  const { error, data: updated } = await adminClient
     .from("invoices")
     .update({
       status: "open",
@@ -379,12 +415,27 @@ async function handleInvoiceFinalized(invoice: Stripe.Invoice) {
       hosted_invoice_url: invoice.hosted_invoice_url || null,
       pdf_url: invoice.invoice_pdf || null,
     })
-    .eq("stripe_invoice_id", invoice.id);
+    .eq("stripe_invoice_id", invoice.id)
+    .select("id, client_id")
+    .single();
 
   if (error) {
     console.error("[Webhook] Failed to update finalized invoice:", error);
   } else {
     console.log("[Webhook] Invoice marked as open:", invoice.id);
+
+    // Log billing event
+    await logBillingEvent({
+      invoiceId: updated?.id,
+      clientId: invoice.metadata?.client_id || updated?.client_id || null,
+      eventType: "sent",
+      description: `Invoice ${invoice.number || invoice.id} sent to customer`,
+      metadata: {
+        stripe_invoice_id: invoice.id,
+        amount: (invoice.amount_due || 0) / 100,
+        hosted_invoice_url: invoice.hosted_invoice_url,
+      },
+    });
   }
 }
 
@@ -399,9 +450,28 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     : ((invoice as { payment_intent?: string }).payment_intent || null);
 
   // Calculate paid_at timestamp
-  const paidAt = invoice.status_transitions?.paid_at
-    ? new Date(invoice.status_transitions.paid_at * 1000).toISOString()
-    : new Date().toISOString();
+  const paidAtTimestamp = invoice.status_transitions?.paid_at
+    ? new Date(invoice.status_transitions.paid_at * 1000)
+    : new Date();
+  const paidAt = paidAtTimestamp.toISOString();
+
+  const customerId = typeof invoice.customer === "string"
+    ? invoice.customer
+    : (invoice.customer as Stripe.Customer | null)?.id || null;
+
+  // Try to find client by Stripe customer ID if not in metadata
+  let clientId = invoice.metadata?.client_id || null;
+  if (!clientId && customerId) {
+    const { data: client } = await adminClient
+      .from("msp_clients")
+      .select("id")
+      .eq("stripe_customer_id", customerId)
+      .single();
+
+    if (client) {
+      clientId = client.id;
+    }
+  }
 
   // Update invoice status in our database
   const { error, data: updated } = await adminClient
@@ -412,24 +482,22 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       stripe_payment_intent_id: paymentIntentId,
     })
     .eq("stripe_invoice_id", invoice.id)
-    .select("id")
+    .select("id, client_id")
     .single();
+
+  let invoiceRecordId = updated?.id;
+  const resolvedClientId = clientId || updated?.client_id;
 
   if (error || !updated) {
     // If no existing record, create one (for invoices created outside CRM)
-    const clientId = invoice.metadata?.client_id;
-    const customerId = typeof invoice.customer === "string"
-      ? invoice.customer
-      : (invoice.customer as Stripe.Customer | null)?.id || null;
-
-    await adminClient.from("invoices").insert({
+    const { data: inserted } = await adminClient.from("invoices").insert({
       stripe_invoice_id: invoice.id,
       stripe_customer_id: customerId,
-      client_id: clientId || null,
+      client_id: clientId,
       number: invoice.number,
       amount: (invoice.amount_paid || 0) / 100,
       status: "paid",
-      invoice_type: (invoice.metadata?.type as "one-time" | "recurring") || "one-time",
+      invoice_type: (invoice as unknown as { subscription?: string | null }).subscription ? "recurring" : "one-time",
       description: invoice.description || null,
       due_date: invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null,
       paid_at: paidAt,
@@ -437,22 +505,46 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       hosted_invoice_url: invoice.hosted_invoice_url || null,
       pdf_url: invoice.invoice_pdf || null,
       metadata: invoice.metadata || null,
-    });
+    }).select("id").single();
+
+    invoiceRecordId = inserted?.id;
     console.log("[Webhook] Created paid invoice record:", invoice.id);
   } else {
     console.log("[Webhook] Invoice marked as paid:", invoice.id);
   }
 
+  const amountPaid = (invoice.amount_paid || 0) / 100;
+
+  // Update revenue history
+  await updateRevenueHistory({
+    amount: amountPaid,
+    paidAt: paidAtTimestamp,
+    source: "billing",
+  });
+
+  // Log billing event
+  await logBillingEvent({
+    invoiceId: invoiceRecordId,
+    clientId: resolvedClientId,
+    eventType: "paid",
+    description: `Invoice ${invoice.number || invoice.id} paid - $${amountPaid}`,
+    metadata: {
+      stripe_invoice_id: invoice.id,
+      amount: amountPaid,
+      payment_intent_id: paymentIntentId,
+    },
+  });
+
   // Log activity for audit trail
-  if (invoice.metadata?.client_id) {
+  if (resolvedClientId) {
     try {
       await adminClient.from("activities").insert({
         activity_type: "invoice_paid",
-        description: `Invoice ${invoice.number || invoice.id} paid - $${(invoice.amount_paid || 0) / 100}`,
-        client_id: invoice.metadata.client_id,
+        description: `Invoice ${invoice.number || invoice.id} paid - $${amountPaid}`,
+        client_id: resolvedClientId,
         metadata: {
           invoice_id: invoice.id,
-          amount: (invoice.amount_paid || 0) / 100,
+          amount: amountPaid,
           payment_intent_id: paymentIntentId,
         },
       });
@@ -475,7 +567,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       .single();
 
     if (existingDonation) {
-      const customerId = typeof invoiceData.customer === "object" && invoiceData.customer
+      const donorCustomerId = typeof invoiceData.customer === "object" && invoiceData.customer
         ? invoiceData.customer.id
         : (invoiceData.customer as string);
 
@@ -485,15 +577,23 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
         donorLastName: existingDonation.donor_last_name,
         donorEmail: existingDonation.donor_email,
         donorPhone: existingDonation.donor_phone || undefined,
-        amount: (invoice.amount_paid || 0) / 100,
+        amount: amountPaid,
         frequency: "monthly",
         stripeSubscriptionId: subscriptionId,
-        stripeCustomerId: customerId,
+        stripeCustomerId: donorCustomerId,
         paymentStatus: "succeeded",
         source: "recurring",
         campaign: existingDonation.campaign || undefined,
         designation: existingDonation.designation || undefined,
       });
+
+      // Update donation revenue history
+      await updateRevenueHistory({
+        amount: amountPaid,
+        paidAt: paidAtTimestamp,
+        source: "donations",
+      });
+
       console.log("[Webhook] Created new donation record for recurring payment");
     }
   }
@@ -581,4 +681,144 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     .from("donations")
     .update({ payment_status: "cancelled" })
     .eq("stripe_subscription_id", subscription.id);
+}
+
+async function handleInvoiceMarkedUncollectible(invoice: Stripe.Invoice) {
+  console.log("[Webhook] Invoice marked uncollectible:", invoice.id);
+
+  const adminClient = createAdminClient();
+
+  // Update invoice status
+  const { error, data: updated } = await adminClient
+    .from("invoices")
+    .update({
+      status: "uncollectible",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("stripe_invoice_id", invoice.id)
+    .select("id, client_id")
+    .single();
+
+  if (error) {
+    console.error("[Webhook] Failed to update uncollectible invoice:", error);
+    return;
+  }
+
+  // Log billing event
+  await logBillingEvent({
+    invoiceId: updated?.id,
+    clientId: invoice.metadata?.client_id || updated?.client_id || null,
+    eventType: "voided",
+    description: `Invoice ${invoice.number || invoice.id} marked as uncollectible`,
+    metadata: {
+      stripe_invoice_id: invoice.id,
+      amount: (invoice.amount_due || 0) / 100,
+    },
+  });
+
+  // Log activity for audit trail
+  if (invoice.metadata?.client_id || updated?.client_id) {
+    const clientId = invoice.metadata?.client_id || updated?.client_id;
+    try {
+      await adminClient.from("activities").insert({
+        activity_type: "invoice_uncollectible",
+        description: `Invoice ${invoice.number || invoice.id} marked uncollectible - $${(invoice.amount_due || 0) / 100}`,
+        client_id: clientId,
+        metadata: {
+          invoice_id: invoice.id,
+          amount: (invoice.amount_due || 0) / 100,
+        },
+      });
+    } catch (activityError) {
+      console.error("[Webhook] Failed to log activity:", activityError);
+    }
+  }
+}
+
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
+
+/**
+ * Log a billing event for audit trail
+ */
+async function logBillingEvent(params: {
+  invoiceId?: string | null;
+  clientId?: string | null;
+  eventType: string;
+  description: string;
+  metadata?: Record<string, unknown>;
+  performedBy?: string;
+}) {
+  const adminClient = createAdminClient();
+
+  try {
+    await adminClient.from("billing_events").insert({
+      invoice_id: params.invoiceId || null,
+      client_id: params.clientId || null,
+      event_type: params.eventType,
+      description: params.description,
+      metadata: params.metadata || null,
+      performed_by: params.performedBy || null,
+    });
+  } catch (error) {
+    console.error("[Webhook] Failed to log billing event:", error);
+  }
+}
+
+/**
+ * Update revenue history when an invoice is paid
+ */
+async function updateRevenueHistory(params: {
+  amount: number;
+  paidAt: Date;
+  source?: string;
+}) {
+  const adminClient = createAdminClient();
+  const monthYear = params.paidAt.toISOString().slice(0, 7); // 'YYYY-MM' format
+
+  try {
+    // Upsert to revenue_history
+    const { error } = await adminClient.rpc("upsert_revenue_history", {
+      p_source: params.source || "billing",
+      p_month_year: monthYear,
+      p_total_amount: params.amount,
+      p_collected_amount: params.amount,
+    });
+
+    if (error) {
+      // Fallback to manual upsert if RPC doesn't exist
+      const { data: existing } = await adminClient
+        .from("revenue_history")
+        .select("*")
+        .eq("source", params.source || "billing")
+        .eq("month_year", monthYear)
+        .single();
+
+      if (existing) {
+        await adminClient
+          .from("revenue_history")
+          .update({
+            collected_amount: (existing.collected_amount || 0) + params.amount,
+            total_amount: (existing.total_amount || 0) + params.amount,
+            record_count: (existing.record_count || 0) + 1,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existing.id);
+      } else {
+        await adminClient.from("revenue_history").insert({
+          source: params.source || "billing",
+          month_year: monthYear,
+          total_amount: params.amount,
+          collected_amount: params.amount,
+          outstanding_amount: 0,
+          record_count: 1,
+        });
+      }
+    }
+
+    console.log(`[Webhook] Updated revenue history for ${monthYear}: +$${params.amount}`);
+  } catch (error) {
+    console.error("[Webhook] Failed to update revenue history:", error);
+  }
 }

@@ -5,6 +5,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Donation, DonationInsert, DonationFrequency } from "@/types/database";
 import { sendEmail, donationThankYouEmail, donationReceiptEmail } from "@/lib/resend";
+import { stripe } from "@/lib/stripe";
 
 // =============================================================================
 // TYPES
@@ -686,5 +687,209 @@ export async function exportDonationsToCSV(options?: {
   } catch (error) {
     console.error("Error in exportDonationsToCSV:", error);
     return { success: false, error: "Failed to export donations" };
+  }
+}
+
+// =============================================================================
+// SYNC DONATIONS FROM STRIPE
+// Syncs donations made directly in Stripe Dashboard that aren't in the database
+// =============================================================================
+
+export async function syncStripeDonations(startDate?: Date): Promise<ActionResult<{
+  synced: number;
+  skipped: number;
+  errors: number;
+}>> {
+  try {
+    const adminClient = createAdminClient();
+
+    // Default to last 30 days if no start date
+    const sinceTimestamp = startDate
+      ? Math.floor(startDate.getTime() / 1000)
+      : Math.floor((Date.now() - 30 * 24 * 60 * 60 * 1000) / 1000);
+
+    // Get all charges from Stripe (donations come through as charges)
+    const charges = await stripe.charges.list({
+      created: { gte: sinceTimestamp },
+      limit: 100,
+    });
+
+    let synced = 0;
+    let skipped = 0;
+    let errors = 0;
+
+    for (const charge of charges.data) {
+      // Skip failed or refunded charges
+      if (charge.status !== "succeeded" || charge.refunded) {
+        skipped++;
+        continue;
+      }
+
+      // Check if this charge is already in our database
+      const { data: existing } = await adminClient
+        .from("donations")
+        .select("id")
+        .or(
+          `stripe_payment_intent_id.eq.${charge.payment_intent || ""},stripe_charge_id.eq.${charge.id}`
+        )
+        .maybeSingle();
+
+      if (existing) {
+        skipped++;
+        continue;
+      }
+
+      // Get customer info if available
+      let donorEmail = charge.receipt_email || charge.billing_details?.email || "";
+      let donorName = charge.billing_details?.name || "";
+
+      // Try to get more info from the customer object
+      if (charge.customer && typeof charge.customer === "string") {
+        try {
+          const customer = await stripe.customers.retrieve(charge.customer);
+          if (customer && !("deleted" in customer)) {
+            donorEmail = donorEmail || customer.email || "";
+            donorName = donorName || customer.name || "";
+          }
+        } catch (e) {
+          console.error("Error fetching Stripe customer:", e);
+        }
+      }
+
+      // Parse name into first/last
+      const nameParts = donorName.split(" ");
+      const firstName = nameParts[0] || "Unknown";
+      const lastName = nameParts.slice(1).join(" ") || "Donor";
+
+      // Determine if this looks like a donation based on metadata or description
+      const metadata = charge.metadata || {};
+      const isDonation =
+        metadata.type === "donation" ||
+        charge.description?.toLowerCase().includes("donation") ||
+        charge.description?.toLowerCase().includes("forever forward");
+
+      // If it doesn't look like a donation, skip it
+      if (!isDonation && !metadata.donation_id) {
+        skipped++;
+        continue;
+      }
+
+      // Create the donation record
+      try {
+        await adminClient.from("donations").insert({
+          donor_first_name: firstName,
+          donor_last_name: lastName,
+          donor_email: donorEmail,
+          donor_phone: charge.billing_details?.phone || null,
+          address_line1: charge.billing_details?.address?.line1 || null,
+          address_line2: charge.billing_details?.address?.line2 || null,
+          city: charge.billing_details?.address?.city || null,
+          state: charge.billing_details?.address?.state || null,
+          zip_code: charge.billing_details?.address?.postal_code || null,
+          amount: charge.amount / 100,
+          frequency: metadata.frequency === "monthly" ? "monthly" : "one_time",
+          designation: metadata.designation || null,
+          stripe_payment_intent_id:
+            typeof charge.payment_intent === "string"
+              ? charge.payment_intent
+              : null,
+          stripe_customer_id:
+            typeof charge.customer === "string" ? charge.customer : null,
+          payment_status: "succeeded",
+          acknowledgment_sent: false,
+          campaign: metadata.campaign || null,
+          source: "stripe_sync",
+          is_anonymous: false,
+          notes: `Synced from Stripe charge ${charge.id}`,
+        });
+
+        synced++;
+      } catch (insertError) {
+        console.error("Error inserting synced donation:", insertError);
+        errors++;
+      }
+    }
+
+    // Also check for subscription invoices (recurring donations)
+    const invoices = await stripe.invoices.list({
+      created: { gte: sinceTimestamp },
+      status: "paid",
+      limit: 100,
+    });
+
+    for (const invoice of invoices.data) {
+      // Check metadata for donation type
+      const metadata = invoice.metadata || {};
+      if (metadata.type !== "donation") {
+        skipped++;
+        continue;
+      }
+
+      // Check if already synced
+      const paymentIntentId =
+        typeof invoice.payment_intent === "string"
+          ? invoice.payment_intent
+          : (invoice.payment_intent as { id?: string })?.id;
+
+      const { data: existing } = await adminClient
+        .from("donations")
+        .select("id")
+        .eq("stripe_payment_intent_id", paymentIntentId || "")
+        .maybeSingle();
+
+      if (existing) {
+        skipped++;
+        continue;
+      }
+
+      // Get customer info
+      let customer = null;
+      if (invoice.customer && typeof invoice.customer === "string") {
+        try {
+          customer = await stripe.customers.retrieve(invoice.customer);
+        } catch (e) {
+          console.error("Error fetching customer for invoice:", e);
+        }
+      }
+
+      const donorName = (customer && !("deleted" in customer) ? customer.name : null) || "Unknown Donor";
+      const donorEmail = (customer && !("deleted" in customer) ? customer.email : null) || "";
+      const nameParts = donorName.split(" ");
+
+      try {
+        await adminClient.from("donations").insert({
+          donor_first_name: nameParts[0] || "Unknown",
+          donor_last_name: nameParts.slice(1).join(" ") || "Donor",
+          donor_email: donorEmail,
+          amount: (invoice.amount_paid || 0) / 100,
+          frequency: invoice.subscription ? "monthly" : "one_time",
+          designation: metadata.designation || null,
+          stripe_payment_intent_id: paymentIntentId || null,
+          stripe_subscription_id:
+            typeof invoice.subscription === "string"
+              ? invoice.subscription
+              : null,
+          stripe_customer_id:
+            typeof invoice.customer === "string" ? invoice.customer : null,
+          payment_status: "succeeded",
+          acknowledgment_sent: false,
+          campaign: metadata.campaign || null,
+          source: "stripe_sync",
+          is_anonymous: false,
+          notes: `Synced from Stripe invoice ${invoice.id}`,
+        });
+
+        synced++;
+      } catch (insertError) {
+        console.error("Error inserting synced donation from invoice:", insertError);
+        errors++;
+      }
+    }
+
+    revalidatePath("/donations");
+    return { success: true, data: { synced, skipped, errors } };
+  } catch (error) {
+    console.error("Error in syncStripeDonations:", error);
+    return { success: false, error: "Failed to sync Stripe donations" };
   }
 }

@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { getBillingStats, getInvoicesFromDatabase, getClientsForBilling, syncStripeInvoicesToDatabase } from "@/lib/actions/billing";
+import { getBillingStats, getInvoicesFromDatabase, getClientsForBilling, syncStripeInvoicesToDatabase, getRevenueHistory } from "@/lib/actions/billing";
 import { BillingClient } from "./billing-client";
 
 export default async function BillingPage() {
@@ -11,10 +11,11 @@ export default async function BillingPage() {
   });
 
   // Fetch all data in parallel from database (faster than Stripe API)
-  const [statsResult, invoicesResult, clientsResult] = await Promise.all([
+  const [statsResult, invoicesResult, clientsResult, revenueResult] = await Promise.all([
     getBillingStats(),
     getInvoicesFromDatabase({ limit: 100 }),
     getClientsForBilling(),
+    getRevenueHistory(6), // Last 6 months
   ]);
 
   const stats = statsResult.data || {
@@ -26,12 +27,14 @@ export default async function BillingPage() {
 
   const invoices = invoicesResult.data?.invoices || [];
   const clients = clientsResult.data || [];
+  const revenueHistory = revenueResult.data?.billing || [];
 
   return (
     <BillingClient
       stats={stats}
       invoices={invoices}
       clients={clients}
+      revenueHistory={revenueHistory}
     />
   );
 }

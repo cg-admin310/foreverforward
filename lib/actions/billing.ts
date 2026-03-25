@@ -10,8 +10,17 @@ import {
   voidInvoice as voidStripeInvoice,
   getOrCreateCustomer,
   listCustomerInvoices,
+  createBillingPortalSession,
+  createRecurringInvoiceSchedule,
+  cancelRecurringInvoiceSchedule,
+  updateRecurringInvoiceAmount,
+  addInvoiceItem as addStripeInvoiceItem,
+  deleteInvoiceItem as deleteStripeInvoiceItem,
+  updateDraftInvoice as updateStripeDraftInvoice,
+  sendInvoiceReminder as sendStripeInvoiceReminder,
+  getSubscription,
 } from "@/lib/stripe";
-import { MspClient, Invoice, InvoiceStatus, InvoiceType } from "@/types/database";
+import { MspClient, Invoice, InvoiceStatus, InvoiceType, BillingEvent, RevenueHistory } from "@/types/database";
 import Stripe from "stripe";
 
 // =============================================================================
@@ -678,4 +687,961 @@ function transformStripeInvoice(
     type: extra.type,
     createdAt: new Date(invoice.created * 1000).toISOString(),
   };
+}
+
+// =============================================================================
+// RECURRING BILLING - Enable/Disable
+// =============================================================================
+
+export async function enableRecurringBilling(params: {
+  clientId: string;
+  monthlyAmount: number;
+  description?: string;
+}): Promise<ActionResult<{ subscriptionId: string }>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get client details
+    const { data: client, error: clientError } = await supabase
+      .from("msp_clients")
+      .select("*")
+      .eq("id", params.clientId)
+      .single();
+
+    if (clientError || !client) {
+      return { success: false, error: "Client not found" };
+    }
+
+    // Ensure client has Stripe customer ID
+    let stripeCustomerId = client.stripe_customer_id;
+    if (!stripeCustomerId) {
+      const customerResult = await createStripeCustomerForClient(params.clientId);
+      if (!customerResult.success || !customerResult.data) {
+        return { success: false, error: "Failed to create Stripe customer" };
+      }
+      stripeCustomerId = customerResult.data;
+    }
+
+    // Check if already has active subscription
+    if (client.stripe_subscription_id) {
+      return { success: false, error: "Client already has recurring billing enabled" };
+    }
+
+    // Create Stripe subscription with send_invoice collection method
+    const subscription = await createRecurringInvoiceSchedule({
+      customerId: stripeCustomerId,
+      monthlyAmount: params.monthlyAmount,
+      description: params.description || `Monthly IT Services - ${client.organization_name}`,
+      clientId: params.clientId,
+    });
+
+    // Update client with subscription info
+    const adminClient = createAdminClient();
+    await adminClient
+      .from("msp_clients")
+      .update({
+        stripe_subscription_id: subscription.id,
+        billing_enabled: true,
+        auto_invoice_enabled: true,
+        monthly_value: params.monthlyAmount,
+      })
+      .eq("id", params.clientId);
+
+    // Log billing event
+    await logBillingEvent({
+      clientId: params.clientId,
+      eventType: "recurring_enabled",
+      description: `Recurring billing enabled - $${params.monthlyAmount}/month`,
+      metadata: {
+        subscription_id: subscription.id,
+        monthly_amount: params.monthlyAmount,
+      },
+    });
+
+    revalidatePath("/billing");
+    revalidatePath(`/clients/${params.clientId}`);
+    return { success: true, data: { subscriptionId: subscription.id } };
+  } catch (error) {
+    console.error("Error enabling recurring billing:", error);
+    return { success: false, error: "Failed to enable recurring billing" };
+  }
+}
+
+export async function disableRecurringBilling(clientId: string): Promise<ActionResult> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get client
+    const { data: client, error: clientError } = await supabase
+      .from("msp_clients")
+      .select("stripe_subscription_id")
+      .eq("id", clientId)
+      .single();
+
+    if (clientError || !client) {
+      return { success: false, error: "Client not found" };
+    }
+
+    if (!client.stripe_subscription_id) {
+      return { success: false, error: "Client does not have recurring billing enabled" };
+    }
+
+    // Cancel Stripe subscription
+    await cancelRecurringInvoiceSchedule(client.stripe_subscription_id);
+
+    // Update client record
+    const adminClient = createAdminClient();
+    await adminClient
+      .from("msp_clients")
+      .update({
+        stripe_subscription_id: null,
+        billing_enabled: false,
+        auto_invoice_enabled: false,
+      })
+      .eq("id", clientId);
+
+    // Log billing event
+    await logBillingEvent({
+      clientId,
+      eventType: "recurring_disabled",
+      description: "Recurring billing disabled",
+      metadata: {
+        subscription_id: client.stripe_subscription_id,
+      },
+    });
+
+    revalidatePath("/billing");
+    revalidatePath(`/clients/${clientId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error disabling recurring billing:", error);
+    return { success: false, error: "Failed to disable recurring billing" };
+  }
+}
+
+export async function getRecurringBillingStatus(clientId: string): Promise<ActionResult<{
+  enabled: boolean;
+  monthlyAmount?: number;
+  nextInvoiceDate?: string;
+  subscriptionId?: string;
+}>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get client
+    const { data: client, error: clientError } = await supabase
+      .from("msp_clients")
+      .select("stripe_subscription_id, monthly_value, auto_invoice_enabled")
+      .eq("id", clientId)
+      .single();
+
+    if (clientError || !client) {
+      return { success: false, error: "Client not found" };
+    }
+
+    if (!client.stripe_subscription_id || !client.auto_invoice_enabled) {
+      return { success: true, data: { enabled: false } };
+    }
+
+    // Get subscription details from Stripe
+    const subscription = await getSubscription(client.stripe_subscription_id);
+
+    // In Stripe v20, current_period_end is on subscription items
+    const currentPeriodEnd = subscription.items?.data?.[0]?.current_period_end;
+
+    return {
+      success: true,
+      data: {
+        enabled: subscription.status === "active",
+        monthlyAmount: client.monthly_value || undefined,
+        nextInvoiceDate: currentPeriodEnd
+          ? new Date(currentPeriodEnd * 1000).toISOString()
+          : undefined,
+        subscriptionId: subscription.id,
+      },
+    };
+  } catch (error) {
+    console.error("Error getting recurring billing status:", error);
+    return { success: false, error: "Failed to get recurring billing status" };
+  }
+}
+
+export async function updateRecurringBillingAmount(params: {
+  clientId: string;
+  newAmount: number;
+}): Promise<ActionResult> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get client
+    const { data: client, error: clientError } = await supabase
+      .from("msp_clients")
+      .select("stripe_subscription_id")
+      .eq("id", params.clientId)
+      .single();
+
+    if (clientError || !client || !client.stripe_subscription_id) {
+      return { success: false, error: "Client not found or no subscription" };
+    }
+
+    // Update subscription in Stripe
+    await updateRecurringInvoiceAmount({
+      subscriptionId: client.stripe_subscription_id,
+      newMonthlyAmount: params.newAmount,
+      clientId: params.clientId,
+    });
+
+    // Update client record
+    const adminClient = createAdminClient();
+    await adminClient
+      .from("msp_clients")
+      .update({ monthly_value: params.newAmount })
+      .eq("id", params.clientId);
+
+    revalidatePath("/billing");
+    revalidatePath(`/clients/${params.clientId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating recurring billing amount:", error);
+    return { success: false, error: "Failed to update recurring billing amount" };
+  }
+}
+
+// =============================================================================
+// CLIENT PAYMENT PORTAL
+// =============================================================================
+
+export async function getClientPaymentPortalUrl(
+  clientId: string,
+  returnUrl?: string
+): Promise<ActionResult<{ url: string }>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get client
+    const { data: client, error: clientError } = await supabase
+      .from("msp_clients")
+      .select("stripe_customer_id")
+      .eq("id", clientId)
+      .single();
+
+    if (clientError || !client) {
+      return { success: false, error: "Client not found" };
+    }
+
+    if (!client.stripe_customer_id) {
+      return { success: false, error: "Client does not have a Stripe customer account" };
+    }
+
+    // Create billing portal session
+    const session = await createBillingPortalSession({
+      customerId: client.stripe_customer_id,
+      returnUrl: returnUrl || `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/clients/${clientId}`,
+    });
+
+    // Log billing event
+    await logBillingEvent({
+      clientId,
+      eventType: "portal_accessed",
+      description: "Client payment portal accessed",
+      metadata: {},
+    });
+
+    return { success: true, data: { url: session.url } };
+  } catch (error) {
+    console.error("Error getting payment portal URL:", error);
+    return { success: false, error: "Failed to generate payment portal URL" };
+  }
+}
+
+// =============================================================================
+// INVOICE EDITING (Draft Only)
+// =============================================================================
+
+export async function updateInvoice(params: {
+  invoiceId: string;
+  dueDate?: Date;
+  notes?: string;
+  internalNotes?: string;
+}): Promise<ActionResult> {
+  try {
+    const adminClient = createAdminClient();
+
+    // Get invoice
+    const { data: invoice, error: invoiceError } = await adminClient
+      .from("invoices")
+      .select("stripe_invoice_id, status")
+      .eq("id", params.invoiceId)
+      .single();
+
+    if (invoiceError || !invoice) {
+      return { success: false, error: "Invoice not found" };
+    }
+
+    if (invoice.status !== "draft") {
+      return { success: false, error: "Only draft invoices can be edited" };
+    }
+
+    // Update Stripe invoice if due date changed
+    if (params.dueDate) {
+      await updateStripeDraftInvoice({
+        invoiceId: invoice.stripe_invoice_id,
+        dueDate: params.dueDate,
+      });
+    }
+
+    // Update database record
+    const updateData: Record<string, unknown> = {};
+    if (params.dueDate) updateData.due_date = params.dueDate.toISOString();
+    if (params.notes !== undefined) updateData.notes = params.notes;
+    if (params.internalNotes !== undefined) updateData.internal_notes = params.internalNotes;
+
+    await adminClient
+      .from("invoices")
+      .update(updateData)
+      .eq("id", params.invoiceId);
+
+    revalidatePath("/billing");
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating invoice:", error);
+    return { success: false, error: "Failed to update invoice" };
+  }
+}
+
+export async function addInvoiceLineItem(params: {
+  invoiceId: string;
+  description: string;
+  amount: number;
+}): Promise<ActionResult> {
+  try {
+    const adminClient = createAdminClient();
+
+    // Get invoice
+    const { data: invoice, error: invoiceError } = await adminClient
+      .from("invoices")
+      .select("stripe_invoice_id, stripe_customer_id, status, line_items")
+      .eq("id", params.invoiceId)
+      .single();
+
+    if (invoiceError || !invoice) {
+      return { success: false, error: "Invoice not found" };
+    }
+
+    if (invoice.status !== "draft") {
+      return { success: false, error: "Only draft invoices can be edited" };
+    }
+
+    // Add line item to Stripe invoice
+    const stripeItem = await addStripeInvoiceItem({
+      invoiceId: invoice.stripe_invoice_id,
+      customerId: invoice.stripe_customer_id,
+      description: params.description,
+      amount: params.amount,
+    });
+
+    // Update line_items in database
+    const existingItems = (invoice.line_items || []) as Array<{
+      description: string;
+      amount: number;
+      stripe_line_item_id?: string;
+    }>;
+    existingItems.push({
+      description: params.description,
+      amount: params.amount,
+      stripe_line_item_id: stripeItem.id,
+    });
+
+    await adminClient
+      .from("invoices")
+      .update({
+        line_items: existingItems,
+        amount: existingItems.reduce((sum, item) => sum + item.amount, 0),
+      })
+      .eq("id", params.invoiceId);
+
+    revalidatePath("/billing");
+    revalidatePath(`/billing/${params.invoiceId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error adding invoice line item:", error);
+    return { success: false, error: "Failed to add line item" };
+  }
+}
+
+export async function removeInvoiceLineItem(params: {
+  invoiceId: string;
+  lineItemId: string;
+}): Promise<ActionResult> {
+  try {
+    const adminClient = createAdminClient();
+
+    // Get invoice
+    const { data: invoice, error: invoiceError } = await adminClient
+      .from("invoices")
+      .select("stripe_invoice_id, status, line_items")
+      .eq("id", params.invoiceId)
+      .single();
+
+    if (invoiceError || !invoice) {
+      return { success: false, error: "Invoice not found" };
+    }
+
+    if (invoice.status !== "draft") {
+      return { success: false, error: "Only draft invoices can be edited" };
+    }
+
+    // Delete from Stripe
+    await deleteStripeInvoiceItem(params.lineItemId);
+
+    // Update line_items in database
+    const existingItems = (invoice.line_items || []) as Array<{
+      description: string;
+      amount: number;
+      stripe_line_item_id?: string;
+    }>;
+    const updatedItems = existingItems.filter(
+      (item) => item.stripe_line_item_id !== params.lineItemId
+    );
+
+    await adminClient
+      .from("invoices")
+      .update({
+        line_items: updatedItems,
+        amount: updatedItems.reduce((sum, item) => sum + item.amount, 0),
+      })
+      .eq("id", params.invoiceId);
+
+    revalidatePath("/billing");
+    revalidatePath(`/billing/${params.invoiceId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error removing invoice line item:", error);
+    return { success: false, error: "Failed to remove line item" };
+  }
+}
+
+// =============================================================================
+// INVOICE REMINDERS
+// =============================================================================
+
+export async function sendInvoiceReminder(invoiceId: string): Promise<ActionResult> {
+  try {
+    const adminClient = createAdminClient();
+
+    // Get invoice
+    const { data: invoice, error: invoiceError } = await adminClient
+      .from("invoices")
+      .select("stripe_invoice_id, status, reminder_count, client_id")
+      .eq("id", invoiceId)
+      .single();
+
+    if (invoiceError || !invoice) {
+      return { success: false, error: "Invoice not found" };
+    }
+
+    if (invoice.status !== "open") {
+      return { success: false, error: "Can only send reminders for open invoices" };
+    }
+
+    // Send reminder via Stripe
+    await sendStripeInvoiceReminder(invoice.stripe_invoice_id);
+
+    // Update reminder tracking
+    await adminClient
+      .from("invoices")
+      .update({
+        reminder_sent_at: new Date().toISOString(),
+        reminder_count: (invoice.reminder_count || 0) + 1,
+      })
+      .eq("id", invoiceId);
+
+    // Log billing event
+    await logBillingEvent({
+      invoiceId,
+      clientId: invoice.client_id,
+      eventType: "reminder_sent",
+      description: `Payment reminder #${(invoice.reminder_count || 0) + 1} sent`,
+      metadata: {
+        reminder_count: (invoice.reminder_count || 0) + 1,
+      },
+    });
+
+    revalidatePath("/billing");
+    return { success: true };
+  } catch (error) {
+    console.error("Error sending invoice reminder:", error);
+    return { success: false, error: "Failed to send reminder" };
+  }
+}
+
+export async function sendBulkOverdueReminders(
+  daysOverdue = 7
+): Promise<ActionResult<{ sent: number; failed: number }>> {
+  try {
+    const adminClient = createAdminClient();
+
+    // Get overdue invoices
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - daysOverdue);
+
+    const { data: overdueInvoices, error } = await adminClient
+      .from("invoices")
+      .select("id, stripe_invoice_id, reminder_count, client_id")
+      .eq("status", "open")
+      .lt("due_date", cutoffDate.toISOString());
+
+    if (error || !overdueInvoices) {
+      return { success: false, error: "Failed to fetch overdue invoices" };
+    }
+
+    let sent = 0;
+    let failed = 0;
+
+    for (const invoice of overdueInvoices) {
+      try {
+        await sendStripeInvoiceReminder(invoice.stripe_invoice_id);
+
+        await adminClient
+          .from("invoices")
+          .update({
+            reminder_sent_at: new Date().toISOString(),
+            reminder_count: (invoice.reminder_count || 0) + 1,
+          })
+          .eq("id", invoice.id);
+
+        await logBillingEvent({
+          invoiceId: invoice.id,
+          clientId: invoice.client_id,
+          eventType: "reminder_sent",
+          description: `Bulk payment reminder sent (${daysOverdue}+ days overdue)`,
+          metadata: {
+            reminder_count: (invoice.reminder_count || 0) + 1,
+            bulk_send: true,
+          },
+        });
+
+        sent++;
+      } catch (e) {
+        console.error(`Failed to send reminder for invoice ${invoice.id}:`, e);
+        failed++;
+      }
+    }
+
+    revalidatePath("/billing");
+    return { success: true, data: { sent, failed } };
+  } catch (error) {
+    console.error("Error sending bulk reminders:", error);
+    return { success: false, error: "Failed to send bulk reminders" };
+  }
+}
+
+// =============================================================================
+// REVENUE HISTORY
+// =============================================================================
+
+export async function getRevenueHistory(months = 12): Promise<ActionResult<{
+  billing: { month: string; collected: number; outstanding: number }[];
+  donations: { month: string; amount: number }[];
+}>> {
+  try {
+    const adminClient = createAdminClient();
+
+    // Calculate date range
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - months);
+
+    // Generate list of months
+    const monthList: string[] = [];
+    const current = new Date(startDate);
+    while (current <= endDate) {
+      monthList.push(current.toISOString().slice(0, 7)); // YYYY-MM format
+      current.setMonth(current.getMonth() + 1);
+    }
+
+    // Get billing revenue from revenue_history table
+    const { data: billingHistory } = await adminClient
+      .from("revenue_history")
+      .select("month_year, collected_amount, outstanding_amount")
+      .eq("source", "billing")
+      .gte("month_year", monthList[0])
+      .order("month_year");
+
+    // Get donation revenue from revenue_history table
+    const { data: donationHistory } = await adminClient
+      .from("revenue_history")
+      .select("month_year, collected_amount")
+      .eq("source", "donations")
+      .gte("month_year", monthList[0])
+      .order("month_year");
+
+    // If no revenue history, calculate from invoices and donations
+    let billingData: { month: string; collected: number; outstanding: number }[];
+    let donationData: { month: string; amount: number }[];
+
+    if (!billingHistory || billingHistory.length === 0) {
+      // Calculate from invoices
+      const { data: invoices } = await adminClient
+        .from("invoices")
+        .select("amount, status, paid_at, created_at")
+        .gte("created_at", startDate.toISOString());
+
+      const billingByMonth = new Map<string, { collected: number; outstanding: number }>();
+      for (const inv of invoices || []) {
+        const month = (inv.paid_at || inv.created_at).slice(0, 7);
+        const existing = billingByMonth.get(month) || { collected: 0, outstanding: 0 };
+        if (inv.status === "paid") {
+          existing.collected += inv.amount;
+        } else if (inv.status === "open") {
+          existing.outstanding += inv.amount;
+        }
+        billingByMonth.set(month, existing);
+      }
+
+      billingData = monthList.map((month) => ({
+        month,
+        collected: billingByMonth.get(month)?.collected || 0,
+        outstanding: billingByMonth.get(month)?.outstanding || 0,
+      }));
+    } else {
+      const historyMap = new Map(billingHistory.map((h) => [h.month_year, h]));
+      billingData = monthList.map((month) => ({
+        month,
+        collected: historyMap.get(month)?.collected_amount || 0,
+        outstanding: historyMap.get(month)?.outstanding_amount || 0,
+      }));
+    }
+
+    if (!donationHistory || donationHistory.length === 0) {
+      // Calculate from donations
+      const { data: donations } = await adminClient
+        .from("donations")
+        .select("amount, created_at")
+        .eq("payment_status", "succeeded")
+        .gte("created_at", startDate.toISOString());
+
+      const donationByMonth = new Map<string, number>();
+      for (const don of donations || []) {
+        const month = don.created_at.slice(0, 7);
+        donationByMonth.set(month, (donationByMonth.get(month) || 0) + don.amount);
+      }
+
+      donationData = monthList.map((month) => ({
+        month,
+        amount: donationByMonth.get(month) || 0,
+      }));
+    } else {
+      const historyMap = new Map(donationHistory.map((h) => [h.month_year, h]));
+      donationData = monthList.map((month) => ({
+        month,
+        amount: historyMap.get(month)?.collected_amount || 0,
+      }));
+    }
+
+    return {
+      success: true,
+      data: {
+        billing: billingData,
+        donations: donationData,
+      },
+    };
+  } catch (error) {
+    console.error("Error getting revenue history:", error);
+    return { success: false, error: "Failed to get revenue history" };
+  }
+}
+
+// =============================================================================
+// CLIENT BILLING DATA
+// =============================================================================
+
+export async function getClientBillingData(clientId: string): Promise<ActionResult<{
+  invoices: InvoiceDisplay[];
+  stats: { totalBilled: number; totalPaid: number; outstanding: number };
+  recurringStatus: { enabled: boolean; amount?: number; nextInvoice?: string };
+}>> {
+  try {
+    const adminClient = createAdminClient();
+
+    // Get client with billing info
+    const { data: client, error: clientError } = await adminClient
+      .from("msp_clients")
+      .select("id, organization_name, stripe_customer_id, stripe_subscription_id, monthly_value, auto_invoice_enabled")
+      .eq("id", clientId)
+      .single();
+
+    if (clientError || !client) {
+      return { success: false, error: "Client not found" };
+    }
+
+    // Get invoices from database
+    const { data: invoices } = await adminClient
+      .from("invoices")
+      .select("*")
+      .eq("client_id", clientId)
+      .order("created_at", { ascending: false });
+
+    // Calculate stats
+    let totalBilled = 0;
+    let totalPaid = 0;
+    let outstanding = 0;
+
+    const displayInvoices: InvoiceDisplay[] = (invoices || []).map((inv) => {
+      totalBilled += inv.amount;
+      if (inv.status === "paid") totalPaid += inv.amount;
+      if (inv.status === "open") outstanding += inv.amount;
+
+      return {
+        id: inv.id,
+        stripeInvoiceId: inv.stripe_invoice_id,
+        number: inv.number,
+        clientId: inv.client_id || "",
+        clientName: client.organization_name,
+        amount: inv.amount,
+        status: inv.status as InvoiceDisplay["status"],
+        dueDate: inv.due_date,
+        sentAt: inv.sent_at,
+        paidAt: inv.paid_at,
+        hostedInvoiceUrl: inv.hosted_invoice_url,
+        pdfUrl: inv.pdf_url,
+        type: (inv.invoice_type as "recurring" | "one-time") || "one-time",
+        createdAt: inv.created_at,
+      };
+    });
+
+    // Get recurring status
+    let recurringStatus: { enabled: boolean; amount?: number; nextInvoice?: string } = {
+      enabled: false,
+    };
+
+    if (client.stripe_subscription_id && client.auto_invoice_enabled) {
+      try {
+        const subscription = await stripe.subscriptions.retrieve(client.stripe_subscription_id);
+        recurringStatus = {
+          enabled: subscription.status === "active",
+          amount: client.monthly_value || undefined,
+          nextInvoice: subscription.current_period_end
+            ? new Date(subscription.current_period_end * 1000).toISOString()
+            : undefined,
+        };
+      } catch (e) {
+        console.error("Error fetching subscription:", e);
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        invoices: displayInvoices,
+        stats: { totalBilled, totalPaid, outstanding },
+        recurringStatus,
+      },
+    };
+  } catch (error) {
+    console.error("Error getting client billing data:", error);
+    return { success: false, error: "Failed to get client billing data" };
+  }
+}
+
+// =============================================================================
+// EXPORT INVOICES TO CSV
+// =============================================================================
+
+export async function exportInvoicesToCSV(options?: {
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+  clientId?: string;
+}): Promise<ActionResult<string>> {
+  try {
+    const adminClient = createAdminClient();
+
+    // Build query
+    let query = adminClient
+      .from("invoices")
+      .select(`
+        *,
+        msp_clients!invoices_client_id_fkey (
+          organization_name
+        )
+      `)
+      .order("created_at", { ascending: false });
+
+    if (options?.startDate) {
+      query = query.gte("created_at", options.startDate);
+    }
+    if (options?.endDate) {
+      query = query.lte("created_at", options.endDate);
+    }
+    if (options?.status && options.status !== "all") {
+      query = query.eq("status", options.status);
+    }
+    if (options?.clientId) {
+      query = query.eq("client_id", options.clientId);
+    }
+
+    const { data: invoices, error } = await query;
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    // Build CSV
+    const headers = [
+      "Invoice Number",
+      "Client",
+      "Amount",
+      "Status",
+      "Type",
+      "Due Date",
+      "Sent Date",
+      "Paid Date",
+      "Created Date",
+    ];
+
+    const rows = (invoices || []).map((inv) => {
+      const client = inv.msp_clients as { organization_name: string } | null;
+      return [
+        inv.number || inv.stripe_invoice_id,
+        client?.organization_name || "Unknown",
+        inv.amount.toFixed(2),
+        inv.status,
+        inv.invoice_type || "one-time",
+        inv.due_date ? new Date(inv.due_date).toLocaleDateString() : "",
+        inv.sent_at ? new Date(inv.sent_at).toLocaleDateString() : "",
+        inv.paid_at ? new Date(inv.paid_at).toLocaleDateString() : "",
+        new Date(inv.created_at).toLocaleDateString(),
+      ];
+    });
+
+    const csv = [
+      headers.join(","),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+    ].join("\n");
+
+    return { success: true, data: csv };
+  } catch (error) {
+    console.error("Error exporting invoices:", error);
+    return { success: false, error: "Failed to export invoices" };
+  }
+}
+
+// =============================================================================
+// GET SINGLE INVOICE DETAIL
+// =============================================================================
+
+export async function getInvoiceDetail(invoiceId: string): Promise<ActionResult<{
+  invoice: InvoiceDisplay & {
+    lineItems: { description: string; amount: number; quantity?: number }[];
+    notes: string | null;
+    internalNotes: string | null;
+    reminderCount: number;
+    reminderSentAt: string | null;
+  };
+  client: { id: string; name: string; email: string };
+  billingEvents: { eventType: string; description: string; createdAt: string }[];
+}>> {
+  try {
+    const adminClient = createAdminClient();
+
+    // Get invoice with client
+    const { data: invoice, error: invoiceError } = await adminClient
+      .from("invoices")
+      .select(`
+        *,
+        msp_clients!invoices_client_id_fkey (
+          id,
+          organization_name,
+          primary_contact_email
+        )
+      `)
+      .eq("id", invoiceId)
+      .single();
+
+    if (invoiceError || !invoice) {
+      return { success: false, error: "Invoice not found" };
+    }
+
+    // Get billing events for this invoice
+    const { data: events } = await adminClient
+      .from("billing_events")
+      .select("event_type, description, created_at")
+      .eq("invoice_id", invoiceId)
+      .order("created_at", { ascending: false });
+
+    const client = invoice.msp_clients as {
+      id: string;
+      organization_name: string;
+      primary_contact_email: string;
+    } | null;
+
+    return {
+      success: true,
+      data: {
+        invoice: {
+          id: invoice.id,
+          stripeInvoiceId: invoice.stripe_invoice_id,
+          number: invoice.number,
+          clientId: invoice.client_id || "",
+          clientName: client?.organization_name || "Unknown",
+          amount: invoice.amount,
+          status: invoice.status as InvoiceDisplay["status"],
+          dueDate: invoice.due_date,
+          sentAt: invoice.sent_at,
+          paidAt: invoice.paid_at,
+          hostedInvoiceUrl: invoice.hosted_invoice_url,
+          pdfUrl: invoice.pdf_url,
+          type: (invoice.invoice_type as "recurring" | "one-time") || "one-time",
+          createdAt: invoice.created_at,
+          lineItems: (invoice.line_items || []) as { description: string; amount: number; quantity?: number }[],
+          notes: invoice.notes,
+          internalNotes: invoice.internal_notes,
+          reminderCount: invoice.reminder_count || 0,
+          reminderSentAt: invoice.reminder_sent_at,
+        },
+        client: {
+          id: client?.id || "",
+          name: client?.organization_name || "Unknown",
+          email: client?.primary_contact_email || "",
+        },
+        billingEvents: (events || []).map((e) => ({
+          eventType: e.event_type,
+          description: e.description || "",
+          createdAt: e.created_at,
+        })),
+      },
+    };
+  } catch (error) {
+    console.error("Error getting invoice detail:", error);
+    return { success: false, error: "Failed to get invoice detail" };
+  }
+}
+
+// =============================================================================
+// HELPER: Log Billing Event
+// =============================================================================
+
+async function logBillingEvent(params: {
+  invoiceId?: string | null;
+  clientId?: string | null;
+  eventType: string;
+  description: string;
+  metadata?: Record<string, unknown>;
+  performedBy?: string;
+}) {
+  const adminClient = createAdminClient();
+
+  try {
+    await adminClient.from("billing_events").insert({
+      invoice_id: params.invoiceId || null,
+      client_id: params.clientId || null,
+      event_type: params.eventType,
+      description: params.description,
+      metadata: params.metadata || null,
+      performed_by: params.performedBy || null,
+    });
+  } catch (error) {
+    console.error("Failed to log billing event:", error);
+  }
 }

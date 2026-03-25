@@ -26,23 +26,32 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createInvoice, sendInvoice, InvoiceDisplay, BillingStats } from "@/lib/actions/billing";
+import Link from "next/link";
+import { createInvoice, sendInvoice, exportInvoicesToCSV, InvoiceDisplay, BillingStats } from "@/lib/actions/billing";
 
 type InvoiceStatus = "draft" | "open" | "paid" | "uncollectible" | "void";
+
+interface RevenueDataPoint {
+  month: string;
+  collected: number;
+  outstanding: number;
+}
 
 interface BillingClientProps {
   stats: BillingStats;
   invoices: InvoiceDisplay[];
   clients: { id: string; name: string; hasStripeCustomer: boolean }[];
+  revenueHistory?: RevenueDataPoint[];
 }
 
-export function BillingClient({ stats, invoices, clients }: BillingClientProps) {
+export function BillingClient({ stats, invoices, clients, revenueHistory }: BillingClientProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isSending, setIsSending] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Form state
@@ -154,16 +163,49 @@ export function BillingClient({ stats, invoices, clients }: BillingClientProps) 
     }
   };
 
-  // Calculate revenue data for chart
-  const revenueData = [
-    { month: "Oct", revenue: Math.round(stats.mrr * 0.8) },
-    { month: "Nov", revenue: Math.round(stats.mrr * 0.85) },
-    { month: "Dec", revenue: Math.round(stats.mrr * 0.9) },
-    { month: "Jan", revenue: Math.round(stats.mrr * 0.95) },
-    { month: "Feb", revenue: Math.round(stats.mrr * 0.98) },
-    { month: "Mar", revenue: stats.mrr },
-  ];
-  const maxRevenue = Math.max(...revenueData.map((d) => d.revenue), 1);
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const result = await exportInvoicesToCSV({
+        status: statusFilter !== "all" ? statusFilter : undefined,
+      });
+      if (result.success && result.data) {
+        // Create and download CSV file
+        const blob = new Blob([result.data], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `invoices_${new Date().toISOString().split("T")[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        alert(result.error || "Failed to export invoices");
+      }
+    } catch {
+      alert("Failed to export invoices");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Use real revenue history if provided, otherwise fall back to mock data
+  const revenueData = revenueHistory && revenueHistory.length > 0
+    ? revenueHistory.slice(-6).map((item) => ({
+        month: new Date(item.month + "-01").toLocaleDateString("en-US", { month: "short" }),
+        revenue: item.collected,
+        outstanding: item.outstanding,
+      }))
+    : [
+        { month: "Oct", revenue: Math.round(stats.mrr * 0.8), outstanding: 0 },
+        { month: "Nov", revenue: Math.round(stats.mrr * 0.85), outstanding: 0 },
+        { month: "Dec", revenue: Math.round(stats.mrr * 0.9), outstanding: 0 },
+        { month: "Jan", revenue: Math.round(stats.mrr * 0.95), outstanding: 0 },
+        { month: "Feb", revenue: Math.round(stats.mrr * 0.98), outstanding: 0 },
+        { month: "Mar", revenue: stats.mrr, outstanding: 0 },
+      ];
+  const maxRevenue = Math.max(...revenueData.map((d) => d.revenue + (d.outstanding || 0)), 1);
 
   return (
     <div className="space-y-6">
@@ -176,8 +218,12 @@ export function BillingClient({ stats, invoices, clients }: BillingClientProps) 
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
+          <Button variant="outline" onClick={handleExport} disabled={isExporting}>
+            {isExporting ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
             Export
           </Button>
           <Button onClick={() => setShowInvoiceModal(true)}>
@@ -341,17 +387,17 @@ export function BillingClient({ stats, invoices, clients }: BillingClientProps) 
                       className="border-b border-[#DDDDDD] hover:bg-[#FAFAF8]"
                     >
                       <td className="px-4 py-4">
-                        <div className="flex items-center gap-3">
+                        <Link href={`/billing/${invoice.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                           <div className="p-2 rounded-lg bg-[#FBF6E9]">
                             <CreditCard className="h-4 w-4 text-[#C9A84C]" />
                           </div>
                           <div>
-                            <p className="font-medium text-sm text-[#1A1A1A]">
+                            <p className="font-medium text-sm text-[#1A1A1A] hover:text-[#C9A84C] transition-colors">
                               {invoice.number || "Draft"}
                             </p>
                             <p className="text-xs text-[#888888] capitalize">{invoice.type}</p>
                           </div>
-                        </div>
+                        </Link>
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">

@@ -40,6 +40,15 @@ import {
 } from "@/lib/actions/clients";
 import { analyzeClientWebsite } from "@/lib/actions/website-scraper";
 import { generateProposal, generateContract, getClientDocuments, type Document } from "@/lib/actions/documents";
+import {
+  getClientBillingData,
+  createInvoice,
+  sendInvoice,
+  enableRecurringBilling,
+  disableRecurringBilling,
+  getClientPaymentPortalUrl,
+  InvoiceDisplay,
+} from "@/lib/actions/billing";
 import type { MspClient, PipelineStage } from "@/types/database";
 
 interface Activity {
@@ -92,6 +101,21 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
   const [generatedDocument, setGeneratedDocument] = useState<string | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoadingDocs, setIsLoadingDocs] = useState(false);
+
+  // Billing state
+  const [billingData, setBillingData] = useState<{
+    invoices: InvoiceDisplay[];
+    stats: { totalBilled: number; totalPaid: number; outstanding: number };
+    recurringStatus: { enabled: boolean; amount?: number; nextInvoice?: string };
+  } | null>(null);
+  const [isLoadingBilling, setIsLoadingBilling] = useState(false);
+  const [isTogglingRecurring, setIsTogglingRecurring] = useState(false);
+  const [showCreateInvoiceModal, setShowCreateInvoiceModal] = useState(false);
+  const [invoiceAmount, setInvoiceAmount] = useState("");
+  const [invoiceDescription, setInvoiceDescription] = useState("");
+  const [isCreatingInvoice, setIsCreatingInvoice] = useState(false);
+  const [isSendingInvoice, setIsSendingInvoice] = useState<string | null>(null);
+  const [isOpeningPortal, setIsOpeningPortal] = useState(false);
 
   const currentStageIndex = pipelineStages.findIndex(
     (s) => s.key === client.pipeline_stage
@@ -209,6 +233,97 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
       setDocuments(result.data);
     }
     setIsLoadingDocs(false);
+  };
+
+  const loadBillingData = async () => {
+    setIsLoadingBilling(true);
+    const result = await getClientBillingData(client.id);
+    if (result.success && result.data) {
+      setBillingData(result.data);
+    }
+    setIsLoadingBilling(false);
+  };
+
+  const handleToggleRecurringBilling = async () => {
+    setIsTogglingRecurring(true);
+    if (billingData?.recurringStatus.enabled) {
+      const result = await disableRecurringBilling(client.id);
+      if (result.success) {
+        loadBillingData();
+      } else {
+        alert(result.error || "Failed to disable recurring billing");
+      }
+    } else {
+      const amount = client.monthly_value || 0;
+      if (amount <= 0) {
+        alert("Please set a monthly value for this client first");
+        setIsTogglingRecurring(false);
+        return;
+      }
+      const result = await enableRecurringBilling({
+        clientId: client.id,
+        monthlyAmount: amount,
+        description: `Monthly IT Services - ${client.organization_name}`,
+      });
+      if (result.success) {
+        loadBillingData();
+      } else {
+        alert(result.error || "Failed to enable recurring billing");
+      }
+    }
+    setIsTogglingRecurring(false);
+  };
+
+  const handleCreateInvoice = async () => {
+    if (!invoiceAmount || !invoiceDescription) {
+      alert("Please fill in all fields");
+      return;
+    }
+    setIsCreatingInvoice(true);
+    const result = await createInvoice({
+      clientId: client.id,
+      items: [{ description: invoiceDescription, amount: parseFloat(invoiceAmount) }],
+      type: "one-time",
+    });
+    if (result.success) {
+      setShowCreateInvoiceModal(false);
+      setInvoiceAmount("");
+      setInvoiceDescription("");
+      loadBillingData();
+    } else {
+      alert(result.error || "Failed to create invoice");
+    }
+    setIsCreatingInvoice(false);
+  };
+
+  const handleSendInvoice = async (stripeInvoiceId: string) => {
+    setIsSendingInvoice(stripeInvoiceId);
+    const result = await sendInvoice(stripeInvoiceId);
+    if (result.success) {
+      loadBillingData();
+    } else {
+      alert(result.error || "Failed to send invoice");
+    }
+    setIsSendingInvoice(null);
+  };
+
+  const handleOpenPaymentPortal = async () => {
+    setIsOpeningPortal(true);
+    const result = await getClientPaymentPortalUrl(client.id);
+    if (result.success && result.data) {
+      window.open(result.data.url, "_blank");
+    } else {
+      alert(result.error || "Failed to open payment portal");
+    }
+    setIsOpeningPortal(false);
+  };
+
+  // Load billing data when billing tab is active
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    if (tab === "billing" && !billingData && !isLoadingBilling) {
+      loadBillingData();
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -380,7 +495,7 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
           {tabs.map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => handleTabChange(tab.key)}
               className={`pb-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
                 activeTab === tab.key
                   ? "border-[#C9A84C] text-[#C9A84C]"
@@ -892,45 +1007,249 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6"
             >
-              {/* Billing Summary */}
-              <div className="bg-white rounded-xl border border-[#DDDDDD] p-6">
-                <h2 className="font-semibold text-[#1A1A1A] mb-4">
-                  Billing Summary
-                </h2>
-                <div className="grid sm:grid-cols-3 gap-4">
-                  <div className="p-4 bg-[#FAFAF8] rounded-lg">
-                    <p className="text-xs text-[#888888]">Potential MRR</p>
-                    <p className="text-2xl font-bold text-[#5A7247]">
-                      ${(client.monthly_value || 0).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="p-4 bg-[#FAFAF8] rounded-lg">
-                    <p className="text-xs text-[#888888]">Annual Value</p>
-                    <p className="text-2xl font-bold text-[#1A1A1A]">
-                      ${((client.monthly_value || 0) * 12).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="p-4 bg-[#FAFAF8] rounded-lg">
-                    <p className="text-xs text-[#888888]">Outstanding</p>
-                    <p className="text-2xl font-bold text-[#C9A84C]">$0</p>
-                  </div>
+              {isLoadingBilling ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C9A84C]" />
                 </div>
-              </div>
+              ) : (
+                <>
+                  {/* Billing Summary */}
+                  <div className="bg-white rounded-xl border border-[#DDDDDD] p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="font-semibold text-[#1A1A1A]">
+                        Billing Summary
+                      </h2>
+                      <div className="flex items-center gap-2">
+                        {client.stripe_customer_id && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleOpenPaymentPortal}
+                            disabled={isOpeningPortal}
+                          >
+                            {isOpeningPortal ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                            ) : (
+                              <Globe className="h-4 w-4 mr-2" />
+                            )}
+                            Payment Portal
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="grid sm:grid-cols-4 gap-4">
+                      <div className="p-4 bg-[#FAFAF8] rounded-lg">
+                        <p className="text-xs text-[#888888]">Monthly Value</p>
+                        <p className="text-2xl font-bold text-[#5A7247]">
+                          ${(client.monthly_value || 0).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-[#FAFAF8] rounded-lg">
+                        <p className="text-xs text-[#888888]">Total Billed</p>
+                        <p className="text-2xl font-bold text-[#1A1A1A]">
+                          ${(billingData?.stats.totalBilled || 0).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-[#FAFAF8] rounded-lg">
+                        <p className="text-xs text-[#888888]">Total Paid</p>
+                        <p className="text-2xl font-bold text-[#5A7247]">
+                          ${(billingData?.stats.totalPaid || 0).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-[#FAFAF8] rounded-lg">
+                        <p className="text-xs text-[#888888]">Outstanding</p>
+                        <p className="text-2xl font-bold text-[#C9A84C]">
+                          ${(billingData?.stats.outstanding || 0).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-              {/* Invoices */}
-              <div className="bg-white rounded-xl border border-[#DDDDDD]">
-                <div className="p-4 border-b border-[#DDDDDD] flex items-center justify-between">
-                  <h2 className="font-semibold text-[#1A1A1A]">Invoices</h2>
-                  <Button size="sm">
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    Create Invoice
-                  </Button>
+                  {/* Recurring Billing */}
+                  <div className="bg-white rounded-xl border border-[#DDDDDD] p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-[#1A1A1A]">Auto-Recurring Billing</h3>
+                        <p className="text-sm text-[#888888] mt-1">
+                          {billingData?.recurringStatus.enabled
+                            ? `Invoices automatically generated - Next: ${
+                                billingData.recurringStatus.nextInvoice
+                                  ? formatDate(billingData.recurringStatus.nextInvoice)
+                                  : "Pending"
+                              }`
+                            : "Manually create invoices each billing period"}
+                        </p>
+                      </div>
+                      <Button
+                        variant={billingData?.recurringStatus.enabled ? "outline" : "default"}
+                        onClick={handleToggleRecurringBilling}
+                        disabled={isTogglingRecurring || !client.monthly_value}
+                      >
+                        {isTogglingRecurring ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                        ) : billingData?.recurringStatus.enabled ? (
+                          <AlertTriangle className="h-4 w-4 mr-2" />
+                        ) : (
+                          <TrendingUp className="h-4 w-4 mr-2" />
+                        )}
+                        {billingData?.recurringStatus.enabled ? "Disable" : "Enable"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Invoices */}
+                  <div className="bg-white rounded-xl border border-[#DDDDDD]">
+                    <div className="p-4 border-b border-[#DDDDDD] flex items-center justify-between">
+                      <h2 className="font-semibold text-[#1A1A1A]">Invoices</h2>
+                      <div className="flex gap-2">
+                        <Link href="/billing">
+                          <Button variant="outline" size="sm">
+                            View All
+                          </Button>
+                        </Link>
+                        <Button size="sm" onClick={() => setShowCreateInvoiceModal(true)}>
+                          <CreditCard className="h-4 w-4 mr-2" />
+                          Create Invoice
+                        </Button>
+                      </div>
+                    </div>
+                    {billingData?.invoices && billingData.invoices.length > 0 ? (
+                      <div className="divide-y divide-[#DDDDDD]">
+                        {billingData.invoices.slice(0, 10).map((invoice) => (
+                          <div
+                            key={invoice.id}
+                            className="p-4 flex items-center justify-between hover:bg-[#FAFAF8]"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-lg bg-[#FBF6E9]">
+                                <CreditCard className="h-4 w-4 text-[#C9A84C]" />
+                              </div>
+                              <div>
+                                <Link
+                                  href={`/billing/${invoice.id}`}
+                                  className="text-sm font-medium text-[#1A1A1A] hover:text-[#C9A84C]"
+                                >
+                                  {invoice.number || "Draft"}
+                                </Link>
+                                <p className="text-xs text-[#888888]">
+                                  ${invoice.amount.toLocaleString()} • {invoice.type}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span
+                                className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${
+                                  invoice.status === "paid"
+                                    ? "bg-green-100 text-green-700"
+                                    : invoice.status === "open"
+                                    ? "bg-blue-100 text-blue-700"
+                                    : invoice.status === "draft"
+                                    ? "bg-gray-100 text-gray-700"
+                                    : "bg-red-100 text-red-700"
+                                }`}
+                              >
+                                {invoice.status}
+                              </span>
+                              {invoice.status === "draft" && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleSendInvoice(invoice.stripeInvoiceId)}
+                                  disabled={isSendingInvoice === invoice.stripeInvoiceId}
+                                >
+                                  {isSendingInvoice === invoice.stripeInvoiceId ? (
+                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current" />
+                                  ) : (
+                                    <Send className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-8 text-center">
+                        <CreditCard className="h-8 w-8 text-[#DDDDDD] mx-auto mb-2" />
+                        <p className="text-sm text-[#888888]">No invoices yet</p>
+                        <p className="text-xs text-[#888888] mt-1">
+                          Create an invoice or enable recurring billing
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* Create Invoice Modal */}
+              {showCreateInvoiceModal && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-white rounded-xl max-w-md w-full p-6"
+                  >
+                    <h2 className="text-lg font-semibold text-[#1A1A1A] mb-4">
+                      Create Invoice
+                    </h2>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#555555] mb-1">
+                          Amount
+                        </label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#888888]" />
+                          <input
+                            type="number"
+                            value={invoiceAmount}
+                            onChange={(e) => setInvoiceAmount(e.target.value)}
+                            placeholder="0.00"
+                            className="w-full pl-10 pr-3 py-2 border border-[#DDDDDD] rounded-lg focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#555555] mb-1">
+                          Description
+                        </label>
+                        <textarea
+                          value={invoiceDescription}
+                          onChange={(e) => setInvoiceDescription(e.target.value)}
+                          placeholder="Invoice description..."
+                          rows={3}
+                          className="w-full px-3 py-2 border border-[#DDDDDD] rounded-lg focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-3 mt-6">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => {
+                          setShowCreateInvoiceModal(false);
+                          setInvoiceAmount("");
+                          setInvoiceDescription("");
+                        }}
+                        disabled={isCreatingInvoice}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        className="flex-1"
+                        onClick={handleCreateInvoice}
+                        disabled={isCreatingInvoice || !invoiceAmount || !invoiceDescription}
+                      >
+                        {isCreatingInvoice ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                        ) : (
+                          <CreditCard className="h-4 w-4 mr-2" />
+                        )}
+                        Create Invoice
+                      </Button>
+                    </div>
+                  </motion.div>
                 </div>
-                <div className="p-8 text-center">
-                  <CreditCard className="h-8 w-8 text-[#DDDDDD] mx-auto mb-2" />
-                  <p className="text-sm text-[#888888]">No invoices yet</p>
-                </div>
-              </div>
+              )}
             </motion.div>
           )}
 

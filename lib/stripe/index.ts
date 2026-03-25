@@ -514,6 +514,298 @@ export async function getCheckoutSession(
 }
 
 // =============================================================================
+// BILLING PORTAL
+// =============================================================================
+
+/**
+ * Creates a billing portal session for customer self-service
+ * Allows customers to view/pay invoices and manage payment methods
+ */
+export async function createBillingPortalSession(params: {
+  customerId: string;
+  returnUrl: string;
+}): Promise<{ url: string }> {
+  const { customerId, returnUrl } = params;
+
+  const session = await stripe.billingPortal.sessions.create({
+    customer: customerId,
+    return_url: returnUrl,
+  });
+
+  return { url: session.url };
+}
+
+// =============================================================================
+// RECURRING INVOICE SUBSCRIPTIONS
+// =============================================================================
+
+export interface CreateRecurringInvoiceParams {
+  customerId: string;
+  monthlyAmount: number; // in dollars
+  description: string;
+  clientId: string;
+  dayOfMonth?: number; // 1-28, billing anchor day
+}
+
+/**
+ * Creates a subscription for recurring invoice generation
+ * Uses collection_method: 'send_invoice' so invoices are sent, not auto-charged
+ */
+export async function createRecurringInvoiceSchedule(
+  params: CreateRecurringInvoiceParams
+): Promise<Stripe.Subscription> {
+  const { customerId, monthlyAmount, description, clientId, dayOfMonth } = params;
+
+  // Create a price for this specific amount
+  const price = await stripe.prices.create({
+    currency: "usd",
+    unit_amount: Math.round(monthlyAmount * 100),
+    recurring: { interval: "month" },
+    product_data: {
+      name: "Forever Forward IT Services",
+      metadata: {
+        client_id: clientId,
+        source: "forever_forward_crm",
+      },
+    },
+    metadata: {
+      client_id: clientId,
+      source: "forever_forward_crm",
+    },
+  });
+
+  // Create subscription with invoice collection method
+  const subscriptionParams: Stripe.SubscriptionCreateParams = {
+    customer: customerId,
+    items: [{ price: price.id }],
+    collection_method: "send_invoice",
+    days_until_due: 30,
+    metadata: {
+      client_id: clientId,
+      type: "recurring_msp",
+      source: "forever_forward_crm",
+      description,
+    },
+  };
+
+  // Set billing cycle anchor if day specified
+  if (dayOfMonth && dayOfMonth >= 1 && dayOfMonth <= 28) {
+    // Calculate next billing date
+    const now = new Date();
+    let billingDate = new Date(now.getFullYear(), now.getMonth(), dayOfMonth);
+    if (billingDate <= now) {
+      billingDate = new Date(now.getFullYear(), now.getMonth() + 1, dayOfMonth);
+    }
+    subscriptionParams.billing_cycle_anchor = Math.floor(billingDate.getTime() / 1000);
+    subscriptionParams.proration_behavior = "none";
+  }
+
+  return stripe.subscriptions.create(subscriptionParams);
+}
+
+/**
+ * Cancels a recurring invoice subscription
+ */
+export async function cancelRecurringInvoiceSchedule(
+  subscriptionId: string
+): Promise<Stripe.Subscription> {
+  return stripe.subscriptions.cancel(subscriptionId);
+}
+
+/**
+ * Updates the amount on a recurring subscription
+ */
+export async function updateRecurringInvoiceAmount(params: {
+  subscriptionId: string;
+  newMonthlyAmount: number;
+  clientId: string;
+}): Promise<Stripe.Subscription> {
+  const { subscriptionId, newMonthlyAmount, clientId } = params;
+
+  // Get the current subscription
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const currentItem = subscription.items.data[0];
+
+  // Create a new price for the new amount
+  const newPrice = await stripe.prices.create({
+    currency: "usd",
+    unit_amount: Math.round(newMonthlyAmount * 100),
+    recurring: { interval: "month" },
+    product_data: {
+      name: "Forever Forward IT Services",
+      metadata: {
+        client_id: clientId,
+        source: "forever_forward_crm",
+      },
+    },
+  });
+
+  // Update the subscription with the new price
+  return stripe.subscriptions.update(subscriptionId, {
+    items: [
+      {
+        id: currentItem.id,
+        price: newPrice.id,
+      },
+    ],
+    proration_behavior: "none",
+  });
+}
+
+// =============================================================================
+// INVOICE EDITING (Draft Invoices Only)
+// =============================================================================
+
+/**
+ * Adds a line item to a draft invoice
+ * Only works for invoices in 'draft' status
+ */
+export async function addInvoiceItem(params: {
+  invoiceId: string;
+  description: string;
+  amount: number; // in dollars
+  quantity?: number;
+}): Promise<Stripe.InvoiceItem> {
+  const { invoiceId, description, amount, quantity = 1 } = params;
+
+  // Get the invoice to find the customer
+  const invoice = await stripe.invoices.retrieve(invoiceId);
+
+  if (invoice.status !== "draft") {
+    throw new Error("Can only add items to draft invoices");
+  }
+
+  return stripe.invoiceItems.create({
+    customer: invoice.customer as string,
+    invoice: invoiceId,
+    amount: Math.round(amount * 100),
+    currency: "usd",
+    description,
+    quantity,
+  });
+}
+
+/**
+ * Removes a line item from a draft invoice
+ */
+export async function deleteInvoiceItem(invoiceItemId: string): Promise<void> {
+  await stripe.invoiceItems.del(invoiceItemId);
+}
+
+/**
+ * Updates a draft invoice's due date or description
+ */
+export async function updateDraftInvoice(params: {
+  invoiceId: string;
+  dueDate?: Date;
+  description?: string;
+}): Promise<Stripe.Invoice> {
+  const { invoiceId, dueDate, description } = params;
+
+  const invoice = await stripe.invoices.retrieve(invoiceId);
+
+  if (invoice.status !== "draft") {
+    throw new Error("Can only update draft invoices");
+  }
+
+  const updateParams: Stripe.InvoiceUpdateParams = {};
+
+  if (dueDate) {
+    updateParams.due_date = Math.floor(dueDate.getTime() / 1000);
+  }
+
+  if (description) {
+    updateParams.description = description;
+  }
+
+  return stripe.invoices.update(invoiceId, updateParams);
+}
+
+/**
+ * Gets all line items for an invoice
+ */
+export async function getInvoiceLineItems(
+  invoiceId: string
+): Promise<Stripe.InvoiceLineItem[]> {
+  const lines = await stripe.invoices.listLineItems(invoiceId);
+  return lines.data;
+}
+
+// =============================================================================
+// INVOICE REMINDERS
+// =============================================================================
+
+/**
+ * Sends a reminder for an open invoice
+ * Note: Stripe automatically handles some reminders based on settings
+ */
+export async function sendInvoiceReminder(invoiceId: string): Promise<void> {
+  // Retrieve the invoice to get customer info
+  const invoice = await stripe.invoices.retrieve(invoiceId, {
+    expand: ["customer"],
+  });
+
+  if (invoice.status !== "open") {
+    throw new Error("Can only send reminders for open invoices");
+  }
+
+  // Send the invoice again (this sends a reminder email)
+  await stripe.invoices.sendInvoice(invoiceId);
+}
+
+/**
+ * Marks an invoice as uncollectible (bad debt)
+ */
+export async function markInvoiceUncollectible(
+  invoiceId: string
+): Promise<Stripe.Invoice> {
+  return stripe.invoices.markUncollectible(invoiceId);
+}
+
+// =============================================================================
+// LIST ALL INVOICES
+// =============================================================================
+
+/**
+ * Lists all invoices with pagination support
+ * Useful for syncing to database
+ */
+export async function listAllInvoices(params?: {
+  limit?: number;
+  startingAfter?: string;
+  status?: "draft" | "open" | "paid" | "uncollectible" | "void";
+  createdAfter?: Date;
+}): Promise<{ invoices: Stripe.Invoice[]; hasMore: boolean; lastId?: string }> {
+  const { limit = 100, startingAfter, status, createdAfter } = params || {};
+
+  const listParams: Stripe.InvoiceListParams = {
+    limit,
+  };
+
+  if (startingAfter) {
+    listParams.starting_after = startingAfter;
+  }
+
+  if (status) {
+    listParams.status = status;
+  }
+
+  if (createdAfter) {
+    listParams.created = {
+      gte: Math.floor(createdAfter.getTime() / 1000),
+    };
+  }
+
+  const response = await stripe.invoices.list(listParams);
+
+  return {
+    invoices: response.data,
+    hasMore: response.has_more,
+    lastId: response.data.length > 0 ? response.data[response.data.length - 1].id : undefined,
+  };
+}
+
+// =============================================================================
 // WEBHOOK SIGNATURE VERIFICATION
 // =============================================================================
 
