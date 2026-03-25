@@ -16,12 +16,16 @@ export const runtime = "nodejs";
 // =============================================================================
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  let eventId: string | null = null;
+  let eventType: string | null = null;
+
   try {
     const body = await request.text();
     const signature = request.headers.get("stripe-signature");
 
     if (!signature) {
-      console.error("Missing stripe-signature header");
+      console.error("[Webhook] Missing stripe-signature header");
       return NextResponse.json(
         { error: "Missing stripe-signature header" },
         { status: 400 }
@@ -30,9 +34,18 @@ export async function POST(request: NextRequest) {
 
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
     if (!webhookSecret) {
-      console.error("STRIPE_WEBHOOK_SECRET not configured");
+      console.error("[Webhook] STRIPE_WEBHOOK_SECRET not configured");
       return NextResponse.json(
         { error: "Webhook secret not configured" },
+        { status: 500 }
+      );
+    }
+
+    // Check for placeholder webhook secret
+    if (webhookSecret === "whsec_your_stripe_webhook_secret") {
+      console.error("[Webhook] STRIPE_WEBHOOK_SECRET is still set to placeholder value");
+      return NextResponse.json(
+        { error: "Webhook secret not properly configured" },
         { status: 500 }
       );
     }
@@ -42,12 +55,27 @@ export async function POST(request: NextRequest) {
     try {
       event = constructWebhookEvent(body, signature, webhookSecret);
     } catch (err) {
-      console.error("Webhook signature verification failed:", err);
+      console.error("[Webhook] Signature verification failed:", err);
       return NextResponse.json(
         { error: "Webhook signature verification failed" },
         { status: 400 }
       );
     }
+
+    eventId = event.id;
+    eventType = event.type;
+
+    // Log webhook receipt for monitoring
+    console.log(`[Webhook] Received: ${event.type} (${event.id})`);
+
+    // Log to webhook_events table for audit trail
+    const adminClient = createAdminClient();
+    await logWebhookEvent(adminClient, {
+      stripeEventId: event.id,
+      eventType: event.type,
+      status: "processing",
+      payload: event.data.object as unknown as Record<string, unknown>,
+    });
 
     // Handle different event types
     switch (event.type) {
@@ -96,12 +124,32 @@ export async function POST(request: NextRequest) {
         break;
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        console.log(`[Webhook] Unhandled event type: ${event.type}`);
     }
+
+    // Mark webhook as completed
+    const processingDuration = Date.now() - startTime;
+    await updateWebhookEventStatus(adminClient, event.id, "completed", processingDuration);
+    console.log(`[Webhook] Completed: ${event.type} (${event.id}) in ${processingDuration}ms`);
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("Webhook handler error:", error);
+    const processingDuration = Date.now() - startTime;
+    console.error(`[Webhook] Handler error for ${eventType || "unknown"} (${eventId || "unknown"}):`, error);
+
+    // Log failure if we have event info
+    if (eventId) {
+      try {
+        const adminClient = createAdminClient();
+        await updateWebhookEventStatus(adminClient, eventId, "failed", processingDuration, {
+          message: error instanceof Error ? error.message : "Unknown error",
+          stack: error instanceof Error ? error.stack : undefined,
+        });
+      } catch {
+        // Don't fail on logging errors
+      }
+    }
+
     return NextResponse.json(
       { error: "Webhook handler failed" },
       { status: 500 }
@@ -820,5 +868,76 @@ async function updateRevenueHistory(params: {
     console.log(`[Webhook] Updated revenue history for ${monthYear}: +$${params.amount}`);
   } catch (error) {
     console.error("[Webhook] Failed to update revenue history:", error);
+  }
+}
+
+/**
+ * Log a webhook event for monitoring and debugging
+ */
+async function logWebhookEvent(
+  adminClient: ReturnType<typeof createAdminClient>,
+  params: {
+    stripeEventId: string;
+    eventType: string;
+    status: "received" | "processing" | "completed" | "failed";
+    payload?: Record<string, unknown>;
+    stripeInvoiceId?: string;
+    stripeCustomerId?: string;
+    stripePaymentIntentId?: string;
+  }
+) {
+  try {
+    // Extract IDs from payload if not provided
+    const payload = params.payload || {};
+    const stripeInvoiceId = params.stripeInvoiceId || (payload.id as string) || null;
+    const stripeCustomerId = params.stripeCustomerId ||
+      (typeof payload.customer === "string" ? payload.customer : (payload.customer as { id?: string })?.id) ||
+      null;
+    const stripePaymentIntentId = params.stripePaymentIntentId ||
+      (typeof payload.payment_intent === "string" ? payload.payment_intent : (payload.payment_intent as { id?: string })?.id) ||
+      null;
+
+    await adminClient.from("webhook_events").upsert({
+      stripe_event_id: params.stripeEventId,
+      event_type: params.eventType,
+      status: params.status,
+      stripe_invoice_id: params.eventType.startsWith("invoice.") ? stripeInvoiceId : null,
+      stripe_customer_id: stripeCustomerId,
+      stripe_payment_intent_id: stripePaymentIntentId,
+      payload: params.payload || null,
+      processing_started_at: params.status === "processing" ? new Date().toISOString() : undefined,
+    }, {
+      onConflict: "stripe_event_id",
+    });
+  } catch (error) {
+    console.error("[Webhook] Failed to log webhook event:", error);
+    // Don't throw - logging failures shouldn't break webhook processing
+  }
+}
+
+/**
+ * Update webhook event status after processing
+ */
+async function updateWebhookEventStatus(
+  adminClient: ReturnType<typeof createAdminClient>,
+  stripeEventId: string,
+  status: "completed" | "failed",
+  durationMs: number,
+  errorDetails?: { message: string; stack?: string }
+) {
+  try {
+    await adminClient
+      .from("webhook_events")
+      .update({
+        status,
+        processing_completed_at: new Date().toISOString(),
+        processing_duration_ms: durationMs,
+        error_message: errorDetails?.message || null,
+        error_details: errorDetails || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("stripe_event_id", stripeEventId);
+  } catch (error) {
+    console.error("[Webhook] Failed to update webhook event status:", error);
   }
 }
