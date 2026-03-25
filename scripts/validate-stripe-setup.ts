@@ -85,9 +85,7 @@ async function validateStripeSetup(): Promise<void> {
   }
 
   // 3. Initialize Stripe and verify connection
-  const stripe = new Stripe(apiKey, {
-    apiVersion: "2026-02-25.clover" as Stripe.LatestApiVersion,
-  });
+  const stripe = new Stripe(apiKey);
 
   try {
     const account = await stripe.accounts.retrieve();
