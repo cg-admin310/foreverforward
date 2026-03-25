@@ -1035,7 +1035,6 @@ export async function addInvoiceLineItem(params: {
     // Add line item to Stripe invoice
     const stripeItem = await addStripeInvoiceItem({
       invoiceId: invoice.stripe_invoice_id,
-      customerId: invoice.stripe_customer_id,
       description: params.description,
       amount: params.amount,
     });
