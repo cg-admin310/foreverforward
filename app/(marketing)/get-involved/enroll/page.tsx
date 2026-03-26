@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Badge } from "@/components/shared/badge";
 import { PROGRAMS } from "@/lib/constants";
-import { createLead } from "@/lib/actions/leads";
+import { routeFormSubmission } from "@/lib/actions/lead-routing";
 import { createParticipant } from "@/lib/actions/participants";
 import type { ProgramType } from "@/types/database";
 
@@ -115,16 +115,26 @@ export default function EnrollPage() {
 
       const programType = programTypeMap[formData.program] || "father_forward";
 
-      // Create lead first
-      const leadResult = await createLead({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone || undefined,
-        leadType: "program",
-        programInterest: programType,
-        source: "enrollment_form",
-        notes: `How they heard: ${formData.howDidYouHear}\nGoals: ${formData.goals}\nBarriers: ${formData.barriers}`,
+      // Route through unified lead system (creates lead + triggers AI classification)
+      const leadResult = await routeFormSubmission({
+        formType: "program_enrollment",
+        formData: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone || undefined,
+          program: programType,
+          programInterest: programType,
+          goals: formData.goals,
+          barriers: formData.barriers,
+          howDidYouHear: formData.howDidYouHear,
+          employmentStatus: formData.employmentStatus,
+          itExperienceLevel: formData.itExperience,
+          parentGuardianName: formData.parentGuardianName,
+          parentGuardianPhone: formData.parentGuardianPhone,
+          parentGuardianEmail: formData.parentGuardianEmail,
+          source: "enrollment_form",
+        },
       });
 
       if (!leadResult.success) {
@@ -134,7 +144,8 @@ export default function EnrollPage() {
         return;
       }
 
-      // Create participant
+      // Create full participant record with all details
+      // (lead routing creates basic participant, but we need full details)
       const participantResult = await createParticipant({
         firstName: formData.firstName,
         lastName: formData.lastName,

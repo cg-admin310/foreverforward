@@ -124,6 +124,75 @@ export type RevenueSource =
   | "events";
 
 // ============================================================================
+// DONOR & IMPACT TYPES
+// ============================================================================
+
+export type DonorTier = "founding" | "champion" | "supporter" | "friend";
+
+export type DonorCommunicationType =
+  | "thank_you"
+  | "impact_update"
+  | "quarterly_report"
+  | "annual_report"
+  | "milestone"
+  | "event_invite"
+  | "tier_upgrade"
+  | "receipt"
+  | "general";
+
+export type CommunicationChannel = "email" | "sms" | "mail" | "phone";
+
+export type CommunicationStatus =
+  | "pending"
+  | "sent"
+  | "delivered"
+  | "opened"
+  | "clicked"
+  | "bounced"
+  | "failed";
+
+export type ImpactMetricType =
+  | "program"
+  | "service"
+  | "event"
+  | "community"
+  | "financial";
+
+export type MetricPeriodType =
+  | "day"
+  | "week"
+  | "month"
+  | "quarter"
+  | "year"
+  | "all_time";
+
+// ============================================================================
+// EVENT CHECK-IN TYPES
+// ============================================================================
+
+export type CheckInMethod = "qr_scan" | "manual" | "pre_registered" | "walk_up";
+
+export type CheckInLogAction =
+  | "check_in"
+  | "check_out"
+  | "guest_check_in"
+  | "guest_check_out"
+  | "badge_print"
+  | "table_assign"
+  | "walk_up_register"
+  | "payment_received"
+  | "vip_upgrade"
+  | "note_added"
+  | "refund_issued";
+
+export type RegistrationSource =
+  | "website"
+  | "admin"
+  | "walk_up"
+  | "import"
+  | "comp";
+
+// ============================================================================
 // DATABASE TABLES
 // ============================================================================
 
@@ -158,7 +227,7 @@ export interface Lead {
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
-  ai_classification: Record<string, unknown> | null;
+  ai_classification: AILeadClassification | null;
   assigned_to: string | null;
   notes: string | null;
   tags: string[] | null;
@@ -166,6 +235,22 @@ export interface Lead {
   updated_at: string;
   contacted_at: string | null;
   converted_at: string | null;
+
+  // Assessment fields (added in migration 012)
+  assessment_data: ProgramAssessmentData | EnhancedITAssessmentData | null;
+  assessment_completed_at: string | null;
+  fit_score: number | null;
+  recommended_programs: ProgramType[] | null;
+  barriers: BarrierType[] | null;
+  support_needs: SupportNeedType[] | null;
+  readiness_level: ReadinessLevel | null;
+
+  // Enhanced IT assessment fields
+  compliance_requirements: ComplianceRequirement[] | null;
+  disaster_recovery_status: DisasterRecoveryStatus | null;
+  growth_projection_users: number | null;
+  office_count: number | null;
+  remote_worker_percent: number | null;
 }
 
 export interface Cohort {
@@ -235,6 +320,198 @@ export interface Participant {
 export type SupportType = "ongoing" | "project" | "both" | "none";
 export type DecisionTimeline = "immediately" | "1-2_weeks" | "1_month" | "3_months_plus" | "just_exploring";
 export type BudgetRange = "under_500" | "500_1000" | "1000_2500" | "2500_5000" | "5000_plus" | "not_sure";
+
+// ============================================================================
+// PROGRAM ASSESSMENT TYPES
+// ============================================================================
+
+export type EmploymentStatus =
+  | "employed_full"
+  | "employed_part"
+  | "unemployed_looking"
+  | "unemployed_not"
+  | "self_employed"
+  | "student"
+  | "retired"
+  | "disabled";
+
+export type IncomeRange =
+  | "under_1000"
+  | "1000_2500"
+  | "2500_5000"
+  | "5000_plus"
+  | "prefer_not_say";
+
+export type EducationLevel =
+  | "less_than_high_school"
+  | "high_school_ged"
+  | "some_college"
+  | "associates"
+  | "bachelors"
+  | "masters_plus";
+
+export type SchedulePreference =
+  | "weekday_morning"
+  | "weekday_afternoon"
+  | "weekday_evening"
+  | "weekend"
+  | "flexible";
+
+export type ITExperienceLevel =
+  | "none"
+  | "basic"
+  | "intermediate"
+  | "advanced";
+
+export type PrimaryGoal =
+  | "career_change"
+  | "certification"
+  | "skills_upgrade"
+  | "employment"
+  | "personal_growth"
+  | "help_family"
+  | "creative_expression";
+
+export type ReadinessLevel = "high" | "medium" | "low";
+
+export type BarrierType =
+  | "transportation"
+  | "childcare"
+  | "housing"
+  | "legal"
+  | "health"
+  | "financial"
+  | "time"
+  | "language"
+  | "technology_access"
+  | "other";
+
+export type SupportNeedType =
+  | "job_training"
+  | "certification"
+  | "mentorship"
+  | "career_counseling"
+  | "resume_help"
+  | "interview_prep"
+  | "childcare_assistance"
+  | "transportation_assistance"
+  | "housing_resources"
+  | "legal_aid"
+  | "mental_health"
+  | "financial_literacy";
+
+export type ComplianceRequirement =
+  | "hipaa"
+  | "ferpa"
+  | "pci_dss"
+  | "soc2"
+  | "none";
+
+export type DisasterRecoveryStatus = "has_plan" | "no_plan" | "partial";
+
+// Program Assessment Data Interface (stored as JSONB in leads.assessment_data)
+export interface ProgramAssessmentData {
+  // Step 1: About You
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  dateOfBirth?: string;
+  isFather: boolean;
+  numberOfChildren?: number;
+  childrenAges?: string[];
+
+  // Step 2: Current Situation
+  currentEmploymentStatus: EmploymentStatus;
+  monthlyIncomeRange?: IncomeRange;
+  highestEducation: EducationLevel;
+  barriers: BarrierType[];
+  otherBarrier?: string;
+
+  // Step 3: Tech Background
+  itExperienceLevel: ITExperienceLevel;
+  hasComputer: boolean;
+  hasInternet: boolean;
+  techInterests: string[];
+
+  // Step 4: Goals & Schedule
+  primaryGoal: PrimaryGoal;
+  sixMonthVision?: string;
+  whatBroughtYouHere?: string;
+  preferredSchedule: SchedulePreference;
+  hasReliableTransportation: boolean;
+  hasChildcareNeeds: boolean;
+
+  // Step 5: Youth Information (conditional)
+  isMinor: boolean;
+  parentGuardianName?: string;
+  parentGuardianPhone?: string;
+  parentGuardianEmail?: string;
+  schoolName?: string;
+  gradeLevel?: string;
+
+  // Metadata
+  submittedAt: string;
+  formVersion: string;
+}
+
+// Enhanced IT Assessment Data Interface (extends existing with compliance fields)
+export interface EnhancedITAssessmentData extends ITAssessmentData {
+  // New fields for enhanced assessment
+  complianceRequirements: ComplianceRequirement[];
+  disasterRecoveryStatus: DisasterRecoveryStatus;
+  currentBackupSolution?: string;
+  growthProjectionUsers?: number;
+  officeCount?: number;
+  remoteWorkerPercent?: number;
+  stakeholderConcerns?: string[];
+}
+
+// AI Lead Classification Interface
+export interface AILeadClassification {
+  // Core classification
+  lead_type: LeadType;
+  program_interest?: ProgramType;
+  service_interests?: string[];
+
+  // Scoring
+  priority_score: number; // 1-100
+  urgency_level: "low" | "medium" | "high" | "critical";
+  fit_score?: number; // 0-100, how well they fit the recommended program/service
+
+  // For Program leads
+  recommended_programs?: ProgramType[];
+  program_reasoning?: string;
+  barriers_identified?: BarrierType[];
+  support_needs?: SupportNeedType[];
+  readiness_level?: ReadinessLevel;
+
+  // For MSP leads
+  estimated_value?: number;
+  recommended_package?: "foundation" | "growth" | "enterprise" | "custom";
+  pain_points?: string[];
+  infrastructure_summary?: {
+    users?: number;
+    devices?: number;
+    servers?: number;
+    locations?: number;
+    compliance_needs?: ComplianceRequirement[];
+  };
+
+  // Metadata
+  classified_at: string;
+  model_used: string;
+  confidence: number; // 0-1
+  reasoning: string;
+}
+
+// Program Recommendation from AI
+export interface ProgramRecommendation {
+  program: ProgramType;
+  fitScore: number; // 0-100
+  reasoning: string;
+  matchingCriteria: string[];
+}
 
 // Structured IT Assessment Data (stored as JSONB)
 export interface ITAssessmentData {
@@ -343,6 +620,13 @@ export interface MspClient {
   auto_invoice_enabled: boolean | null;
   stripe_subscription_id: string | null;
   last_invoice_generated_at: string | null;
+
+  // Enhanced IT assessment fields (added in migration 012)
+  compliance_requirements: ComplianceRequirement[] | null;
+  disaster_recovery_status: DisasterRecoveryStatus | null;
+  growth_projection_users: number | null;
+  office_count: number | null;
+  remote_worker_percent: number | null;
 }
 
 export interface Document {
@@ -511,6 +795,25 @@ export interface EventAttendee {
   accessibility_needs: string | null;
   created_at: string;
   updated_at: string;
+
+  // Enhanced check-in fields (migration 014)
+  check_in_method: CheckInMethod | null;
+  check_in_notes: string | null;
+  checked_in_by: string | null;
+  guests_count: number | null;
+  guests_checked_in: number | null;
+  guest_names: string[] | null;
+  party_size: number | null;
+  table_number: string | null;
+  seat_assignment: string | null;
+  is_vip: boolean | null;
+  is_donor: boolean | null;
+  is_walk_up: boolean | null;
+  is_sponsor: boolean | null;
+  badge_printed: boolean | null;
+  badge_printed_at: string | null;
+  opt_in_communications: boolean | null;
+  registration_source: RegistrationSource | null;
 }
 
 export interface EventTicketType {
@@ -562,6 +865,214 @@ export interface EventOrderItem {
   unit_price: number;
   total_price: number;
   created_at: string;
+}
+
+// ============================================================================
+// DONOR & IMPACT ENTITIES (Migration 013)
+// ============================================================================
+
+export interface DonorProfile {
+  id: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  phone: string | null;
+  address_line1: string | null;
+  address_line2: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  tier: DonorTier;
+  total_given: number;
+  ytd_given: number;
+  first_donation_at: string | null;
+  last_donation_at: string | null;
+  donation_count: number;
+  average_donation: number;
+  largest_donation: number;
+  is_recurring: boolean;
+  recurring_amount: number | null;
+  recurring_frequency: string | null;
+  recurring_since: string | null;
+  stripe_customer_id: string | null;
+  communication_preferences: DonorCommunicationPreferences | null;
+  preferred_contact_method: string | null;
+  is_corporate: boolean;
+  company_name: string | null;
+  company_contact_title: string | null;
+  notes: string | null;
+  tags: string[] | null;
+  assigned_to: string | null;
+  last_contact_at: string | null;
+  next_contact_date: string | null;
+  events_attended: number;
+  volunteer_hours: number;
+  referrals_made: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DonorCommunication {
+  id: string;
+  donor_profile_id: string | null;
+  donation_id: string | null;
+  type: DonorCommunicationType;
+  subject: string | null;
+  content: string | null;
+  template_used: string | null;
+  channel: CommunicationChannel;
+  status: CommunicationStatus;
+  sent_at: string | null;
+  delivered_at: string | null;
+  opened_at: string | null;
+  clicked_at: string | null;
+  email_id: string | null;
+  sent_by: string | null;
+  created_at: string;
+}
+
+export interface ImpactMetric {
+  id: string;
+  metric_type: ImpactMetricType;
+  metric_name: string;
+  metric_value: number;
+  metric_unit: string | null;
+  period_type: MetricPeriodType;
+  period_start: string | null;
+  period_end: string | null;
+  program_id: string | null;
+  event_id: string | null;
+  description: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DonationAllocation {
+  id: string;
+  period_start: string;
+  period_end: string;
+  programs_percent: number;
+  operations_percent: number;
+  events_percent: number;
+  admin_percent: number;
+  total_donations: number;
+  programs_amount: number;
+  operations_amount: number;
+  events_amount: number;
+  admin_amount: number;
+  program_allocations: Record<string, number> | null;
+  notes: string | null;
+  is_published: boolean;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ============================================================================
+// EVENT CHECK-IN ENTITIES (Migration 014)
+// ============================================================================
+
+export interface EventCheckinLog {
+  id: string;
+  event_id: string;
+  attendee_id: string | null;
+  action: CheckInLogAction;
+  method: string | null;
+  performed_by: string | null;
+  notes: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface EventAnalytics {
+  id: string;
+  event_id: string;
+  total_registered: number;
+  total_tickets: number;
+  total_guests: number;
+  total_checked_in: number;
+  guests_checked_in: number;
+  total_walk_ups: number;
+  no_shows: number;
+  peak_attendance: number;
+  peak_time: string | null;
+  first_check_in_at: string | null;
+  last_check_in_at: string | null;
+  avg_arrival_minutes: number | null;
+  revenue_tickets: number;
+  revenue_addons: number;
+  revenue_donations: number;
+  revenue_walk_ups: number;
+  total_revenue: number;
+  refunds_issued: number;
+  refunds_amount: number;
+  vip_attendees: number;
+  donor_attendees: number;
+  sponsor_attendees: number;
+  badge_prints: number;
+  table_assignments: number;
+  feedback_submissions: number;
+  feedback_avg_rating: number | null;
+  feedback_nps_score: number | null;
+  attendance_rate: number | null;
+  growth_vs_last: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventTable {
+  id: string;
+  event_id: string;
+  table_number: string;
+  table_name: string | null;
+  capacity: number;
+  seats_filled: number;
+  section: string | null;
+  location_notes: string | null;
+  is_vip: boolean;
+  is_reserved: boolean;
+  reserved_for: string | null;
+  is_full: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventFeedback {
+  id: string;
+  event_id: string;
+  attendee_id: string | null;
+  is_anonymous: boolean;
+  submitted_email: string | null;
+  overall_rating: number | null;
+  venue_rating: number | null;
+  food_rating: number | null;
+  content_rating: number | null;
+  organization_rating: number | null;
+  would_recommend: number | null;
+  what_went_well: string | null;
+  what_could_improve: string | null;
+  additional_comments: string | null;
+  would_attend_again: boolean | null;
+  created_at: string;
+}
+
+// Live event stats view type
+export interface EventLiveStats {
+  event_id: string;
+  title: string;
+  start_datetime: string;
+  capacity: number | null;
+  total_registered: number;
+  total_tickets: number;
+  total_guests: number;
+  checked_in_count: number;
+  guests_checked_in: number;
+  walk_ups: number;
+  vip_count: number;
+  donor_count: number;
+  check_in_rate: number | null;
+  total_revenue: number;
 }
 
 export interface Resource {
@@ -616,6 +1127,37 @@ export interface Donation {
   notes: string | null;
   created_at: string;
   updated_at: string;
+
+  // Enhanced fields (migration 013)
+  allocation: DonationAllocationBreakdown | null;
+  impact_tags: string[] | null;
+  impact_report_sent: boolean | null;
+  impact_report_sent_at: string | null;
+  donor_tier: DonorTier | null;
+  communication_preferences: DonorCommunicationPreferences | null;
+  is_corporate: boolean | null;
+  company_name: string | null;
+  company_match_eligible: boolean | null;
+  matched_amount: number | null;
+  tax_receipt_sent: boolean | null;
+  tax_receipt_sent_at: string | null;
+  tax_receipt_number: string | null;
+}
+
+// Donation allocation breakdown (stored as JSONB)
+export interface DonationAllocationBreakdown {
+  programs?: number; // Percentage
+  operations?: number;
+  events?: number;
+  admin?: number;
+}
+
+// Donor communication preferences (stored as JSONB)
+export interface DonorCommunicationPreferences {
+  email_updates?: boolean;
+  quarterly_reports?: boolean;
+  event_invites?: boolean;
+  annual_report?: boolean;
 }
 
 // Line item for invoice breakdown
@@ -816,7 +1358,23 @@ export type EventOrderItemInsert = Omit<EventOrderItem, "id" | "created_at">;
 export type ResourceInsert = Omit<Resource, "id" | "created_at" | "updated_at">;
 export type ResourceUpdate = Partial<ResourceInsert>;
 
-export type DonationInsert = Omit<Donation, "id" | "created_at" | "updated_at">;
+// DonationInsert - enhanced fields are optional (have database defaults)
+export type DonationInsert = Omit<Donation, "id" | "created_at" | "updated_at" | "allocation" | "impact_tags" | "impact_report_sent" | "impact_report_sent_at" | "donor_tier" | "communication_preferences" | "is_corporate" | "company_name" | "company_match_eligible" | "matched_amount" | "tax_receipt_sent" | "tax_receipt_sent_at" | "tax_receipt_number"> & {
+  // Optional enhanced fields
+  allocation?: DonationAllocationBreakdown | null;
+  impact_tags?: string[] | null;
+  impact_report_sent?: boolean | null;
+  impact_report_sent_at?: string | null;
+  donor_tier?: DonorTier | null;
+  communication_preferences?: DonorCommunicationPreferences | null;
+  is_corporate?: boolean | null;
+  company_name?: string | null;
+  company_match_eligible?: boolean | null;
+  matched_amount?: number | null;
+  tax_receipt_sent?: boolean | null;
+  tax_receipt_sent_at?: string | null;
+  tax_receipt_number?: string | null;
+};
 export type DonationUpdate = Partial<DonationInsert>;
 
 export type InvoiceInsert = Omit<Invoice, "id" | "created_at" | "updated_at">;
@@ -841,6 +1399,29 @@ export type RevenueHistoryUpdate = Partial<RevenueHistoryInsert>;
 export type BillingEventInsert = Omit<BillingEvent, "id" | "created_at">;
 
 export type InvoiceLineItemInsert = Omit<InvoiceLineItem, "id">;
+
+// Donor & Impact Insert/Update Types
+export type DonorProfileInsert = Omit<DonorProfile, "id" | "created_at" | "updated_at">;
+export type DonorProfileUpdate = Partial<DonorProfileInsert>;
+
+export type DonorCommunicationInsert = Omit<DonorCommunication, "id" | "created_at">;
+
+export type ImpactMetricInsert = Omit<ImpactMetric, "id" | "created_at" | "updated_at">;
+export type ImpactMetricUpdate = Partial<ImpactMetricInsert>;
+
+export type DonationAllocationInsert = Omit<DonationAllocation, "id" | "created_at" | "updated_at">;
+export type DonationAllocationUpdate = Partial<DonationAllocationInsert>;
+
+// Event Check-In Insert/Update Types
+export type EventCheckinLogInsert = Omit<EventCheckinLog, "id" | "created_at">;
+
+export type EventAnalyticsInsert = Omit<EventAnalytics, "id" | "created_at" | "updated_at">;
+export type EventAnalyticsUpdate = Partial<EventAnalyticsInsert>;
+
+export type EventTableInsert = Omit<EventTable, "id" | "created_at" | "updated_at">;
+export type EventTableUpdate = Partial<EventTableInsert>;
+
+export type EventFeedbackInsert = Omit<EventFeedback, "id" | "created_at">;
 
 // ============================================================================
 // DATABASE SCHEMA TYPE (for Supabase client)
@@ -972,6 +1553,46 @@ export interface Database {
       billing_events: {
         Row: BillingEvent;
         Insert: BillingEventInsert;
+        Update: never;
+      };
+      donor_profiles: {
+        Row: DonorProfile;
+        Insert: DonorProfileInsert;
+        Update: DonorProfileUpdate;
+      };
+      donor_communications: {
+        Row: DonorCommunication;
+        Insert: DonorCommunicationInsert;
+        Update: never;
+      };
+      impact_metrics: {
+        Row: ImpactMetric;
+        Insert: ImpactMetricInsert;
+        Update: ImpactMetricUpdate;
+      };
+      donation_allocations: {
+        Row: DonationAllocation;
+        Insert: DonationAllocationInsert;
+        Update: DonationAllocationUpdate;
+      };
+      event_checkin_log: {
+        Row: EventCheckinLog;
+        Insert: EventCheckinLogInsert;
+        Update: never;
+      };
+      event_analytics: {
+        Row: EventAnalytics;
+        Insert: EventAnalyticsInsert;
+        Update: EventAnalyticsUpdate;
+      };
+      event_tables: {
+        Row: EventTable;
+        Insert: EventTableInsert;
+        Update: EventTableUpdate;
+      };
+      event_feedback: {
+        Row: EventFeedback;
+        Insert: EventFeedbackInsert;
         Update: never;
       };
     };

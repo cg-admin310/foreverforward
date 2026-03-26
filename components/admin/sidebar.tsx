@@ -29,6 +29,7 @@ interface NavItem {
   href: string;
   icon: React.ElementType;
   roles?: string[];
+  hidden?: boolean;
 }
 
 interface NavGroup {
@@ -54,9 +55,9 @@ const navigation: NavGroup[] = [
   {
     title: "Operations",
     items: [
-      { name: "Documents", href: "/documents", icon: FileText },
-      { name: "Emails", href: "/emails", icon: Mail },
-      { name: "Travis AI", href: "/travis", icon: Bot, roles: ["super_admin", "case_worker"] },
+      { name: "Documents", href: "/documents", icon: FileText, hidden: true },
+      { name: "Emails", href: "/emails", icon: Mail, hidden: true },
+      { name: "Travis AI", href: "/travis", icon: Bot, roles: ["super_admin", "case_worker"], hidden: true },
     ],
   },
   {
@@ -69,21 +70,21 @@ const navigation: NavGroup[] = [
   {
     title: "Resources",
     items: [
-      { name: "Workforce", href: "/workforce", icon: Briefcase, roles: ["super_admin", "sales_lead"] },
+      { name: "Workforce", href: "/workforce", icon: Briefcase, roles: ["super_admin", "sales_lead"], hidden: true },
       { name: "Events", href: "/events-admin", icon: Calendar, roles: ["super_admin", "event_coordinator"] },
-      { name: "Resources", href: "/resources", icon: FolderOpen },
+      { name: "Resources", href: "/resources", icon: FolderOpen, hidden: true },
     ],
   },
   {
     title: "Content",
     items: [
-      { name: "Blog Manager", href: "/blog-manager", icon: BookOpen, roles: ["super_admin"] },
+      { name: "Blog Manager", href: "/blog-manager", icon: BookOpen, roles: ["super_admin"], hidden: true },
     ],
   },
   {
     title: "Analytics",
     items: [
-      { name: "Reports", href: "/reports", icon: BarChart3, roles: ["super_admin", "sales_lead", "case_worker"] },
+      { name: "Reports", href: "/reports", icon: BarChart3, roles: ["super_admin", "sales_lead", "case_worker"], hidden: true },
     ],
   },
   {
@@ -105,7 +106,7 @@ export function Sidebar({ userRole = "super_admin" }: SidebarProps) {
   const filteredNavigation = navigation.map((group) => ({
     ...group,
     items: group.items.filter(
-      (item) => !item.roles || item.roles.includes(userRole)
+      (item) => !item.hidden && (!item.roles || item.roles.includes(userRole))
     ),
   })).filter((group) => group.items.length > 0);
 

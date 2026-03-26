@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SectionHeading } from "@/components/shared/section-heading";
-import { createLead } from "@/lib/actions/leads";
+import { routeFormSubmission } from "@/lib/actions/lead-routing";
 
 const volunteerRoles = [
   {
@@ -72,14 +72,18 @@ export default function VolunteerPage() {
       const firstName = nameParts[0] || "";
       const lastName = nameParts.slice(1).join(" ") || "";
 
-      const result = await createLead({
-        firstName,
-        lastName,
-        email: formData.email,
-        phone: formData.phone || undefined,
-        leadType: "volunteer",
-        source: "volunteer_form",
-        notes: `Areas of Interest: ${formData.interests.join(", ")}\nAvailability: ${formData.availability}\nExperience: ${formData.experience}`,
+      const result = await routeFormSubmission({
+        formType: "volunteer",
+        formData: {
+          firstName,
+          lastName,
+          email: formData.email,
+          phone: formData.phone || undefined,
+          skills: formData.interests,
+          availability: formData.availability,
+          message: formData.experience,
+          source: "volunteer_form",
+        },
       });
 
       if (result.success) {

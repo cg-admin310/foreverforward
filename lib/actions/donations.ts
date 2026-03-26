@@ -2,7 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { Donation, DonationInsert, DonationFrequency } from "@/types/database";
+import {
+  Donation,
+  DonationInsert,
+  DonationFrequency,
+  DonorProfile,
+  ImpactMetric,
+  DonationAllocation,
+  DonorTier,
+} from "@/types/database";
 import { sendEmail, donationThankYouEmail, donationReceiptEmail } from "@/lib/resend";
 import { stripe } from "@/lib/stripe";
 
@@ -21,6 +29,16 @@ interface DonationStats {
   totalThisYear: number;
   recurringDonors: number;
   pendingAcknowledgments: number;
+  totalDonors: number;
+  averageDonation: number;
+}
+
+interface DonorTierStats {
+  founding: number;
+  champion: number;
+  supporter: number;
+  friend: number;
+  total: number;
 }
 
 interface DonorSummary {
@@ -33,6 +51,17 @@ interface DonorSummary {
   type: "one_time" | "recurring";
   recurringAmount: number | null;
   acknowledged: boolean;
+  tier?: DonorTier;
+}
+
+interface PendingDonorAction {
+  type: "thank_you" | "impact_update" | "milestone" | "tier_upgrade";
+  donorId?: string;
+  donationId?: string;
+  email: string;
+  name: string;
+  description: string;
+  dueDate?: string;
 }
 
 // =============================================================================
@@ -337,6 +366,24 @@ export async function getDonationStats(): Promise<ActionResult<DonationStats>> {
       .eq("acknowledgment_sent", false)
       .eq("payment_status", "succeeded");
 
+    // Total unique donors
+    const { data: allDonors } = await supabase
+      .from("donations")
+      .select("donor_email")
+      .eq("payment_status", "succeeded");
+
+    const uniqueDonors = new Set(allDonors?.map((d) => d.donor_email) || []);
+    const totalDonors = uniqueDonors.size;
+
+    // All-time donations for average
+    const { data: allDonations } = await supabase
+      .from("donations")
+      .select("amount")
+      .eq("payment_status", "succeeded");
+
+    const totalAmount = allDonations?.reduce((sum, d) => sum + d.amount, 0) || 0;
+    const averageDonation = allDonations?.length ? totalAmount / allDonations.length : 0;
+
     return {
       success: true,
       data: {
@@ -344,6 +391,8 @@ export async function getDonationStats(): Promise<ActionResult<DonationStats>> {
         totalThisYear,
         recurringDonors,
         pendingAcknowledgments: pendingCount || 0,
+        totalDonors,
+        averageDonation: Math.round(averageDonation),
       },
     };
   } catch (error) {
@@ -892,5 +941,381 @@ export async function syncStripeDonations(startDate?: Date): Promise<ActionResul
   } catch (error) {
     console.error("Error in syncStripeDonations:", error);
     return { success: false, error: "Failed to sync Stripe donations" };
+  }
+}
+
+// =============================================================================
+// DONOR PROFILES
+// =============================================================================
+
+export async function getDonorProfiles(options?: {
+  limit?: number;
+  offset?: number;
+  tier?: DonorTier;
+  isRecurring?: boolean;
+  search?: string;
+}): Promise<ActionResult<{ donors: DonorProfile[]; total: number }>> {
+  try {
+    const supabase = createAdminClient();
+
+    let query = supabase
+      .from("donor_profiles")
+      .select("*", { count: "exact" })
+      .order("total_given", { ascending: false });
+
+    if (options?.tier) {
+      query = query.eq("tier", options.tier);
+    }
+
+    if (options?.isRecurring !== undefined) {
+      query = query.eq("is_recurring", options.isRecurring);
+    }
+
+    if (options?.search) {
+      query = query.or(
+        `first_name.ilike.%${options.search}%,last_name.ilike.%${options.search}%,email.ilike.%${options.search}%,company_name.ilike.%${options.search}%`
+      );
+    }
+
+    if (options?.limit) {
+      query = query.limit(options.limit);
+    }
+
+    if (options?.offset) {
+      query = query.range(options.offset, options.offset + (options.limit || 10) - 1);
+    }
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      console.error("Error fetching donor profiles:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: { donors: data || [], total: count || 0 } };
+  } catch (error) {
+    console.error("Error in getDonorProfiles:", error);
+    return { success: false, error: "Failed to fetch donor profiles" };
+  }
+}
+
+export async function getDonorProfileByEmail(email: string): Promise<ActionResult<DonorProfile>> {
+  try {
+    const supabase = createAdminClient();
+
+    const { data, error } = await supabase
+      .from("donor_profiles")
+      .select("*")
+      .eq("email", email)
+      .single();
+
+    if (error) {
+      console.error("Error fetching donor profile:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error in getDonorProfileByEmail:", error);
+    return { success: false, error: "Failed to fetch donor profile" };
+  }
+}
+
+// =============================================================================
+// DONOR TIER STATISTICS
+// =============================================================================
+
+export async function getDonorTierStats(): Promise<ActionResult<DonorTierStats>> {
+  try {
+    const supabase = createAdminClient();
+
+    // Get counts by tier
+    const { data: tiers, error } = await supabase
+      .from("donor_profiles")
+      .select("tier");
+
+    if (error) {
+      console.error("Error fetching tier stats:", error);
+      return { success: false, error: error.message };
+    }
+
+    const stats: DonorTierStats = {
+      founding: 0,
+      champion: 0,
+      supporter: 0,
+      friend: 0,
+      total: 0,
+    };
+
+    for (const row of tiers || []) {
+      const tier = row.tier as DonorTier;
+      if (tier in stats) {
+        stats[tier]++;
+      }
+      stats.total++;
+    }
+
+    return { success: true, data: stats };
+  } catch (error) {
+    console.error("Error in getDonorTierStats:", error);
+    return { success: false, error: "Failed to fetch tier stats" };
+  }
+}
+
+// =============================================================================
+// IMPACT METRICS
+// =============================================================================
+
+export async function getImpactMetrics(options?: {
+  type?: string;
+  periodType?: string;
+}): Promise<ActionResult<ImpactMetric[]>> {
+  try {
+    const supabase = createAdminClient();
+
+    let query = supabase
+      .from("impact_metrics")
+      .select("*")
+      .order("metric_type")
+      .order("metric_name");
+
+    if (options?.type) {
+      query = query.eq("metric_type", options.type);
+    }
+
+    if (options?.periodType) {
+      query = query.eq("period_type", options.periodType);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching impact metrics:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: data || [] };
+  } catch (error) {
+    console.error("Error in getImpactMetrics:", error);
+    return { success: false, error: "Failed to fetch impact metrics" };
+  }
+}
+
+export async function updateImpactMetric(
+  id: string,
+  data: { metric_value: number; notes?: string }
+): Promise<ActionResult<ImpactMetric>> {
+  try {
+    const supabase = createAdminClient();
+
+    const { data: metric, error } = await supabase
+      .from("impact_metrics")
+      .update({
+        metric_value: data.metric_value,
+        notes: data.notes,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating impact metric:", error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath("/donations");
+    return { success: true, data: metric };
+  } catch (error) {
+    console.error("Error in updateImpactMetric:", error);
+    return { success: false, error: "Failed to update impact metric" };
+  }
+}
+
+// =============================================================================
+// DONATION ALLOCATIONS
+// =============================================================================
+
+export async function getDonationAllocations(options?: {
+  published?: boolean;
+}): Promise<ActionResult<DonationAllocation[]>> {
+  try {
+    const supabase = createAdminClient();
+
+    let query = supabase
+      .from("donation_allocations")
+      .select("*")
+      .order("period_end", { ascending: false });
+
+    if (options?.published !== undefined) {
+      query = query.eq("is_published", options.published);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching allocations:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: data || [] };
+  } catch (error) {
+    console.error("Error in getDonationAllocations:", error);
+    return { success: false, error: "Failed to fetch allocations" };
+  }
+}
+
+export async function getCurrentAllocation(): Promise<ActionResult<DonationAllocation | null>> {
+  try {
+    const supabase = createAdminClient();
+
+    const { data, error } = await supabase
+      .from("donation_allocations")
+      .select("*")
+      .eq("is_published", true)
+      .order("period_end", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error fetching current allocation:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error in getCurrentAllocation:", error);
+    return { success: false, error: "Failed to fetch current allocation" };
+  }
+}
+
+// =============================================================================
+// PENDING DONOR ACTIONS
+// =============================================================================
+
+export async function getPendingDonorActions(): Promise<ActionResult<PendingDonorAction[]>> {
+  try {
+    const supabase = createAdminClient();
+    const actions: PendingDonorAction[] = [];
+
+    // 1. Pending thank you emails (donations without acknowledgment)
+    const { data: pendingThanks } = await supabase
+      .from("donations")
+      .select("id, donor_first_name, donor_last_name, donor_email, amount, created_at")
+      .eq("payment_status", "succeeded")
+      .eq("acknowledgment_sent", false)
+      .order("created_at", { ascending: true })
+      .limit(10);
+
+    for (const donation of pendingThanks || []) {
+      actions.push({
+        type: "thank_you",
+        donationId: donation.id,
+        email: donation.donor_email,
+        name: `${donation.donor_first_name} ${donation.donor_last_name}`,
+        description: `Send thank you for $${donation.amount} donation`,
+      });
+    }
+
+    // 2. Impact updates due (30-day update for recent donations)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const fortyDaysAgo = new Date();
+    fortyDaysAgo.setDate(fortyDaysAgo.getDate() - 40);
+
+    const { data: needsImpactUpdate } = await supabase
+      .from("donations")
+      .select("id, donor_first_name, donor_last_name, donor_email, amount, created_at")
+      .eq("payment_status", "succeeded")
+      .eq("acknowledgment_sent", true)
+      .eq("impact_report_sent", false)
+      .gte("created_at", fortyDaysAgo.toISOString())
+      .lte("created_at", thirtyDaysAgo.toISOString())
+      .limit(10);
+
+    for (const donation of needsImpactUpdate || []) {
+      actions.push({
+        type: "impact_update",
+        donationId: donation.id,
+        email: donation.donor_email,
+        name: `${donation.donor_first_name} ${donation.donor_last_name}`,
+        description: `Send 30-day impact update for $${donation.amount} donation`,
+        dueDate: new Date(new Date(donation.created_at).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      });
+    }
+
+    // 3. Recurring donor milestones (6 months, 1 year, 2 years)
+    const { data: recurringDonors } = await supabase
+      .from("donor_profiles")
+      .select("id, email, first_name, last_name, recurring_since")
+      .eq("is_recurring", true)
+      .not("recurring_since", "is", null)
+      .limit(50);
+
+    const now = new Date();
+    for (const donor of recurringDonors || []) {
+      if (!donor.recurring_since) continue;
+
+      const recurringDate = new Date(donor.recurring_since);
+      const monthsRecurring = Math.floor(
+        (now.getTime() - recurringDate.getTime()) / (30 * 24 * 60 * 60 * 1000)
+      );
+
+      // Check for milestone months
+      const milestones = [6, 12, 24, 36, 48, 60];
+      for (const milestone of milestones) {
+        if (monthsRecurring >= milestone && monthsRecurring < milestone + 1) {
+          actions.push({
+            type: "milestone",
+            donorId: donor.id,
+            email: donor.email,
+            name: `${donor.first_name} ${donor.last_name}`,
+            description: `Celebrate ${milestone === 12 ? "1 year" : milestone === 24 ? "2 years" : `${milestone} months`} as recurring donor`,
+          });
+          break;
+        }
+      }
+    }
+
+    return { success: true, data: actions };
+  } catch (error) {
+    console.error("Error in getPendingDonorActions:", error);
+    return { success: false, error: "Failed to fetch pending actions" };
+  }
+}
+
+// =============================================================================
+// ENHANCED STATS WITH TIERS
+// =============================================================================
+
+export async function getEnhancedDonationStats(): Promise<ActionResult<DonationStats & { tierStats: DonorTierStats }>> {
+  try {
+    const [statsResult, tierResult] = await Promise.all([
+      getDonationStats(),
+      getDonorTierStats(),
+    ]);
+
+    if (!statsResult.success || !statsResult.data) {
+      return { success: false, error: statsResult.error };
+    }
+
+    const tierStats = tierResult.data || {
+      founding: 0,
+      champion: 0,
+      supporter: 0,
+      friend: 0,
+      total: 0,
+    };
+
+    return {
+      success: true,
+      data: {
+        ...statsResult.data,
+        tierStats,
+      },
+    };
+  } catch (error) {
+    console.error("Error in getEnhancedDonationStats:", error);
+    return { success: false, error: "Failed to fetch enhanced stats" };
   }
 }

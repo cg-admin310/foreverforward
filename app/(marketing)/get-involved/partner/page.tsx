@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SectionHeading } from "@/components/shared/section-heading";
-import { createLead } from "@/lib/actions/leads";
+import { routeFormSubmission } from "@/lib/actions/lead-routing";
 
 const partnershipTypes = [
   {
@@ -103,15 +103,18 @@ export default function PartnerPage() {
       const firstName = nameParts[0] || "";
       const lastName = nameParts.slice(1).join(" ") || "";
 
-      const result = await createLead({
-        firstName,
-        lastName,
-        email: formData.email,
-        organization: formData.organization,
-        title: formData.title || undefined,
-        leadType: "partner",
-        source: "partner_form",
-        notes: `Partnership Type: ${formData.partnershipType}\n\nMessage: ${formData.message}`,
+      const result = await routeFormSubmission({
+        formType: "partner",
+        formData: {
+          firstName,
+          lastName,
+          email: formData.email,
+          organization: formData.organization,
+          title: formData.title || undefined,
+          partnershipType: formData.partnershipType,
+          message: formData.message,
+          source: "partner_form",
+        },
       });
 
       if (result.success) {

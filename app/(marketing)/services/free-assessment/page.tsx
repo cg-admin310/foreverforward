@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { submitITAssessment } from "@/lib/actions/assessments";
-import type { SupportType, DecisionTimeline, BudgetRange } from "@/types/database";
+import type { SupportType, DecisionTimeline, BudgetRange, ComplianceRequirement, DisasterRecoveryStatus } from "@/types/database";
 
 type FormStep = "organization" | "current-it" | "challenges" | "next-steps" | "confirmation";
 
@@ -67,6 +67,15 @@ interface FormData {
   decisionTimeline: DecisionTimeline | "";
   budgetRange: BudgetRange | "";
   additionalNotes: string;
+
+  // Enhanced fields
+  complianceRequirements: ComplianceRequirement[];
+  disasterRecoveryStatus: DisasterRecoveryStatus | "";
+  currentBackupSolution: string;
+  growthProjectionUsers: string;
+  officeCount: string;
+  remoteWorkerPercent: string;
+  stakeholderConcerns: string[];
 }
 
 const initialFormData: FormData = {
@@ -95,6 +104,14 @@ const initialFormData: FormData = {
   decisionTimeline: "",
   budgetRange: "",
   additionalNotes: "",
+  // Enhanced fields
+  complianceRequirements: [],
+  disasterRecoveryStatus: "",
+  currentBackupSolution: "",
+  growthProjectionUsers: "",
+  officeCount: "",
+  remoteWorkerPercent: "",
+  stakeholderConcerns: [],
 };
 
 const ORGANIZATION_TYPES = [
@@ -169,6 +186,30 @@ const BUDGET_OPTIONS: { value: BudgetRange; label: string }[] = [
   { value: "not_sure", label: "Not sure yet" },
 ];
 
+const COMPLIANCE_OPTIONS: { value: ComplianceRequirement; label: string; desc: string }[] = [
+  { value: "hipaa", label: "HIPAA", desc: "Healthcare data protection" },
+  { value: "ferpa", label: "FERPA", desc: "Student education records" },
+  { value: "pci_dss", label: "PCI-DSS", desc: "Payment card data" },
+  { value: "soc2", label: "SOC 2", desc: "Security & availability" },
+  { value: "none", label: "None / Not Sure", desc: "No specific requirements" },
+];
+
+const DISASTER_RECOVERY_OPTIONS: { value: DisasterRecoveryStatus; label: string }[] = [
+  { value: "has_plan", label: "Yes, we have a disaster recovery plan" },
+  { value: "partial", label: "Partial - some backups but no formal plan" },
+  { value: "no_plan", label: "No disaster recovery plan" },
+];
+
+const STAKEHOLDER_CONCERNS = [
+  "Budget constraints",
+  "Change resistance from staff",
+  "Vendor lock-in concerns",
+  "Data migration worries",
+  "Downtime during transition",
+  "Staff training needs",
+  "Board approval required",
+];
+
 const steps: { key: FormStep; label: string; num: number }[] = [
   { key: "organization", label: "Your Organization", num: 1 },
   { key: "current-it", label: "Current IT", num: 2 },
@@ -215,6 +256,14 @@ export default function FreeAssessmentPage() {
         decisionTimeline: formData.decisionTimeline as DecisionTimeline,
         budgetRange: formData.budgetRange as BudgetRange,
         additionalNotes: formData.additionalNotes || undefined,
+        // Enhanced fields
+        complianceRequirements: formData.complianceRequirements,
+        disasterRecoveryStatus: (formData.disasterRecoveryStatus || "no_plan") as DisasterRecoveryStatus,
+        currentBackupSolution: formData.currentBackupSolution || undefined,
+        growthProjectionUsers: parseInt(formData.growthProjectionUsers) || undefined,
+        officeCount: parseInt(formData.officeCount) || undefined,
+        remoteWorkerPercent: parseInt(formData.remoteWorkerPercent) || undefined,
+        stakeholderConcerns: formData.stakeholderConcerns.length > 0 ? formData.stakeholderConcerns : undefined,
       });
 
       if (result.success && result.data) {
@@ -236,9 +285,9 @@ export default function FreeAssessmentPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const toggleArrayItem = (field: "cloudServices" | "painPoints" | "servicesInterested", value: string) => {
+  const toggleArrayItem = (field: "cloudServices" | "painPoints" | "servicesInterested" | "complianceRequirements" | "stakeholderConcerns", value: string) => {
     setFormData((prev) => {
-      const current = prev[field];
+      const current = prev[field] as string[];
       if (current.includes(value)) {
         return { ...prev, [field]: current.filter((v) => v !== value) };
       } else {
@@ -747,6 +796,123 @@ export default function FreeAssessmentPage() {
                     </div>
                   </div>
 
+                  {/* Infrastructure & Growth */}
+                  <div className="bg-white rounded-xl p-6 border border-[#DDDDDD]">
+                    <h3 className="flex items-center gap-2 text-lg font-semibold text-[#1A1A1A] mb-6">
+                      <Building2 className="h-5 w-5 text-[#C9A84C]" />
+                      Infrastructure & Growth
+                    </h3>
+
+                    <div className="grid sm:grid-cols-3 gap-4 mb-6">
+                      <div>
+                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
+                          Office Locations
+                        </label>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={formData.officeCount}
+                          onChange={(e) => updateField("officeCount", e.target.value)}
+                          placeholder="1"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
+                          % Remote Workers
+                        </label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={formData.remoteWorkerPercent}
+                          onChange={(e) => updateField("remoteWorkerPercent", e.target.value)}
+                          placeholder="25"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
+                          Expected User Growth (12 mo)
+                        </label>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={formData.growthProjectionUsers}
+                          onChange={(e) => updateField("growthProjectionUsers", e.target.value)}
+                          placeholder="10"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#1A1A1A] mb-3">
+                        Compliance Requirements
+                      </label>
+                      <p className="text-xs text-[#888888] mb-3">
+                        Select any compliance standards you need to meet:
+                      </p>
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {COMPLIANCE_OPTIONS.map((option) => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => toggleArrayItem("complianceRequirements", option.value)}
+                            className={`p-3 rounded-lg border-2 text-left transition-all ${
+                              formData.complianceRequirements.includes(option.value)
+                                ? "border-[#C9A84C] bg-[#FBF6E9]"
+                                : "border-[#DDDDDD] bg-white hover:border-[#C9A84C]/50"
+                            }`}
+                          >
+                            <span className="block text-sm font-semibold text-[#1A1A1A]">{option.label}</span>
+                            <span className="text-xs text-[#888888]">{option.desc}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Backup & Disaster Recovery */}
+                  <div className="bg-white rounded-xl p-6 border border-[#DDDDDD]">
+                    <h3 className="flex items-center gap-2 text-lg font-semibold text-[#1A1A1A] mb-6">
+                      <Shield className="h-5 w-5 text-[#C9A84C]" />
+                      Backup & Disaster Recovery
+                    </h3>
+
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#1A1A1A] mb-3">
+                          Current Disaster Recovery Status
+                        </label>
+                        <div className="space-y-2">
+                          {DISASTER_RECOVERY_OPTIONS.map((option) => (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => updateField("disasterRecoveryStatus", option.value)}
+                              className={`w-full p-3 rounded-lg border-2 text-left transition-all ${
+                                formData.disasterRecoveryStatus === option.value
+                                  ? "border-[#C9A84C] bg-[#FBF6E9]"
+                                  : "border-[#DDDDDD] bg-white hover:border-[#C9A84C]/50"
+                              }`}
+                            >
+                              <span className="text-sm font-medium text-[#1A1A1A]">{option.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
+                          Current Backup Solution (if any)
+                        </label>
+                        <Input
+                          value={formData.currentBackupSolution}
+                          onChange={(e) => updateField("currentBackupSolution", e.target.value)}
+                          placeholder="e.g., External drives, cloud backup service, etc."
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="flex items-center justify-between pt-4">
                     <Button type="button" variant="outline" onClick={goBack}>
                       <ArrowLeft className="mr-2 h-4 w-4" />
@@ -1008,6 +1174,36 @@ export default function FreeAssessmentPage() {
                           ))}
                         </div>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Stakeholder Concerns */}
+                  <div className="bg-white rounded-xl p-6 border border-[#DDDDDD]">
+                    <h3 className="flex items-center gap-2 text-lg font-semibold text-[#1A1A1A] mb-4">
+                      <AlertCircle className="h-5 w-5 text-[#C9A84C]" />
+                      Stakeholder Concerns
+                    </h3>
+                    <p className="text-sm text-[#555555] mb-4">
+                      Are there any concerns we should be aware of? (select all that apply)
+                    </p>
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      {STAKEHOLDER_CONCERNS.map((concern) => (
+                        <button
+                          key={concern}
+                          type="button"
+                          onClick={() => toggleArrayItem("stakeholderConcerns", concern)}
+                          className={`p-3 rounded-lg border-2 text-left text-sm transition-all ${
+                            formData.stakeholderConcerns.includes(concern)
+                              ? "border-[#C9A84C] bg-[#FBF6E9] font-medium"
+                              : "border-[#DDDDDD] bg-white hover:border-[#C9A84C]/50"
+                          }`}
+                        >
+                          {formData.stakeholderConcerns.includes(concern) && (
+                            <CheckCircle2 className="inline-block h-3.5 w-3.5 mr-1.5 text-[#C9A84C]" />
+                          )}
+                          {concern}
+                        </button>
+                      ))}
                     </div>
                   </div>
 

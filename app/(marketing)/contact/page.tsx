@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SectionHeading } from "@/components/shared/section-heading";
-import { createLead } from "@/lib/actions/leads";
+import { routeFormSubmission } from "@/lib/actions/lead-routing";
 
 const contactInfo = [
   {
@@ -68,14 +68,18 @@ export default function ContactPage() {
     setIsSubmitting(true);
 
     try {
-      const result = await createLead({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone || undefined,
-        leadType: "general",
-        source: "contact_form",
-        notes: `Inquiry Type: ${formData.inquiryType}\nSubject: ${formData.subject}\nMessage: ${formData.message}`,
+      const result = await routeFormSubmission({
+        formType: "contact",
+        formData: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone || undefined,
+          inquiryType: formData.inquiryType,
+          subject: formData.subject,
+          message: formData.message,
+          source: "contact_form",
+        },
       });
 
       if (result.success) {

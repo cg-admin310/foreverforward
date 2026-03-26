@@ -13,6 +13,8 @@ import {
   Film,
   CheckCircle,
   CalendarPlus,
+  Radio,
+  UserCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -225,18 +227,43 @@ export function EventsGrid({ initialEvents }: EventsGridProps) {
 
                   {/* Actions */}
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/events-admin/${event.id}/attendees`);
-                      }}
-                    >
-                      <Users className="h-4 w-4 mr-1" />
-                      Attendees
-                    </Button>
+                    {/* Live Check-In button for live or upcoming events */}
+                    {(event.status === "live" || event.status === "upcoming") && (
+                      <Button
+                        size="sm"
+                        className={`flex-1 ${event.status === "live" ? "bg-green-600 hover:bg-green-700" : ""}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/events-admin/${event.id}/attendees`);
+                        }}
+                      >
+                        {event.status === "live" ? (
+                          <>
+                            <Radio className="h-4 w-4 mr-1 animate-pulse" />
+                            Live Check-In
+                          </>
+                        ) : (
+                          <>
+                            <UserCheck className="h-4 w-4 mr-1" />
+                            Check-In
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    {event.status === "completed" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/events-admin/${event.id}/attendees`);
+                        }}
+                      >
+                        <Users className="h-4 w-4 mr-1" />
+                        Attendees
+                      </Button>
+                    )}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();

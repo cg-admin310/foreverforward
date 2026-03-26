@@ -97,6 +97,12 @@ export async function createClient(
       decision_timeline: null,
       budget_range: null,
       services_interested: null,
+      // Enhanced assessment fields
+      compliance_requirements: null,
+      disaster_recovery_status: null,
+      growth_projection_users: null,
+      office_count: null,
+      remote_worker_percent: null,
     };
 
     const { data, error } = await adminClient

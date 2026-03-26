@@ -30,6 +30,12 @@ import {
   Cloud,
   Shield,
   TrendingUp,
+  Heart,
+  Ticket,
+  UserPlus,
+  CheckSquare,
+  Square,
+  Crown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,6 +56,7 @@ import {
   InvoiceDisplay,
 } from "@/lib/actions/billing";
 import type { MspClient, PipelineStage } from "@/types/database";
+import { ScoreGauge, ContactCard, ServiceTagPills } from "@/components/admin/crm";
 
 interface Activity {
   id: string;
@@ -83,7 +90,35 @@ const servicePackageLabels: Record<string, string> = {
   custom: "Custom",
 };
 
-type TabType = "overview" | "documents" | "billing" | "workforce" | "activity";
+type TabType = "overview" | "contacts" | "documents" | "billing" | "workforce" | "activity";
+
+// Calculate health score based on various factors
+function calculateHealthScore(client: MspClient): number {
+  let score = 100;
+
+  // Decrease score for clients not in active stage
+  if (client.pipeline_stage !== "active") {
+    score -= 20;
+  }
+
+  // Decrease score if no monthly value set
+  if (!client.monthly_value || client.monthly_value === 0) {
+    score -= 15;
+  }
+
+  // Decrease score for missing contact info
+  if (!client.primary_contact_phone) {
+    score -= 10;
+  }
+
+  // Increase score for completed assessment
+  if (client.assessment_completed_at) {
+    score += 10;
+  }
+
+  // Ensure score stays within 0-100
+  return Math.max(0, Math.min(100, score));
+}
 
 export function ClientDetailView({ client, activities }: ClientDetailViewProps) {
   const router = useRouter();
@@ -123,11 +158,15 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
 
   const tabs: { key: TabType; label: string }[] = [
     { key: "overview", label: "Overview" },
+    { key: "contacts", label: "Contacts" },
     { key: "documents", label: "Documents" },
     { key: "billing", label: "Billing" },
     { key: "workforce", label: "Workforce" },
     { key: "activity", label: "Activity" },
   ];
+
+  // Calculate health score
+  const healthScore = calculateHealthScore(client);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -452,6 +491,60 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
           </div>
         </div>
       )}
+
+      {/* KPI Cards Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Health Score */}
+        <div className="bg-white rounded-xl border border-[#DDDDDD] p-5 flex items-center gap-4">
+          <ScoreGauge score={healthScore} size="sm" />
+          <div>
+            <p className="text-xs text-[#888888] uppercase tracking-wide font-medium">Health Score</p>
+            <p className="text-sm text-[#555555] mt-1">Client relationship</p>
+          </div>
+        </div>
+
+        {/* MRR */}
+        <div className="bg-white rounded-xl border border-[#DDDDDD] p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="p-2 rounded-lg bg-[#EFF4EB]">
+              <DollarSign className="h-4 w-4 text-[#5A7247]" />
+            </div>
+            <p className="text-xs text-[#888888] uppercase tracking-wide font-medium">MRR</p>
+          </div>
+          <p className="text-2xl font-bold text-[#5A7247]">
+            ${(client.monthly_value || 0).toLocaleString()}
+          </p>
+          <p className="text-xs text-[#888888] mt-1">Monthly recurring</p>
+        </div>
+
+        {/* Users */}
+        <div className="bg-white rounded-xl border border-[#DDDDDD] p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="p-2 rounded-lg bg-[#FBF6E9]">
+              <Users className="h-4 w-4 text-[#C9A84C]" />
+            </div>
+            <p className="text-xs text-[#888888] uppercase tracking-wide font-medium">Users</p>
+          </div>
+          <p className="text-2xl font-bold text-[#1A1A1A]">
+            {client.user_count || "—"}
+          </p>
+          <p className="text-xs text-[#888888] mt-1">Supported users</p>
+        </div>
+
+        {/* Devices */}
+        <div className="bg-white rounded-xl border border-[#DDDDDD] p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="p-2 rounded-lg bg-blue-50">
+              <Server className="h-4 w-4 text-blue-600" />
+            </div>
+            <p className="text-xs text-[#888888] uppercase tracking-wide font-medium">Infrastructure</p>
+          </div>
+          <p className="text-2xl font-bold text-[#1A1A1A]">
+            {client.device_count || "—"}
+          </p>
+          <p className="text-xs text-[#888888] mt-1">Managed devices</p>
+        </div>
+      </div>
 
       {/* Pipeline Progress */}
       <div className="bg-white rounded-xl border border-[#DDDDDD] p-4">
@@ -843,6 +936,69 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
                 </motion.div>
               )}
 
+              {/* Onboarding Checklist - Show for onboarding stage */}
+              {client.pipeline_stage === "onboarding" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.18 }}
+                  className="bg-gradient-to-r from-[#EFF4EB] to-white rounded-xl border-2 border-[#5A7247]/30 p-6"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 rounded-lg bg-[#5A7247]/20">
+                        <CheckSquare className="h-5 w-5 text-[#5A7247]" />
+                      </div>
+                      <h2 className="font-semibold text-[#1A1A1A]">Onboarding Checklist</h2>
+                    </div>
+                    <span className="px-3 py-1 rounded-full bg-[#5A7247]/10 text-[#5A7247] text-xs font-semibold">
+                      In Progress
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    {[
+                      { id: "assessment", label: "Initial assessment completed", done: !!client.assessment_completed_at },
+                      { id: "contract", label: "Contract signed", done: client.pipeline_stage === "onboarding" || client.pipeline_stage === "active" },
+                      { id: "network_audit", label: "Network audit scheduled", done: false },
+                      { id: "user_accounts", label: "User accounts created", done: false },
+                      { id: "monitoring", label: "Monitoring agents deployed", done: false },
+                      { id: "documentation", label: "Documentation complete", done: false },
+                      { id: "training", label: "Training scheduled", done: false },
+                    ].map((item) => (
+                      <div
+                        key={item.id}
+                        className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
+                          item.done ? "bg-[#5A7247]/10" : "bg-white border border-[#DDDDDD]"
+                        }`}
+                      >
+                        {item.done ? (
+                          <CheckCircle className="h-5 w-5 text-[#5A7247]" />
+                        ) : (
+                          <Square className="h-5 w-5 text-[#DDDDDD]" />
+                        )}
+                        <span className={`text-sm ${item.done ? "text-[#5A7247] font-medium" : "text-[#555555]"}`}>
+                          {item.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-[#DDDDDD]">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-[#888888]">Onboarding Progress</span>
+                      <span className="font-medium text-[#5A7247]">
+                        {[!!client.assessment_completed_at, true].filter(Boolean).length} / 7 complete
+                      </span>
+                    </div>
+                    <div className="mt-2 h-2 bg-[#DDDDDD] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-[#5A7247] to-[#7A9A63]"
+                        style={{ width: `${([!!client.assessment_completed_at, true].filter(Boolean).length / 7) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Notes */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -875,6 +1031,77 @@ export function ClientDetailView({ client, activities }: ClientDetailViewProps) 
                 </div>
               </motion.div>
             </>
+          )}
+
+          {activeTab === "contacts" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              {/* Primary Contact */}
+              <div className="bg-white rounded-xl border border-[#DDDDDD] p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-semibold text-[#1A1A1A]">Primary Contact</h2>
+                  <span className="px-2 py-1 bg-[#C9A84C] text-white text-xs font-medium rounded-full flex items-center gap-1">
+                    <Crown className="h-3 w-3" />
+                    Primary
+                  </span>
+                </div>
+                <ContactCard
+                  name={client.primary_contact_name}
+                  email={client.primary_contact_email}
+                  phone={client.primary_contact_phone || undefined}
+                  role={client.primary_contact_title || undefined}
+                  isPrimary={true}
+                />
+              </div>
+
+              {/* Secondary Contacts - Placeholder for future */}
+              <div className="bg-white rounded-xl border border-[#DDDDDD] p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-semibold text-[#1A1A1A]">Additional Contacts</h2>
+                  <Button variant="outline" size="sm">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Add Contact
+                  </Button>
+                </div>
+                <div className="text-center py-8">
+                  <Users className="h-10 w-10 text-[#DDDDDD] mx-auto mb-3" />
+                  <p className="text-sm text-[#888888]">No additional contacts added</p>
+                  <p className="text-xs text-[#888888] mt-1">
+                    Add technical contacts, billing contacts, and other stakeholders
+                  </p>
+                </div>
+              </div>
+
+              {/* Contact Summary Card */}
+              <div className="bg-gradient-to-r from-[#FBF6E9] to-[#EFF4EB] rounded-xl border border-[#E8D48B] p-6">
+                <h3 className="font-semibold text-[#1A1A1A] mb-3">Quick Contact Actions</h3>
+                <div className="grid sm:grid-cols-3 gap-3">
+                  <a
+                    href={`mailto:${client.primary_contact_email}`}
+                    className="flex items-center gap-2 p-3 bg-white rounded-lg hover:shadow-sm transition-all"
+                  >
+                    <Mail className="h-4 w-4 text-[#C9A84C]" />
+                    <span className="text-sm text-[#555555]">Send Email</span>
+                  </a>
+                  {client.primary_contact_phone && (
+                    <a
+                      href={`tel:${client.primary_contact_phone}`}
+                      className="flex items-center gap-2 p-3 bg-white rounded-lg hover:shadow-sm transition-all"
+                    >
+                      <Phone className="h-4 w-4 text-[#5A7247]" />
+                      <span className="text-sm text-[#555555]">Call Contact</span>
+                    </a>
+                  )}
+                  <button className="flex items-center gap-2 p-3 bg-white rounded-lg hover:shadow-sm transition-all">
+                    <Calendar className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm text-[#555555]">Schedule Call</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           )}
 
           {activeTab === "documents" && (

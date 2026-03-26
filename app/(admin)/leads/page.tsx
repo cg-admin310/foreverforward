@@ -18,7 +18,15 @@ import { LeadsTable } from "./leads-table";
 export default async function LeadsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; status?: string; search?: string; page?: string }>;
+  searchParams: Promise<{
+    type?: string;
+    status?: string;
+    search?: string;
+    page?: string;
+    assessment?: string;
+    readiness?: string;
+    barriers?: string;
+  }>;
 }) {
   const params = await searchParams;
   const page = parseInt(params.page || "1");
@@ -89,6 +97,9 @@ export default async function LeadsPage({
         currentType={params.type}
         currentStatus={params.status}
         currentSearch={params.search}
+        currentAssessment={params.assessment}
+        currentReadiness={params.readiness}
+        currentBarriers={params.barriers}
       />
     </div>
   );

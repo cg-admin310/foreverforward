@@ -8,7 +8,9 @@ import type {
   SupportType,
   DecisionTimeline,
   BudgetRange,
-  ITAssessmentData,
+  EnhancedITAssessmentData,
+  ComplianceRequirement,
+  DisasterRecoveryStatus,
 } from "@/types/database";
 
 // ============================================================================
@@ -54,6 +56,15 @@ export interface AssessmentFormInput {
   decisionTimeline: DecisionTimeline;
   budgetRange: BudgetRange;
   additionalNotes?: string;
+
+  // Enhanced fields (new)
+  complianceRequirements: ComplianceRequirement[];
+  disasterRecoveryStatus: DisasterRecoveryStatus;
+  currentBackupSolution?: string;
+  growthProjectionUsers?: number;
+  officeCount?: number;
+  remoteWorkerPercent?: number;
+  stakeholderConcerns?: string[];
 }
 
 // ============================================================================
@@ -66,6 +77,12 @@ export interface AssessmentFormInput {
  * - Foundation (<15 users): $100-200/month base
  * - Growth (15-75 users): $50-65/user/month
  * - Enterprise (75+): $75-85/user/month
+ *
+ * Compliance premiums:
+ * - HIPAA: +20-25%
+ * - FERPA: +15-20%
+ * - PCI-DSS: +15-20%
+ * - SOC 2: +20-25%
  */
 function calculateEstimatedValue(input: AssessmentFormInput): number {
   const userCount = input.userCount || 1;
@@ -104,6 +121,30 @@ function calculateEstimatedValue(input: AssessmentFormInput): number {
     }
   }
 
+  // Apply compliance premiums
+  const compliancePremiums: Record<string, number> = {
+    hipaa: 1.22, // +22% average
+    ferpa: 1.17, // +17% average
+    pci_dss: 1.17, // +17% average
+    soc2: 1.22, // +22% average
+    none: 1.0,
+  };
+
+  for (const compliance of input.complianceRequirements || []) {
+    const premium = compliancePremiums[compliance];
+    if (premium && premium > 1) {
+      totalMultiplier *= premium;
+    }
+  }
+
+  // Factor in growth projections (10% increase per 25% growth expected)
+  if (input.growthProjectionUsers && input.growthProjectionUsers > 0) {
+    const growthPercent = input.growthProjectionUsers / userCount;
+    if (growthPercent > 0.25) {
+      totalMultiplier *= 1 + (growthPercent * 0.1);
+    }
+  }
+
   // Round to nearest $50
   return Math.round((baseValue * totalMultiplier) / 50) * 50;
 }
@@ -111,7 +152,7 @@ function calculateEstimatedValue(input: AssessmentFormInput): number {
 /**
  * Determine recommended service package based on assessment
  */
-function determineServicePackage(input: AssessmentFormInput): string {
+function determineServicePackage(input: AssessmentFormInput): "foundation" | "growth" | "enterprise" | "custom" {
   const userCount = input.userCount || 1;
 
   if (userCount < 15) {
@@ -172,8 +213,9 @@ export async function submitITAssessment(
   try {
     const adminClient = createAdminClient();
 
-    // Build assessment data object
-    const assessmentData: ITAssessmentData = {
+    // Build assessment data object with enhanced fields
+    const assessmentData: EnhancedITAssessmentData = {
+      // Base fields
       firstName: input.firstName,
       lastName: input.lastName,
       email: input.email,
@@ -200,7 +242,15 @@ export async function submitITAssessment(
       budgetRange: input.budgetRange,
       additionalNotes: input.additionalNotes,
       submittedAt: new Date().toISOString(),
-      formVersion: "1.0",
+      formVersion: "2.0",
+      // Enhanced fields
+      complianceRequirements: input.complianceRequirements,
+      disasterRecoveryStatus: input.disasterRecoveryStatus,
+      currentBackupSolution: input.currentBackupSolution,
+      growthProjectionUsers: input.growthProjectionUsers,
+      officeCount: input.officeCount,
+      remoteWorkerPercent: input.remoteWorkerPercent,
+      stakeholderConcerns: input.stakeholderConcerns,
     };
 
     // Calculate values
@@ -218,7 +268,7 @@ export async function submitITAssessment(
       title: null,
       lead_type: "msp",
       status: "qualified", // Auto-qualified since they completed assessment
-      priority_score: urgencyScore,
+      priority_score: urgencyScore * 10, // Convert 1-10 to 1-100
       program_interest: null,
       service_interests: input.servicesInterested,
       estimated_value: estimatedValue,
@@ -228,17 +278,41 @@ export async function submitITAssessment(
       utm_medium: null,
       utm_campaign: null,
       ai_classification: {
-        assessment_completed: true,
-        urgency_score: urgencyScore,
+        lead_type: "msp",
+        priority_score: urgencyScore * 10,
+        urgency_level: urgencyScore >= 8 ? "critical" : urgencyScore >= 6 ? "high" : urgencyScore >= 4 ? "medium" : "low",
+        estimated_value: estimatedValue,
         recommended_package: servicePackage,
         pain_points: input.painPoints,
-        top_priorities: input.topPriorities,
+        infrastructure_summary: {
+          users: input.userCount,
+          devices: input.deviceCount,
+          servers: input.serverCount,
+        },
+        classified_at: new Date().toISOString(),
+        model_used: "rule-based",
+        confidence: 0.8,
+        reasoning: "Classified based on IT assessment form submission",
       },
       assigned_to: null,
       notes: `Assessment completed. Biggest challenge: ${input.biggestChallenge || "Not specified"}. Ideal outcome: ${input.idealOutcome || "Not specified"}.`,
       tags: ["assessment_completed", servicePackage],
       contacted_at: null,
       converted_at: new Date().toISOString(),
+      // New assessment fields
+      assessment_data: assessmentData,
+      assessment_completed_at: new Date().toISOString(),
+      fit_score: null,
+      recommended_programs: null,
+      barriers: null,
+      support_needs: null,
+      readiness_level: null,
+      // Enhanced IT assessment fields
+      compliance_requirements: input.complianceRequirements.length > 0 ? input.complianceRequirements : null,
+      disaster_recovery_status: input.disasterRecoveryStatus || null,
+      growth_projection_users: input.growthProjectionUsers || null,
+      office_count: input.officeCount || null,
+      remote_worker_percent: input.remoteWorkerPercent || null,
     };
 
     const { data: lead, error: leadError } = await adminClient
@@ -310,6 +384,13 @@ export async function submitITAssessment(
       decision_timeline: input.decisionTimeline,
       budget_range: input.budgetRange,
       services_interested: input.servicesInterested.length > 0 ? input.servicesInterested : null,
+
+      // Enhanced fields
+      compliance_requirements: input.complianceRequirements.length > 0 ? input.complianceRequirements : null,
+      disaster_recovery_status: input.disasterRecoveryStatus || null,
+      growth_projection_users: input.growthProjectionUsers || null,
+      office_count: input.officeCount || null,
+      remote_worker_percent: input.remoteWorkerPercent || null,
     };
 
     const { data: client, error: clientError } = await adminClient
@@ -373,7 +454,7 @@ export async function submitITAssessment(
 
 export async function getAssessmentData(
   clientId: string
-): Promise<ActionResult<ITAssessmentData | null>> {
+): Promise<ActionResult<EnhancedITAssessmentData | null>> {
   try {
     const adminClient = createAdminClient();
 
@@ -390,7 +471,7 @@ export async function getAssessmentData(
 
     return {
       success: true,
-      data: data?.assessment_data as ITAssessmentData | null,
+      data: data?.assessment_data as EnhancedITAssessmentData | null,
     };
   } catch (error) {
     console.error("Error in getAssessmentData:", error);

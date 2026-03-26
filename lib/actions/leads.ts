@@ -64,6 +64,19 @@ export async function createLead(input: LeadFormInput): Promise<ActionResult<Lea
       tags: null,
       contacted_at: null,
       converted_at: null,
+      // Assessment fields
+      assessment_data: null,
+      assessment_completed_at: null,
+      fit_score: null,
+      recommended_programs: null,
+      barriers: null,
+      support_needs: null,
+      readiness_level: null,
+      compliance_requirements: null,
+      disaster_recovery_status: null,
+      growth_projection_users: null,
+      office_count: null,
+      remote_worker_percent: null,
     };
 
     const { data, error } = await adminClient

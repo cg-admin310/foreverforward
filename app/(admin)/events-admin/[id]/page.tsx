@@ -14,9 +14,14 @@ import {
   Clock,
   CheckCircle,
   XCircle,
+  Radio,
+  UserCheck,
+  UserPlus,
+  Crown,
+  Heart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getEventById, getEventAttendees } from "@/lib/actions/events";
+import { getEventById, getEventAttendees, getLiveEventDashboard } from "@/lib/actions/events";
 import { getEventTicketTypes, getEventAddons } from "@/lib/actions/event-tickets";
 import { DeleteEventButton } from "./delete-button";
 import { TicketTypesManager } from "./ticket-types-manager";
@@ -28,11 +33,12 @@ interface PageProps {
 export default async function EventDetailPage({ params }: PageProps) {
   const { id } = await params;
 
-  const [eventResult, attendeesResult, ticketTypesResult, addonsResult] = await Promise.all([
+  const [eventResult, attendeesResult, ticketTypesResult, addonsResult, liveDashboardResult] = await Promise.all([
     getEventById(id),
     getEventAttendees(id),
     getEventTicketTypes(id),
     getEventAddons(id),
+    getLiveEventDashboard(id),
   ]);
 
   if (!eventResult.success || !eventResult.data) {
@@ -43,6 +49,14 @@ export default async function EventDetailPage({ params }: PageProps) {
   const attendees = attendeesResult.data || [];
   const ticketTypes = ticketTypesResult.data || [];
   const addons = addonsResult.data || [];
+  const liveDashboard = liveDashboardResult.data;
+
+  // Determine if event is live or upcoming
+  const now = new Date();
+  const eventStart = new Date(event.start_datetime);
+  const eventEnd = event.end_datetime ? new Date(event.end_datetime) : null;
+  const isLive = !event.is_cancelled && eventStart <= now && (!eventEnd || now < eventEnd);
+  const isUpcoming = !event.is_cancelled && eventStart > now;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -133,6 +147,23 @@ export default async function EventDetailPage({ params }: PageProps) {
           </div>
 
           <div className="flex gap-2">
+            {(isLive || isUpcoming) && (
+              <Link href={`/events-admin/${id}/attendees`}>
+                <Button size="sm" className={isLive ? "bg-green-600 hover:bg-green-700" : ""}>
+                  {isLive ? (
+                    <>
+                      <Radio className="h-4 w-4 mr-2 animate-pulse" />
+                      Live Check-In
+                    </>
+                  ) : (
+                    <>
+                      <UserCheck className="h-4 w-4 mr-2" />
+                      Check-In Mode
+                    </>
+                  )}
+                </Button>
+              </Link>
+            )}
             <Link href={`/events-admin/${id}/edit`}>
               <Button variant="outline" size="sm">
                 <Edit className="h-4 w-4 mr-2" />
@@ -296,6 +327,77 @@ export default async function EventDetailPage({ params }: PageProps) {
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Live Check-In Stats - Only show for live or recent events */}
+          {liveDashboard && (isLive || isUpcoming) && (
+            <div className={`rounded-xl border p-4 ${isLive ? "bg-green-50 border-green-200" : "bg-white border-[#DDDDDD]"}`}>
+              <div className="flex items-center gap-2 mb-4">
+                {isLive && <Radio className="h-4 w-4 text-green-600 animate-pulse" />}
+                <h3 className="font-semibold text-[#1A1A1A]">
+                  {isLive ? "Live Attendance" : "Check-In Preview"}
+                </h3>
+              </div>
+              <div className="space-y-4">
+                {/* Check-in progress */}
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-[#555555]">Checked In</span>
+                    <span className="font-semibold">
+                      {liveDashboard.checkedInCount} / {liveDashboard.totalRegistered}
+                    </span>
+                  </div>
+                  <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-green-500 rounded-full transition-all"
+                      style={{ width: `${liveDashboard.checkInRate}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-[#888888] mt-1">{liveDashboard.checkInRate}% attendance rate</p>
+                </div>
+
+                {/* Quick stats grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center p-2 bg-white rounded-lg border border-[#DDDDDD]">
+                    <p className="text-lg font-bold text-[#1A1A1A]">{liveDashboard.walkUps}</p>
+                    <p className="text-xs text-[#888888]">Walk-ups</p>
+                  </div>
+                  <div className="text-center p-2 bg-white rounded-lg border border-[#DDDDDD]">
+                    <p className="text-lg font-bold text-[#1A1A1A]">{liveDashboard.guestsCheckedIn}</p>
+                    <p className="text-xs text-[#888888]">Guests</p>
+                  </div>
+                </div>
+
+                {/* VIP & Donor badges */}
+                {(liveDashboard.vipCount > 0 || liveDashboard.donorCount > 0) && (
+                  <div className="flex gap-2 flex-wrap">
+                    {liveDashboard.vipCount > 0 && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#FBF6E9] text-[#C9A84C] text-xs font-medium rounded-full">
+                        <Crown className="h-3 w-3" />
+                        {liveDashboard.vipCount} VIP
+                      </span>
+                    )}
+                    {liveDashboard.donorCount > 0 && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-pink-50 text-pink-600 text-xs font-medium rounded-full">
+                        <Heart className="h-3 w-3" />
+                        {liveDashboard.donorCount} Donors
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {liveDashboard.spotsRemaining !== null && (
+                  <div className="pt-3 border-t border-[#DDDDDD]">
+                    <p className="text-sm">
+                      <span className="text-[#888888]">Spots remaining: </span>
+                      <span className={`font-semibold ${liveDashboard.spotsRemaining < 10 ? "text-red-600" : "text-[#1A1A1A]"}`}>
+                        {liveDashboard.spotsRemaining}
+                      </span>
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Stats */}
           <div className="bg-white rounded-xl border border-[#DDDDDD] p-4">
             <h3 className="font-semibold text-[#1A1A1A] mb-4">Event Stats</h3>

@@ -631,3 +631,719 @@ export async function getAdminEventsDisplay(): Promise<ActionResult<AdminEventDi
     return { success: false, error: "Failed to fetch events" };
   }
 }
+
+// ============================================================================
+// LIVE EVENT DASHBOARD STATS
+// ============================================================================
+
+export interface LiveEventDashboard {
+  event: Event;
+  totalRegistered: number;
+  totalTickets: number;
+  totalGuests: number;
+  checkedInCount: number;
+  guestsCheckedIn: number;
+  walkUps: number;
+  vipCount: number;
+  donorCount: number;
+  checkInRate: number;
+  spotsRemaining: number | null;
+  recentActivity: CheckInLogEntry[];
+}
+
+export interface CheckInLogEntry {
+  id: string;
+  action: string;
+  attendee_name: string;
+  method: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export async function getLiveEventDashboard(
+  eventId: string
+): Promise<ActionResult<LiveEventDashboard>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get event
+    const { data: event, error: eventError } = await supabase
+      .from("events")
+      .select("*")
+      .eq("id", eventId)
+      .single();
+
+    if (eventError || !event) {
+      return { success: false, error: "Event not found" };
+    }
+
+    // Get attendees with enhanced fields
+    const { data: attendees, error: attendeesError } = await supabase
+      .from("event_attendees")
+      .select("*")
+      .eq("event_id", eventId)
+      .neq("status", "cancelled");
+
+    if (attendeesError) {
+      console.error("Error fetching attendees:", attendeesError);
+      return { success: false, error: attendeesError.message };
+    }
+
+    // Calculate stats
+    const totalRegistered = attendees?.length || 0;
+    const totalTickets = attendees?.reduce((sum, a) => sum + (a.ticket_quantity || 1), 0) || 0;
+    const totalGuests = attendees?.reduce((sum, a) => sum + (a.guests_count || 0), 0) || 0;
+    const checkedInCount = attendees?.filter(a => a.checked_in).length || 0;
+    const guestsCheckedIn = attendees?.reduce((sum, a) => sum + (a.guests_checked_in || 0), 0) || 0;
+    const walkUps = attendees?.filter(a => a.is_walk_up).length || 0;
+    const vipCount = attendees?.filter(a => a.is_vip).length || 0;
+    const donorCount = attendees?.filter(a => a.is_donor).length || 0;
+    const checkInRate = totalRegistered > 0 ? Math.round((checkedInCount / totalRegistered) * 100) : 0;
+    const spotsRemaining = event.capacity ? Math.max(0, event.capacity - totalTickets - totalGuests) : null;
+
+    // Get recent activity log
+    const { data: logEntries, error: logError } = await supabase
+      .from("event_checkin_log")
+      .select("*, event_attendees(first_name, last_name)")
+      .eq("event_id", eventId)
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    const recentActivity: CheckInLogEntry[] = (logEntries || []).map(entry => ({
+      id: entry.id,
+      action: entry.action,
+      attendee_name: entry.event_attendees
+        ? `${entry.event_attendees.first_name} ${entry.event_attendees.last_name}`
+        : "Unknown",
+      method: entry.method,
+      notes: entry.notes,
+      created_at: entry.created_at,
+    }));
+
+    return {
+      success: true,
+      data: {
+        event,
+        totalRegistered,
+        totalTickets,
+        totalGuests,
+        checkedInCount,
+        guestsCheckedIn,
+        walkUps,
+        vipCount,
+        donorCount,
+        checkInRate,
+        spotsRemaining,
+        recentActivity,
+      },
+    };
+  } catch (error) {
+    console.error("Error in getLiveEventDashboard:", error);
+    return { success: false, error: "Failed to fetch live event data" };
+  }
+}
+
+// ============================================================================
+// CHECK-IN ATTENDEE
+// ============================================================================
+
+export async function checkInAttendee(
+  attendeeId: string,
+  options?: {
+    method?: "qr_scan" | "manual" | "pre_registered" | "walk_up";
+    checkedInBy?: string;
+    notes?: string;
+  }
+): Promise<ActionResult<EventAttendee>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    const { data, error } = await supabase
+      .from("event_attendees")
+      .update({
+        checked_in: true,
+        checked_in_at: new Date().toISOString(),
+        check_in_method: options?.method || "manual",
+        checked_in_by: options?.checkedInBy || null,
+        check_in_notes: options?.notes || null,
+      })
+      .eq("id", attendeeId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error checking in attendee:", error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath("/events-admin");
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error in checkInAttendee:", error);
+    return { success: false, error: "Failed to check in attendee" };
+  }
+}
+
+// ============================================================================
+// CHECK-OUT ATTENDEE
+// ============================================================================
+
+export async function checkOutAttendee(
+  attendeeId: string
+): Promise<ActionResult<EventAttendee>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // First get current attendee data
+    const { data: attendee, error: fetchError } = await supabase
+      .from("event_attendees")
+      .select("*, event_id")
+      .eq("id", attendeeId)
+      .single();
+
+    if (fetchError || !attendee) {
+      return { success: false, error: "Attendee not found" };
+    }
+
+    // Update attendee
+    const { data, error } = await supabase
+      .from("event_attendees")
+      .update({
+        checked_in: false,
+        checked_in_at: null,
+      })
+      .eq("id", attendeeId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error checking out attendee:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Log the checkout
+    await supabase.from("event_checkin_log").insert({
+      event_id: attendee.event_id,
+      attendee_id: attendeeId,
+      action: "check_out",
+    });
+
+    revalidatePath("/events-admin");
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error in checkOutAttendee:", error);
+    return { success: false, error: "Failed to check out attendee" };
+  }
+}
+
+// ============================================================================
+// WALK-UP REGISTRATION
+// ============================================================================
+
+export async function walkUpRegistration(
+  eventId: string,
+  data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    ticketQuantity?: number;
+    guestsCount?: number;
+    guestNames?: string[];
+    tableNumber?: string;
+    paymentMethod?: string;
+    amountPaid?: number;
+    notes?: string;
+  }
+): Promise<ActionResult<EventAttendee>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Check event exists
+    const { data: event, error: eventError } = await supabase
+      .from("events")
+      .select("*")
+      .eq("id", eventId)
+      .single();
+
+    if (eventError || !event) {
+      return { success: false, error: "Event not found" };
+    }
+
+    // Create walk-up attendee (already checked in)
+    const { data: attendee, error } = await supabase
+      .from("event_attendees")
+      .insert({
+        event_id: eventId,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        email: data.email,
+        phone: data.phone || null,
+        ticket_quantity: data.ticketQuantity || 1,
+        guests_count: data.guestsCount || 0,
+        guest_names: data.guestNames || null,
+        party_size: 1 + (data.guestsCount || 0),
+        table_number: data.tableNumber || null,
+        total_paid: data.amountPaid || 0,
+        status: "registered",
+        checked_in: true,
+        checked_in_at: new Date().toISOString(),
+        check_in_method: "walk_up",
+        is_walk_up: true,
+        registration_source: "walk_up",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating walk-up registration:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Log the walk-up registration
+    await supabase.from("event_checkin_log").insert({
+      event_id: eventId,
+      attendee_id: attendee.id,
+      action: "walk_up_register",
+      method: "walk_up",
+      metadata: {
+        guests_count: data.guestsCount || 0,
+        payment_amount: data.amountPaid || 0,
+        payment_method: data.paymentMethod || "none",
+      },
+    });
+
+    // If payment was collected, log it
+    if (data.amountPaid && data.amountPaid > 0) {
+      await supabase.from("event_checkin_log").insert({
+        event_id: eventId,
+        attendee_id: attendee.id,
+        action: "payment_received",
+        metadata: {
+          payment_amount: data.amountPaid,
+          payment_method: data.paymentMethod || "cash",
+        },
+      });
+    }
+
+    // Update tickets sold on event
+    await supabase
+      .from("events")
+      .update({
+        tickets_sold: (event.tickets_sold || 0) + (data.ticketQuantity || 1),
+      })
+      .eq("id", eventId);
+
+    revalidatePath("/events-admin");
+    return { success: true, data: attendee };
+  } catch (error) {
+    console.error("Error in walkUpRegistration:", error);
+    return { success: false, error: "Failed to register walk-up" };
+  }
+}
+
+// ============================================================================
+// CHECK-IN GUEST
+// ============================================================================
+
+export async function checkInGuest(
+  attendeeId: string,
+  guestIndex: number,
+  guestName?: string
+): Promise<ActionResult<EventAttendee>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get current attendee
+    const { data: attendee, error: fetchError } = await supabase
+      .from("event_attendees")
+      .select("*")
+      .eq("id", attendeeId)
+      .single();
+
+    if (fetchError || !attendee) {
+      return { success: false, error: "Attendee not found" };
+    }
+
+    const newGuestsCheckedIn = (attendee.guests_checked_in || 0) + 1;
+
+    // Update attendee
+    const { data, error } = await supabase
+      .from("event_attendees")
+      .update({
+        guests_checked_in: newGuestsCheckedIn,
+      })
+      .eq("id", attendeeId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error checking in guest:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Log the guest check-in
+    await supabase.from("event_checkin_log").insert({
+      event_id: attendee.event_id,
+      attendee_id: attendeeId,
+      action: "guest_check_in",
+      metadata: {
+        guest_name: guestName || `Guest ${guestIndex + 1}`,
+        guest_index: guestIndex,
+      },
+    });
+
+    revalidatePath("/events-admin");
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error in checkInGuest:", error);
+    return { success: false, error: "Failed to check in guest" };
+  }
+}
+
+// ============================================================================
+// UPDATE TABLE ASSIGNMENT
+// ============================================================================
+
+export async function updateTableAssignment(
+  attendeeId: string,
+  tableNumber: string | null,
+  seatAssignment?: string
+): Promise<ActionResult<EventAttendee>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get current attendee for logging
+    const { data: attendee, error: fetchError } = await supabase
+      .from("event_attendees")
+      .select("*, event_id, table_number")
+      .eq("id", attendeeId)
+      .single();
+
+    if (fetchError || !attendee) {
+      return { success: false, error: "Attendee not found" };
+    }
+
+    // Update attendee
+    const { data, error } = await supabase
+      .from("event_attendees")
+      .update({
+        table_number: tableNumber,
+        seat_assignment: seatAssignment || null,
+      })
+      .eq("id", attendeeId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating table assignment:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Log the table assignment change
+    if (tableNumber !== attendee.table_number) {
+      await supabase.from("event_checkin_log").insert({
+        event_id: attendee.event_id,
+        attendee_id: attendeeId,
+        action: "table_assign",
+        metadata: {
+          old_table: attendee.table_number,
+          new_table: tableNumber,
+          seat: seatAssignment,
+        },
+      });
+    }
+
+    revalidatePath("/events-admin");
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error in updateTableAssignment:", error);
+    return { success: false, error: "Failed to update table assignment" };
+  }
+}
+
+// ============================================================================
+// MARK VIP
+// ============================================================================
+
+export async function markAttendeeVIP(
+  attendeeId: string,
+  isVip: boolean
+): Promise<ActionResult<EventAttendee>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    const { data: attendee, error: fetchError } = await supabase
+      .from("event_attendees")
+      .select("*, event_id")
+      .eq("id", attendeeId)
+      .single();
+
+    if (fetchError || !attendee) {
+      return { success: false, error: "Attendee not found" };
+    }
+
+    const { data, error } = await supabase
+      .from("event_attendees")
+      .update({ is_vip: isVip })
+      .eq("id", attendeeId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating VIP status:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Log VIP upgrade
+    if (isVip && !attendee.is_vip) {
+      await supabase.from("event_checkin_log").insert({
+        event_id: attendee.event_id,
+        attendee_id: attendeeId,
+        action: "vip_upgrade",
+      });
+    }
+
+    revalidatePath("/events-admin");
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error in markAttendeeVIP:", error);
+    return { success: false, error: "Failed to update VIP status" };
+  }
+}
+
+// ============================================================================
+// PRINT BADGE
+// ============================================================================
+
+export async function markBadgePrinted(
+  attendeeId: string
+): Promise<ActionResult<EventAttendee>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    const { data, error } = await supabase
+      .from("event_attendees")
+      .update({
+        badge_printed: true,
+        badge_printed_at: new Date().toISOString(),
+      })
+      .eq("id", attendeeId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error marking badge printed:", error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath("/events-admin");
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error in markBadgePrinted:", error);
+    return { success: false, error: "Failed to mark badge printed" };
+  }
+}
+
+// ============================================================================
+// GET EVENT TABLES
+// ============================================================================
+
+export interface EventTableWithOccupancy {
+  id: string;
+  table_number: string;
+  table_name: string | null;
+  capacity: number;
+  seats_filled: number;
+  section: string | null;
+  is_vip: boolean;
+  is_reserved: boolean;
+  reserved_for: string | null;
+  is_full: boolean;
+  attendees: { id: string; name: string; is_vip: boolean }[];
+}
+
+export async function getEventTables(
+  eventId: string
+): Promise<ActionResult<EventTableWithOccupancy[]>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    // Get tables
+    const { data: tables, error: tablesError } = await supabase
+      .from("event_tables")
+      .select("*")
+      .eq("event_id", eventId)
+      .order("table_number", { ascending: true });
+
+    if (tablesError) {
+      console.error("Error fetching tables:", tablesError);
+      return { success: false, error: tablesError.message };
+    }
+
+    // Get attendees with table assignments
+    const { data: attendees, error: attendeesError } = await supabase
+      .from("event_attendees")
+      .select("id, first_name, last_name, table_number, is_vip")
+      .eq("event_id", eventId)
+      .not("table_number", "is", null)
+      .eq("checked_in", true);
+
+    if (attendeesError) {
+      console.error("Error fetching attendees:", attendeesError);
+    }
+
+    // Map attendees to tables
+    const tablesWithOccupancy: EventTableWithOccupancy[] = (tables || []).map(table => {
+      const tableAttendees = (attendees || [])
+        .filter(a => a.table_number === table.table_number)
+        .map(a => ({
+          id: a.id,
+          name: `${a.first_name} ${a.last_name}`,
+          is_vip: a.is_vip || false,
+        }));
+
+      return {
+        ...table,
+        seats_filled: tableAttendees.length,
+        is_full: tableAttendees.length >= (table.capacity || 8),
+        attendees: tableAttendees,
+      };
+    });
+
+    return { success: true, data: tablesWithOccupancy };
+  } catch (error) {
+    console.error("Error in getEventTables:", error);
+    return { success: false, error: "Failed to fetch tables" };
+  }
+}
+
+// ============================================================================
+// CREATE EVENT TABLE
+// ============================================================================
+
+export async function createEventTable(
+  eventId: string,
+  data: {
+    tableNumber: string;
+    tableName?: string;
+    capacity?: number;
+    section?: string;
+    isVip?: boolean;
+    isReserved?: boolean;
+    reservedFor?: string;
+  }
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    const { data: table, error } = await supabase
+      .from("event_tables")
+      .insert({
+        event_id: eventId,
+        table_number: data.tableNumber,
+        table_name: data.tableName || null,
+        capacity: data.capacity || 8,
+        section: data.section || null,
+        is_vip: data.isVip || false,
+        is_reserved: data.isReserved || false,
+        reserved_for: data.reservedFor || null,
+      })
+      .select("id")
+      .single();
+
+    if (error) {
+      console.error("Error creating table:", error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath("/events-admin");
+    return { success: true, data: { id: table.id } };
+  } catch (error) {
+    console.error("Error in createEventTable:", error);
+    return { success: false, error: "Failed to create table" };
+  }
+}
+
+// ============================================================================
+// GET CHECK-IN LOG
+// ============================================================================
+
+export async function getCheckInLog(
+  eventId: string,
+  options?: { limit?: number; action?: string }
+): Promise<ActionResult<CheckInLogEntry[]>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+
+    let query = supabase
+      .from("event_checkin_log")
+      .select("*, event_attendees(first_name, last_name)")
+      .eq("event_id", eventId)
+      .order("created_at", { ascending: false });
+
+    if (options?.action) {
+      query = query.eq("action", options.action);
+    }
+
+    if (options?.limit) {
+      query = query.limit(options.limit);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching check-in log:", error);
+      return { success: false, error: error.message };
+    }
+
+    const logEntries: CheckInLogEntry[] = (data || []).map(entry => ({
+      id: entry.id,
+      action: entry.action,
+      attendee_name: entry.event_attendees
+        ? `${entry.event_attendees.first_name} ${entry.event_attendees.last_name}`
+        : "Unknown",
+      method: entry.method,
+      notes: entry.notes,
+      created_at: entry.created_at,
+    }));
+
+    return { success: true, data: logEntries };
+  } catch (error) {
+    console.error("Error in getCheckInLog:", error);
+    return { success: false, error: "Failed to fetch check-in log" };
+  }
+}
+
+// ============================================================================
+// SEARCH ATTENDEES (for check-in)
+// ============================================================================
+
+export async function searchEventAttendees(
+  eventId: string,
+  query: string
+): Promise<ActionResult<EventAttendee[]>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const searchTerm = `%${query.toLowerCase()}%`;
+
+    const { data, error } = await supabase
+      .from("event_attendees")
+      .select("*")
+      .eq("event_id", eventId)
+      .neq("status", "cancelled")
+      .or(`first_name.ilike.${searchTerm},last_name.ilike.${searchTerm},email.ilike.${searchTerm}`)
+      .order("last_name", { ascending: true })
+      .limit(20);
+
+    if (error) {
+      console.error("Error searching attendees:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: data || [] };
+  } catch (error) {
+    console.error("Error in searchEventAttendees:", error);
+    return { success: false, error: "Failed to search attendees" };
+  }
+}
