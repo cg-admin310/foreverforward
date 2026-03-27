@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getParticipantWithAllData } from "@/lib/actions/participants";
+import { getCohorts } from "@/lib/actions/cohorts";
 import { ParticipantDetailClient } from "./participant-detail-client";
 
 interface PageProps {
@@ -25,6 +26,10 @@ export default async function ParticipantDetailPage({ params }: PageProps) {
     caseWorker,
   } = result.data;
 
+  // Fetch available cohorts for the participant's program
+  const cohortsResult = await getCohorts({ program: participant.program });
+  const availableCohorts = cohortsResult.success ? cohortsResult.data || [] : [];
+
   return (
     <ParticipantDetailClient
       participant={participant}
@@ -34,6 +39,7 @@ export default async function ParticipantDetailPage({ params }: PageProps) {
       travisConversations={travisConversations}
       cohort={cohort}
       caseWorker={caseWorker}
+      availableCohorts={availableCohorts}
     />
   );
 }

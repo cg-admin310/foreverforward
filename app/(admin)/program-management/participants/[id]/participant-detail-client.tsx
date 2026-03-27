@@ -49,6 +49,7 @@ interface ParticipantDetailClientProps {
   travisConversations: TravisConversation[];
   cohort: Cohort | null;
   caseWorker: User | null;
+  availableCohorts: Cohort[];
 }
 
 type TabType =
@@ -77,6 +78,7 @@ export function ParticipantDetailClient({
   travisConversations,
   cohort,
   caseWorker,
+  availableCohorts,
 }: ParticipantDetailClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [newCheckinNotes, setNewCheckinNotes] = useState("");
@@ -87,6 +89,10 @@ export function ParticipantDetailClient({
   const [checkinError, setCheckinError] = useState<string | null>(null);
   const [localCheckins, setLocalCheckins] = useState<Checkin[]>(checkins);
   const [showPathForwardEditor, setShowPathForwardEditor] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [editStatus, setEditStatus] = useState(participant.status);
+  const [editCohortId, setEditCohortId] = useState(participant.cohort_id || "none");
   const [localParticipant, setLocalParticipant] = useState<Participant>(participant);
 
   const getStatusColor = (status: string) => {
@@ -194,6 +200,48 @@ export function ParticipantDetailClient({
     setIsSubmittingCheckin(false);
   };
 
+  // Handle edit save
+  const [editError, setEditError] = useState<string | null>(null);
+
+  const handleSaveEdit = async () => {
+    setIsUpdating(true);
+    setEditError(null);
+
+    const updates: {
+      status?: "applicant" | "enrolled" | "active" | "on_hold" | "completed" | "withdrawn";
+      cohort_id?: string | null;
+      enrolled_at?: string;
+    } = {};
+
+    if (editStatus !== localParticipant.status) {
+      updates.status = editStatus as typeof updates.status;
+      if (editStatus === "enrolled" && !localParticipant.enrolled_at) {
+        updates.enrolled_at = new Date().toISOString();
+      }
+    }
+
+    if (editCohortId !== (localParticipant.cohort_id || "none")) {
+      updates.cohort_id = editCohortId === "none" ? null : editCohortId;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      setShowEditModal(false);
+      setIsUpdating(false);
+      return;
+    }
+
+    const result = await updateParticipant(localParticipant.id, updates);
+
+    if (result.success && result.data) {
+      setLocalParticipant(result.data);
+      setShowEditModal(false);
+    } else {
+      setEditError(result.error || "Failed to update participant");
+    }
+
+    setIsUpdating(false);
+  };
+
   // Get activity icon and color
   const getActivityStyle = (activityType: string) => {
     if (activityType.includes("travis") || activityType.includes("ai")) {
@@ -228,29 +276,31 @@ export function ParticipantDetailClient({
             </div>
             <div>
               <h1 className="text-2xl font-bold text-[#1A1A1A]">
-                {participant.first_name} {participant.last_name}
+                {localParticipant.first_name} {localParticipant.last_name}
               </h1>
               <div className="flex flex-wrap items-center gap-2 mt-2">
                 <span className="px-2 py-1 bg-[#FBF6E9] text-[#C9A84C] text-xs font-medium rounded-full">
-                  {programNames[participant.program] || participant.program}
+                  {programNames[localParticipant.program] || localParticipant.program}
                 </span>
-                {cohort && (
-                  <span className="text-sm text-[#555555]">{cohort.name}</span>
+                {localParticipant.cohort_id && (
+                  <span className="text-sm text-[#555555]">
+                    {availableCohorts.find(c => c.id === localParticipant.cohort_id)?.name || cohort?.name}
+                  </span>
                 )}
                 <span className="text-[#888888]">•</span>
                 <span
                   className={`inline-flex px-2 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(
-                    participant.status
+                    localParticipant.status
                   )}`}
                 >
-                  {participant.status.replace("_", " ")}
+                  {localParticipant.status.replace("_", " ")}
                 </span>
               </div>
             </div>
           </div>
 
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => setShowEditModal(true)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </Button>
@@ -583,6 +633,85 @@ export function ParticipantDetailClient({
                   onSave={handleSavePathForwardPlan}
                   onCancel={() => setShowPathForwardEditor(false)}
                 />
+              </motion.div>
+            </div>
+          )}
+
+          {/* Edit Participant Modal */}
+          {showEditModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white rounded-xl max-w-md w-full p-6"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-[#1A1A1A]">Edit Participant</h2>
+                  <button
+                    onClick={() => setShowEditModal(false)}
+                    className="p-1 rounded hover:bg-[#F5F3EF] text-[#888888]"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="edit-status">Status</Label>
+                    <Select value={editStatus} onValueChange={(value) => value && setEditStatus(value)}>
+                      <SelectTrigger id="edit-status">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="applicant">Applicant</SelectItem>
+                        <SelectItem value="enrolled">Enrolled</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="on_hold">On Hold</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="withdrawn">Withdrawn</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="edit-cohort">Cohort</Label>
+                    <Select value={editCohortId} onValueChange={(value) => value && setEditCohortId(value)}>
+                      <SelectTrigger id="edit-cohort">
+                        <SelectValue placeholder="Select a cohort" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No Cohort</SelectItem>
+                        {availableCohorts.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {editError && (
+                    <p className="text-sm text-red-600">{editError}</p>
+                  )}
+
+                  <div className="flex justify-end gap-2 pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowEditModal(false);
+                        setEditStatus(localParticipant.status);
+                        setEditCohortId(localParticipant.cohort_id || "none");
+                        setEditError(null);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSaveEdit} disabled={isUpdating}>
+                      {isUpdating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                      Save Changes
+                    </Button>
+                  </div>
+                </div>
               </motion.div>
             </div>
           )}
