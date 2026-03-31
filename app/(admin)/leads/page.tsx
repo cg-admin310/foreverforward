@@ -3,17 +3,11 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import {
   Plus,
-  Search,
-  Download,
-  MoreHorizontal,
-  Mail,
-  Phone,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getLeads, getLeadStats } from "@/lib/actions/leads";
 import { LeadsTable } from "./leads-table";
+import type { LeadType, LeadStatus } from "@/types/database";
 
 export default async function LeadsPage({
   searchParams,
@@ -36,8 +30,8 @@ export default async function LeadsPage({
   // Fetch leads and stats in parallel
   const [leadsResult, statsResult] = await Promise.all([
     getLeads({
-      type: params.type as any,
-      status: params.status as any,
+      type: params.type as LeadType | undefined,
+      status: params.status as LeadStatus | undefined,
       search: params.search,
       limit,
       offset,

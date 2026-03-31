@@ -56,7 +56,11 @@ export function QRScannerDialog({
     if (!open && streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
-      setIsScanning(false);
+    }
+    // Reset scanning state outside of direct effect
+    if (!open) {
+      const timer = setTimeout(() => setIsScanning(false), 0);
+      return () => clearTimeout(timer);
     }
   }, [open]);
 

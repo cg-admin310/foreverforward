@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getParticipants, getParticipantStats } from "@/lib/actions/participants";
 import { ParticipantsTable } from "./participants-table";
+import type { ParticipantStatus, ProgramType } from "@/types/database";
 
 export default async function ParticipantsPage({
   searchParams,
@@ -23,8 +24,8 @@ export default async function ParticipantsPage({
   // Fetch participants and stats in parallel
   const [participantsResult, statsResult] = await Promise.all([
     getParticipants({
-      program: params.program as any,
-      status: params.status as any,
+      program: params.program as ProgramType | undefined,
+      status: params.status as ParticipantStatus | undefined,
       search: params.search,
       limit,
       offset,

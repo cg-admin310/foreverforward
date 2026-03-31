@@ -571,7 +571,7 @@ export function CohortsClient({ cohorts, stats }: CohortsClientProps) {
           <DialogHeader>
             <DialogTitle>Delete Cohort</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{selectedCohort?.name}"? This action cannot be undone.
+              Are you sure you want to delete &ldquo;{selectedCohort?.name}&rdquo;? This action cannot be undone.
               {selectedCohort && selectedCohort.enrolled_count > 0 && (
                 <span className="block mt-2 text-red-600">
                   Warning: This cohort has {selectedCohort.enrolled_count} enrolled participant(s).

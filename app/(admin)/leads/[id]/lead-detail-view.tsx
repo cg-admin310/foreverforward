@@ -878,7 +878,7 @@ export function LeadDetailView({ lead, activities }: LeadDetailViewProps) {
                             <div>
                               <p className="text-xs text-[#888888] uppercase tracking-wide mb-1">6-Month Vision</p>
                               <p className="text-sm text-[#555555] bg-[#FAFAF8] p-3 rounded-lg">
-                                "{programAssessment.sixMonthVision}"
+                                &ldquo;{programAssessment.sixMonthVision}&rdquo;
                               </p>
                             </div>
                           )}
@@ -886,7 +886,7 @@ export function LeadDetailView({ lead, activities }: LeadDetailViewProps) {
                             <div>
                               <p className="text-xs text-[#888888] uppercase tracking-wide mb-1">What Brought Them Here</p>
                               <p className="text-sm text-[#555555] bg-[#FAFAF8] p-3 rounded-lg">
-                                "{programAssessment.whatBroughtYouHere}"
+                                &ldquo;{programAssessment.whatBroughtYouHere}&rdquo;
                               </p>
                             </div>
                           )}
