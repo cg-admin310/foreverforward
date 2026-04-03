@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { HomeContent } from "./home-content";
+import { HomeContentPremium } from "./home-content-premium";
 
 export const metadata: Metadata = {
   title: "Forever Forward | Empowering Fathers, Strengthening Families, Building the Future",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     url: "/",
     images: [
       {
-        url: "/images/generated/hero-father-tech.png",
+        url: "/images/authentic/fathers/father-teaching-daughter.jpg",
         width: 1200,
         height: 630,
         alt: "Forever Forward - Empowering fathers through tech education",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: "Forever Forward | Empowering Fathers, Strengthening Families",
     description:
       "Workforce development for Black fathers and youth. Enterprise IT services for nonprofits.",
-    images: ["/images/generated/hero-father-tech.png"],
+    images: ["/images/authentic/fathers/father-teaching-daughter.jpg"],
   },
   alternates: {
     canonical: "/",
@@ -49,5 +49,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <HomeContent />;
+  return <HomeContentPremium />;
 }

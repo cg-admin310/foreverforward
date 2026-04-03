@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ContactContent } from "./contact-content";
+import { ContactContentPremium } from "./contact-content-premium";
 
 export const metadata: Metadata = {
   title: "Contact Us | Get in Touch",
@@ -21,12 +21,21 @@ export const metadata: Metadata = {
       "Questions about programs, IT services, or how to get involved? We'd love to hear from you.",
     type: "website",
     url: "/contact",
+    images: [
+      {
+        url: "/images/authentic/family/family-outdoor-portrait.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Contact Forever Forward",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Contact Forever Forward",
     description:
       "Questions about programs, IT services, or how to get involved? We'd love to hear from you.",
+    images: ["/images/authentic/family/family-outdoor-portrait.jpg"],
   },
   alternates: {
     canonical: "/contact",
@@ -34,5 +43,5 @@ export const metadata: Metadata = {
 };
 
 export default function ContactPage() {
-  return <ContactContent />;
+  return <ContactContentPremium />;
 }

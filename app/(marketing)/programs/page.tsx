@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ProgramsContent } from "./programs-content";
+import { ProgramsContentPremium } from "./programs-content-premium";
 
 export const metadata: Metadata = {
   title: "Programs | Father Forward, Tech-Ready Youth & More",
@@ -26,10 +26,10 @@ export const metadata: Metadata = {
     url: "/programs",
     images: [
       {
-        url: "/images/generated/programs-training.png",
+        url: "/images/authentic/fathers/father-teaching-daughter.jpg",
         width: 1200,
         height: 630,
-        alt: "Forever Forward Programs",
+        alt: "Forever Forward Programs - Father teaching technology skills",
       },
     ],
   },
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     title: "Programs | Forever Forward",
     description:
       "Workforce development, youth training, and family programs designed to uplift our community.",
-    images: ["/images/generated/programs-training.png"],
+    images: ["/images/authentic/fathers/father-teaching-daughter.jpg"],
   },
   alternates: {
     canonical: "/programs",
@@ -46,5 +46,5 @@ export const metadata: Metadata = {
 };
 
 export default function ProgramsPage() {
-  return <ProgramsContent />;
+  return <ProgramsContentPremium />;
 }

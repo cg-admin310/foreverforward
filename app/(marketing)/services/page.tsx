@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ServicesContent } from "./services-content";
+import { ServicesContentPremium } from "./services-content-premium";
 
 export const metadata: Metadata = {
   title: "IT Services | Managed IT, Software & Low Voltage for Nonprofits",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     url: "/services",
     images: [
       {
-        url: "/images/generated/service-managed-it.png",
+        url: "/images/authentic/tech/it-professional-server-room.jpg",
         width: 1200,
         height: 630,
         alt: "Forever Forward IT Services for Nonprofits",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "IT Services for Nonprofits | Forever Forward",
     description:
       "Enterprise IT at nonprofit-friendly prices. Managed IT, software, and low voltage solutions.",
-    images: ["/images/generated/service-managed-it.png"],
+    images: ["/images/authentic/tech/it-professional-server-room.jpg"],
   },
   alternates: {
     canonical: "/services",
@@ -47,5 +47,5 @@ export const metadata: Metadata = {
 };
 
 export default function ServicesPage() {
-  return <ServicesContent />;
+  return <ServicesContentPremium />;
 }

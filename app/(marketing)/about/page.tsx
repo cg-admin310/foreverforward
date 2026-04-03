@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AboutContent } from "./about-content";
+import { AboutContentPremium } from "./about-content-premium";
 
 export const metadata: Metadata = {
   title: "About Us | Our Story, Mission & Founder",
@@ -45,5 +45,5 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
-  return <AboutContent />;
+  return <AboutContentPremium />;
 }
