@@ -48,7 +48,7 @@ const impactAreas = [
     icon: GraduationCap,
     title: "Career Forward",
     description:
-      "Twelve weeks of career training for fathers: IT & cybersecurity, plumbing & skilled trades, auto & EV mechanics. Real certifications, real paychecks.",
+      "Twelve weeks of free IT training for fathers toward their CompTIA ITF+. HVAC, auto, and the trades are coming next. Real certifications, real paychecks.",
   },
   {
     icon: Users,

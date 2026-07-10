@@ -37,7 +37,7 @@ export const PILLARS = [
     name: "Career Forward",
     headline: "Real training. Real credentials. Real careers.",
     description:
-      "Twelve weeks of career training built around real life: evenings and Saturdays, in IT and cybersecurity, plumbing and skilled trades, or auto and EV mechanics. Work that pays real money and can't be outsourced. You don't need to have it all figured out. You just need to show up. We'll figure out the rest together.",
+      "Twelve weeks of free IT training built around real life: evenings and Saturdays, toward your CompTIA ITF+ and a real career in tech. Work that pays real money and can't be outsourced. HVAC, auto, and the trades are coming next. You just need to show up. We'll figure out the rest together.",
     image: "/images/future/pillar-careers.jpg",
     href: "/programs/father-forward",
   },
@@ -100,23 +100,32 @@ export const EVENT_SERIES = [
   },
 ] as const;
 
-// Career pathways inside Career Forward (Father Forward program).
+// Career tracks inside Father Forward. IT is live; the trades are next.
 export const CAREER_PATHWAYS = [
   {
     id: "it",
     name: "IT & Cybersecurity",
+    status: "open" as const,
     detail:
-      "CompTIA ITF+ certification prep, networks, data centers, and security. A real runway from help desk to network and systems engineer.",
-  },
-  {
-    id: "trades",
-    name: "Plumbing & Skilled Trades",
-    detail: "Apprenticeship-ready fundamentals in plumbing and the building trades that keep every city running.",
+      "CompTIA ITF+ certification, networks, data centers, and security. The runway from help desk to network and systems engineer.",
   },
   {
     id: "auto",
     name: "Auto & EV Mechanics",
-    detail: "Diagnostics, repair, and the electric-vehicle skills the next generation of shops is hiring for.",
+    status: "coming" as const,
+    detail: "Diagnostics, repair, and the electric-vehicle skills every shop is racing to hire for.",
+  },
+  {
+    id: "hvac",
+    name: "HVAC & Building Systems",
+    status: "coming" as const,
+    detail: "Install and service the heating and cooling that keeps every building running.",
+  },
+  {
+    id: "trades",
+    name: "Plumbing & Skilled Trades",
+    status: "coming" as const,
+    detail: "Apprenticeship-ready fundamentals in the trades that keep every city standing.",
   },
 ] as const;
 
@@ -166,12 +175,12 @@ export const PROGRAMS = [
   {
     slug: "father-forward",
     name: "Father Forward",
-    tagline: "Pick a Path. Build a Legacy.",
+    tagline: "Your First Cert. Your Next Career.",
     audience: "fathers" as const,
     duration: "12 weeks",
     format: "Hybrid",
     description:
-      "Twelve weeks of career training built for dads: IT & cybersecurity, plumbing & skilled trades, or auto & EV mechanics. Guest speakers from the industry, leadership you can use at home, and a crew that won't let you quit on yourself.",
+      "Twelve weeks of free IT training built for dads. Earn your CompTIA ITF+, get inside a real data center, and start the climb from help desk to network engineer. HVAC, auto, and the trades are coming next.",
     icon: "💼",
   },
   {

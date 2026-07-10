@@ -4,15 +4,13 @@ import { EnrollContent } from "./enroll-content";
 export const metadata: Metadata = {
   title: "Enroll | Start Your Path Forward",
   description:
-    "Apply for Forever Forward programs: career pathways for fathers (IT & cybersecurity, skilled trades, auto & EV), Tech-Ready Youth robotics and future tech, From Script to Screen filmmaking, and Stories from My Future for kids.",
+    "Apply for Forever Forward programs: Father Forward free IT training toward your CompTIA ITF+, Tech-Ready Youth robotics and future tech, and Stories from My Future for kids.",
   keywords: [
     "enroll Father Forward",
-    "career training for fathers",
+    "free IT training for fathers",
+    "CompTIA ITF+ training Los Angeles",
     "youth robotics program apply",
-    "skilled trades training Los Angeles",
-    "EV mechanic training",
     "Los Angeles tech training",
-    "filmmaking program enrollment",
     "STEM program kids",
   ],
   openGraph: {

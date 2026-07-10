@@ -4,25 +4,23 @@ import { ProgramsContentPremium } from "./programs-content-premium";
 export const metadata: Metadata = {
   title: "Programs",
   description:
-    "Six programs. Three doors. One direction: forward. Career pathways for fathers, future tech in young hands, and family moments made on purpose, free across Greater Los Angeles.",
+    "Three programs, events all year, one direction: forward. Free IT training for fathers toward a CompTIA ITF+, future tech in young hands, and Making Moments events, across Greater Los Angeles.",
   keywords: [
     "father programs Los Angeles",
-    "career pathways for fathers",
+    "free IT training for fathers",
+    "CompTIA ITF+ training",
     "youth robotics program",
     "AI programs for kids",
     "3D printing workshops kids",
-    "skilled trades training fathers",
-    "EV mechanic training",
     "Black father programs",
-    "family STEM events Los Angeles",
-    "youth filmmaking program",
+    "family events Los Angeles",
     "Father Forward program",
     "Tech-Ready Youth",
   ],
   openGraph: {
     title: "Programs | Forever Forward",
     description:
-      "Six programs. Three doors. One direction: forward. Career pathways for fathers, future tech for youth, and family moments made on purpose.",
+      "Three programs, events all year, one direction: forward. Free IT training for fathers, future tech for youth, and Making Moments events.",
     type: "website",
     url: "/programs",
     images: [
@@ -38,7 +36,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Programs | Forever Forward",
     description:
-      "Career pathways for fathers, future tech for youth, and family moments made on purpose. Free for our community.",
+      "Free IT training for fathers, future tech for youth, and Making Moments events. Free for our community.",
     images: ["/images/future/pillar-future-tech.jpg"],
   },
   alternates: {

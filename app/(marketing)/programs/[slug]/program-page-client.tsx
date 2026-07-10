@@ -285,54 +285,97 @@ function Overview({ program }: { program: ProgramDetail }) {
 }
 
 /* ----------------------------------------------------------------------------
- * 4. Career pathways — Father Forward only
+ * 4. The track — Father Forward only (IT now, trades next)
  * ------------------------------------------------------------------------- */
 
 function CareerPathways() {
+  const openTrack = CAREER_PATHWAYS.find((p) => p.status === "open");
+  const comingTracks = CAREER_PATHWAYS.filter((p) => p.status === "coming");
+
   return (
     <section className="relative bg-[#F5F3EF] py-20 sm:py-28 overflow-hidden">
       <div className="absolute top-0 inset-x-0 h-20 bg-chevron-band opacity-60" aria-hidden />
       <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-        <Eyebrow>Three Pathways, One Brotherhood</Eyebrow>
+        <Eyebrow>The Track</Eyebrow>
         <h2 className="mt-6 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl lg:text-[2.6rem] leading-[1.12] tracking-tight max-w-2xl">
-          Pick the work that fits your hands.{" "}
+          Right now, this one&rsquo;s about{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
-            The legacy part is the same.
-          </span>
+            IT.
+          </span>{" "}
+          The trades are next.
         </h2>
 
-        <div className="mt-12 grid md:grid-cols-3 gap-5">
-          {CAREER_PATHWAYS.map((pathway, i) => (
+        <div className="mt-12 grid lg:grid-cols-2 gap-6 items-start">
+          {/* Live IT track */}
+          {openTrack && (
             <motion.div
-              key={pathway.id}
               initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10%" }}
-              transition={{ duration: 0.7, delay: i * 0.12, ease: EASE }}
-              className="group relative rounded-3xl bg-white border border-[#DDDDDD] p-6 sm:p-8 overflow-hidden hover:border-[#C9A84C]/60 hover:shadow-[0_12px_40px_rgba(201,168,76,0.15)] transition-all duration-300"
+              transition={{ duration: 0.7, ease: EASE }}
+              className="relative rounded-3xl bg-[#141413] border border-[#C9A84C]/40 p-7 sm:p-9 overflow-hidden"
             >
-              <div
-                className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] opacity-0 group-hover:opacity-100 transition-opacity"
-                aria-hidden
-              />
-              <span
-                className="font-bold text-5xl leading-none select-none"
-                style={{
-                  WebkitTextStroke: "1.5px rgba(166,138,46,0.45)",
-                  WebkitTextFillColor: "transparent",
-                }}
-                aria-hidden
-              >
-                0{i + 1}
-              </span>
-              <h3 className="mt-5 font-semibold text-[#1A1A1A] text-lg sm:text-xl">
-                {pathway.name}
+              <div className="absolute inset-0 bg-starfield opacity-40" aria-hidden />
+              <div className="relative">
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#C9A84C] text-[#1A1A1A] text-[11px] font-bold tracking-[0.18em] uppercase">
+                  <BadgeCheck className="h-3.5 w-3.5" />
+                  Enrolling Now
+                </span>
+                <h3 className="mt-5 font-semibold text-white text-2xl sm:text-3xl">
+                  {openTrack.name}
+                </h3>
+                <p className="mt-3 text-white/65 text-base leading-relaxed max-w-md">
+                  {openTrack.detail}
+                </p>
+                <p className="mt-5 inline-flex items-center gap-2 text-[#E8D48B] text-sm font-semibold">
+                  <BadgeCheck className="h-4 w-4" />
+                  You walk out with your CompTIA ITF+.
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Coming tracks + tradesman CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 0.7, delay: 0.12, ease: EASE }}
+            className="rounded-3xl bg-white border border-[#DDDDDD] p-7 sm:p-9"
+          >
+            <p className="text-xs font-semibold tracking-[0.25em] uppercase text-[#888888]">
+              Expanding Soon
+            </p>
+            <ul className="mt-4 space-y-3">
+              {comingTracks.map((track) => (
+                <li key={track.id} className="flex items-center justify-between gap-3">
+                  <span className="font-semibold text-[#1A1A1A] text-sm sm:text-base">
+                    {track.name}
+                  </span>
+                  <span className="shrink-0 rounded-full border border-[#DDDDDD] bg-[#F5F3EF] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#888888]">
+                    Coming Soon
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-6 pt-6 border-t border-[#DDDDDD]">
+              <h3 className="font-semibold text-[#1A1A1A] text-lg">
+                Know a trade? Help us build it.
               </h3>
               <p className="mt-2 text-[#555555] text-sm leading-relaxed">
-                {pathway.detail}
+                If you&rsquo;re a father who&rsquo;s mastered HVAC, auto, plumbing, or another
+                trade and you want to teach the next man up, we want to hear from you.
               </p>
-            </motion.div>
-          ))}
+              <Link
+                href="/contact"
+                className="mt-4 group inline-flex items-center gap-2 font-semibold text-[#5A7247] hover:text-[#3D5030] transition-colors"
+              >
+                Reach out to us
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>

@@ -6,15 +6,10 @@
  * three doors (pillars): Career Forward, Future Builders, Making Moments.
  */
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  AnimatePresence,
-} from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -33,7 +28,6 @@ import { cn } from "@/lib/utils";
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 type Program = (typeof PROGRAMS)[number];
-type PathwayId = (typeof CAREER_PATHWAYS)[number]["id"];
 
 const programsBySlug = new Map(PROGRAMS.map((p) => [p.slug, p]));
 
@@ -53,21 +47,6 @@ const PROGRAM_IMAGES: Record<string, { src: string; alt: string }> = {
   "stories-from-my-future": {
     src: "/images/future/program-3dprint-kids.jpg",
     alt: "A girl and her father watching her design come to life on a 3D printer",
-  },
-};
-
-const PATHWAY_IMAGES: Record<PathwayId, { src: string; alt: string }> = {
-  it: {
-    src: "/images/future/program-it-pathway.jpg",
-    alt: "A father in IT training, hands-on with networks and hardware",
-  },
-  trades: {
-    src: "/images/future/program-trades-pathway.jpg",
-    alt: "A father learning EV and skilled-trade work in a modern shop",
-  },
-  auto: {
-    src: "/images/future/pillar-careers.jpg",
-    alt: "A father stepping into a hands-on career pathway",
   },
 };
 
@@ -125,7 +104,7 @@ const DOORS = [
     number: "01",
     name: "Career Forward",
     kicker: "For Fathers",
-    line: "Three career pathways. One flagship program.",
+    line: "Free IT training toward your CompTIA ITF+.",
     href: "#career-forward",
     icon: Users,
   },
@@ -239,9 +218,9 @@ function ProgramsHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.7, ease: EASE }}
         >
-          Career pathways for fathers. Future tech in young hands. Family moments made
-          on purpose. Every program is a different door into the same house. Pick
-          yours and step through.
+          IT training for fathers. Future tech in young hands. Events all year for
+          the whole family. Every door leads to the same house. Pick yours and step
+          through.
         </motion.p>
 
         {/* Door index */}
@@ -281,11 +260,9 @@ function ProgramsHero() {
  * ------------------------------------------------------------------------- */
 
 function CareerForwardSection() {
-  const [activePathway, setActivePathway] = useState<PathwayId>("it");
   const fatherForward = programsBySlug.get("father-forward");
-  const activeImage = PATHWAY_IMAGES[activePathway];
-  const activeDetail =
-    CAREER_PATHWAYS.find((p) => p.id === activePathway) ?? CAREER_PATHWAYS[0];
+  const openTrack = CAREER_PATHWAYS.find((p) => p.status === "open");
+  const comingTracks = CAREER_PATHWAYS.filter((p) => p.status === "coming");
 
   if (!fatherForward) return null;
 
@@ -316,7 +293,7 @@ function CareerForwardSection() {
         </div>
 
         <div className="mt-12 sm:mt-16 grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
-          {/* Copy + pathway selector */}
+          {/* Copy */}
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -331,7 +308,7 @@ function CareerForwardSection() {
             <h3 className="mt-5 font-semibold text-[#1A1A1A] text-2xl sm:text-3xl lg:text-4xl leading-tight tracking-tight">
               Father Forward:{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
-                pick a path, build a legacy.
+                get IT certified, get to work.
               </span>
             </h3>
             <p className="mt-5 text-[#555555] text-base sm:text-lg leading-relaxed">
@@ -353,68 +330,54 @@ function CareerForwardSection() {
               </MetaChip>
             </div>
 
-            {/* Pathway selector */}
-            <p className="mt-8 text-xs font-semibold tracking-[0.25em] uppercase text-[#888888]">
-              Choose your pathway
+            {/* Live track */}
+            {openTrack && (
+              <div className="mt-8 rounded-2xl border border-[#C9A84C] bg-[#FBF6E9] p-5">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C9A84C] text-[#1A1A1A] px-2.5 py-1 text-[10px] font-bold tracking-[0.15em] uppercase">
+                    Enrolling Now
+                  </span>
+                  <span className="font-semibold text-[#1A1A1A]">{openTrack.name}</span>
+                </div>
+                <p className="mt-2 text-[#555555] text-sm leading-relaxed">
+                  {openTrack.detail}
+                </p>
+              </div>
+            )}
+
+            {/* Expanding soon */}
+            <p className="mt-6 text-xs font-semibold tracking-[0.25em] uppercase text-[#888888]">
+              Expanding soon
             </p>
-            <div className="mt-3 space-y-2.5">
-              {CAREER_PATHWAYS.map((pathway, i) => {
-                const isActive = pathway.id === activePathway;
-                return (
-                  <button
-                    key={pathway.id}
-                    type="button"
-                    onClick={() => setActivePathway(pathway.id)}
-                    onMouseEnter={() => setActivePathway(pathway.id)}
-                    onFocus={() => setActivePathway(pathway.id)}
-                    className={cn(
-                      "w-full text-left rounded-2xl border p-4 sm:p-5 transition-all duration-300",
-                      isActive
-                        ? "border-[#C9A84C] bg-[#FBF6E9] shadow-[0_8px_30px_rgba(201,168,76,0.18)]"
-                        : "border-[#DDDDDD] bg-white/70 hover:border-[#C9A84C]/50"
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={cn(
-                          "font-bold text-lg tabular-nums transition-colors",
-                          isActive ? "text-[#A68A2E]" : "text-[#DDDDDD]"
-                        )}
-                      >
-                        0{i + 1}
-                      </span>
-                      <span className="font-semibold text-[#1A1A1A] text-sm sm:text-base">
-                        {pathway.name}
-                      </span>
-                    </div>
-                    <AnimatePresence initial={false}>
-                      {isActive && (
-                        <motion.p
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3, ease: EASE }}
-                          className="text-[#555555] text-xs sm:text-sm mt-2 pl-8 overflow-hidden"
-                        >
-                          {pathway.detail}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
-                  </button>
-                );
-              })}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {comingTracks.map((track) => (
+                <span
+                  key={track.id}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#DDDDDD] bg-white/70 px-3 py-1.5 text-xs font-medium text-[#555555]"
+                >
+                  {track.name}
+                </span>
+              ))}
             </div>
 
-            <Link
-              href="/programs/father-forward"
-              className="mt-8 group inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] text-[#1A1A1A] font-semibold shadow-[0_0_30px_rgba(201,168,76,0.2)] hover:shadow-[0_0_50px_rgba(201,168,76,0.4)] transition-shadow"
-            >
-              Explore Father Forward
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
+              <Link
+                href="/programs/father-forward"
+                className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] text-[#1A1A1A] font-semibold shadow-[0_0_30px_rgba(201,168,76,0.2)] hover:shadow-[0_0_50px_rgba(201,168,76,0.4)] transition-shadow"
+              >
+                Explore Father Forward
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                href="/contact"
+                className="text-sm font-semibold text-[#5A7247] hover:text-[#3D5030] transition-colors"
+              >
+                Know a trade? Help us build it.
+              </Link>
+            </div>
           </motion.div>
 
-          {/* Image — swaps with pathway */}
+          {/* Image */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -423,50 +386,30 @@ function CareerForwardSection() {
             className="lg:col-span-7 lg:sticky lg:top-28"
           >
             <div className="grain-overlay relative aspect-[3/2] rounded-3xl overflow-hidden border border-[#DDDDDD] shadow-xl">
-              <AnimatePresence mode="popLayout" initial={false}>
-                <motion.div
-                  key={activePathway}
-                  initial={{ opacity: 0, scale: 1.04 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6, ease: EASE }}
-                  className="absolute inset-0"
-                >
-                  <Image
-                    src={activeImage.src}
-                    alt={activeImage.alt}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 58vw"
-                    className="object-cover"
-                  />
-                </motion.div>
-              </AnimatePresence>
+              <Image
+                src="/images/future/program-it-pathway.jpg"
+                alt="A father in IT training, hands-on with networks and hardware"
+                fill
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                className="object-cover"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-[#141413]/75 via-transparent to-transparent" />
               <div className="absolute inset-x-0 top-0 h-1/3 pointer-events-none overflow-hidden opacity-30">
                 <div className="holo-sweep absolute inset-x-0 h-20 bg-gradient-to-b from-transparent via-[#E8D48B]/25 to-transparent" />
               </div>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activePathway}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.35, ease: EASE }}
-                  className="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7 sm:right-7"
-                >
-                  <p className="text-[#E8D48B] text-xs font-semibold tracking-[0.25em] uppercase">
-                    {activeDetail.name}
-                  </p>
-                  <p className="text-white text-lg sm:text-2xl font-semibold mt-1 max-w-lg">
-                    {activeDetail.detail}
-                  </p>
-                </motion.div>
-              </AnimatePresence>
+              <div className="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7 sm:right-7">
+                <p className="text-[#E8D48B] text-xs font-semibold tracking-[0.25em] uppercase">
+                  IT &amp; Cybersecurity
+                </p>
+                <p className="text-white text-lg sm:text-2xl font-semibold mt-1 max-w-lg">
+                  From your CompTIA ITF+ to network engineer.
+                </p>
+              </div>
             </div>
             <p className="mt-4 text-[#888888] text-sm flex items-center gap-2">
               <Compass className="h-4 w-4 text-[#A68A2E] shrink-0" />
-              Whichever path you pick, the leadership thread of goals, family, and
-              finances travels with you. So does Travis, your 24/7 AI mentor.
+              The leadership thread of goals, family, and finances runs through all
+              twelve weeks. So does Travis, your 24/7 AI mentor.
             </p>
           </motion.div>
         </div>
