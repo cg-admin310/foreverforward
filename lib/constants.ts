@@ -23,10 +23,10 @@ export const BRAND_COLORS = {
 export const MISSION = {
   headline: "The future belongs to our families.",
   statement:
-    "We're a crew of dads, builders, and believers putting tomorrow's technology in the hands of Black and brown communities. AI, robotics, 3D printing, satellites, even rockets. The kind of exposure that turns a first \"whoa\" into careers, confidence, and legacy. We're not chasing perfect. We're chasing forward.",
+    "Forever Forward introduces Black and brown communities to the technology shaping tomorrow, from AI and robotics to 3D printing and beyond, and turns that first spark into careers, confidence, and legacy.",
   founderNote:
     "I'm a Black father, born in Compton in the late 1900s. I started with what I knew and built forward from there.",
-  mantra: "Progress over perfection. Every single week.",
+  mantra: "Progress over perfection.",
 } as const;
 
 // The three pillars everything on the site rolls up to.
@@ -134,32 +134,38 @@ export const FUTURE_TECH = [
   {
     id: "ai",
     name: "AI & Machine Learning",
-    line: "Not just using it. Directing it.",
+    line: "Command it. Don't just scroll past it.",
+    field: "Intelligence",
   },
   {
     id: "robotics",
     name: "Robotics",
-    line: "Build it. Code it. Race it.",
+    line: "Code that gets up and moves.",
+    field: "Machines",
   },
   {
     id: "printing",
     name: "3D Printing",
-    line: "From \"what if\" to \"in your hand\" in an afternoon.",
+    line: "An idea you can hold by dinnertime.",
+    field: "Fabrication",
   },
   {
     id: "orbit",
     name: "Rockets & Low Earth Orbit",
-    line: "Satellites overhead, tracked from our own rooftops.",
+    line: "The internet lives overhead now. We watch it pass.",
+    field: "Space",
   },
   {
     id: "blockchain",
     name: "Blockchain",
-    line: "The rails tomorrow's money and records run on.",
+    line: "Ownership with receipts. Rails for what's next.",
+    field: "Trust",
   },
   {
     id: "energy",
     name: "Renewable Energy",
-    line: "The power of the future, and the paychecks that come with it.",
+    line: "The grid is changing. So are the paychecks.",
+    field: "Power",
   },
 ] as const;
 
@@ -181,7 +187,7 @@ export const PROGRAMS = [
     format: "Hybrid",
     description:
       "Twelve weeks of free IT training built for dads. Earn your CompTIA ITF+, get inside a real data center, and start the climb from help desk to network engineer. HVAC, auto, and the trades are coming next.",
-    icon: "💼",
+    icon: "briefcase",
   },
   {
     slug: "tech-ready-youth",
@@ -192,7 +198,7 @@ export const PROGRAMS = [
     format: "Hybrid",
     description:
       "Robots, AI, and real hardware for ages 16+. Eight weeks of building things that actually work, capped off with a gaming tournament they run themselves.",
-    icon: "🤖",
+    icon: "robot",
   },
   {
     slug: "stories-from-my-future",
@@ -203,7 +209,7 @@ export const PROGRAMS = [
     format: "In-person",
     description:
       "Kids write the story of their future self, illustrate it with AI, publish it as a real book, and 3D-print a piece of that future to take home. Published author by dinnertime.",
-    icon: "✨",
+    icon: "spark",
   },
 ];
 

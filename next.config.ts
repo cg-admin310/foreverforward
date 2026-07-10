@@ -36,6 +36,17 @@ const nextConfig: NextConfig = {
         destination: "/programs",
         permanent: true,
       },
+      // Blog retired July 2026 — Making Moments carries the community story now.
+      {
+        source: "/blog",
+        destination: "/events",
+        permanent: true,
+      },
+      {
+        source: "/blog/:path*",
+        destination: "/events",
+        permanent: true,
+      },
     ];
   },
 };

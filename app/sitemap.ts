@@ -14,7 +14,6 @@ const staticRoutes = [
   "/events/movies-on-the-menu",
   "/events/off-the-clock",
   "/events/family-takeovers",
-  "/blog",
   "/contact",
   "/privacy",
   "/get-involved/donate",
@@ -28,16 +27,6 @@ const programSlugs = [
   "father-forward",
   "tech-ready-youth",
   "stories-from-my-future",
-];
-
-// Blog categories
-const blogCategories = [
-  "fatherhood",
-  "tech-careers",
-  "family",
-  "future-tech",
-  "community",
-  "ai-innovation",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -59,36 +48,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // Blog category pages
-  const categoryPages: MetadataRoute.Sitemap = blogCategories.map((cat) => ({
-    url: `${baseUrl}/blog/categories/${cat}`,
-    lastModified: now,
-    changeFrequency: "weekly" as ChangeFrequency,
-    priority: 0.6,
-  }));
-
-  // TODO: In production, fetch blog posts from Supabase
-  // For now, including sample blog post URLs
-  const blogPostSlugs = [
-    "when-kids-meet-robots-everything-changes",
-    "three-career-pathways-for-fathers",
-    "movies-on-the-menu-bringing-families-together",
-    "tracking-satellites-from-south-la",
-    "a-fathers-journey-from-enrollment-to-certification",
-    "nonprofits-joining-forces-on-technology",
-  ];
-
-  const blogPostPages: MetadataRoute.Sitemap = blogPostSlugs.map((slug) => ({
-    url: `${baseUrl}/blog/${slug}`,
-    lastModified: now,
-    changeFrequency: "monthly" as ChangeFrequency,
-    priority: 0.7,
-  }));
-
-  return [
-    ...staticPages,
-    ...programPages,
-    ...categoryPages,
-    ...blogPostPages,
-  ];
+  return [...staticPages, ...programPages];
 }

@@ -23,6 +23,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { CAREER_PATHWAYS } from "@/lib/constants";
+import { FFIcon, isFFIconName } from "@/components/shared/ff-icons";
 import type { ProgramDetail, ProgramAudience } from "@/lib/data/programs";
 import { cn } from "@/lib/utils";
 
@@ -519,8 +520,12 @@ function Deliverables({ program }: { program: ProgramDetail }) {
                 className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] opacity-0 group-hover:opacity-100 transition-opacity"
                 aria-hidden
               />
-              <span className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#FBF6E9] border border-[#C9A84C]/30 text-2xl">
-                {item.icon}
+              <span className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#FBF6E9] border border-[#C9A84C]/30 text-[#A68A2E]">
+                {isFFIconName(item.icon) ? (
+                  <FFIcon name={item.icon} className="h-6 w-6" />
+                ) : (
+                  <FFIcon name="spark" className="h-6 w-6" />
+                )}
               </span>
               <h3 className="mt-4 font-semibold text-[#1A1A1A] text-base sm:text-lg leading-snug">
                 {item.title}

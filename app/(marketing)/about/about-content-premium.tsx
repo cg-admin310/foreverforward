@@ -252,33 +252,29 @@ function AboutHero() {
 }
 
 /* ----------------------------------------------------------------------------
- * 2. Founder — Compton, data centers, and building forward
+ * 2. What we believe — exposure changes everything
  * ------------------------------------------------------------------------- */
 
-const FOUNDER_BEATS = [
+const BELIEFS = [
   {
-    kicker: "Where it started",
-    text: "Compton. Not the wild west the shows make it out to be, just a real neighborhood that mostly gets shown one version of itself.",
+    kicker: "Exposure first",
+    text: "You can't want a career you've never seen. So we put the real thing in front of people: the robot, the data center, the printer mid-print.",
   },
   {
-    kicker: "What the men in his life gave him",
-    text: "TJ grew up around men who each saw the world their own way: the nerdy one, the cool one, the hustler, the craftsman. The more you get to see, the more you find out about who you are.",
+    kicker: "Careers change households",
+    text: "One credential can move a whole family. That's why career training for fathers sits at the center of everything we run.",
   },
   {
-    kicker: "What he built",
-    text: "Data centers, the actual rooms the internet lives in. A career he didn't know existed until somebody showed him.",
+    kicker: "Every perspective counts",
+    text: "No community is a monolith. The more viewpoints in the room, the fuller the picture, and the further everyone sees.",
   },
   {
-    kicker: "What he noticed",
-    text: "Every neighborhood has a kid who would love being a herpetologist, or a satellite engineer, and they'll never find out. Not because they can't, but because nobody ever showed them it was an option.",
-  },
-  {
-    kicker: "What he did about it",
-    text: "Founded Forever Forward, a 501(c)(3), in 2023 to show people what's out there. No grand master plan, just consistent growth and progress over perfection.",
+    kicker: "Options create hope",
+    text: "Somewhere nearby is a future satellite engineer who doesn't know it yet. Our job is the introduction.",
   },
 ];
 
-function FounderSection() {
+function BeliefsSection() {
   return (
     <section className="relative bg-[#FAFAF8] py-24 sm:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-mesh" aria-hidden />
@@ -286,12 +282,12 @@ function FounderSection() {
         <div className="flex items-end gap-5">
           <SectionNumber n="01" />
           <div className="pb-1.5">
-            <Eyebrow>The Founder</Eyebrow>
+            <Eyebrow>What We Believe</Eyebrow>
           </div>
         </div>
 
         <div className="mt-10 grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-          {/* Portrait */}
+          {/* Visual */}
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -301,21 +297,21 @@ function FounderSection() {
           >
             <div className="grain-overlay image-zoom relative aspect-[3/4] rounded-3xl overflow-hidden shadow-xl">
               <Image
-                src="/images/brand/founderpic.jpg"
-                alt="Thomas 'TJ' Wilform, Founder and CEO of Forever Forward"
+                src="/images/future/program-satellite-kids.jpg"
+                alt="A father and son on a rooftop at twilight, tracking satellites together"
                 fill
                 sizes="(max-width: 1024px) 100vw, 40vw"
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/70 via-transparent to-transparent" />
               <div className="absolute bottom-5 left-5 right-5">
-                <p className="text-white font-semibold text-xl">Thomas &ldquo;TJ&rdquo; Wilform</p>
-                <p className="text-[#E8D48B] text-sm">Founder &amp; CEO · Father · Compton-raised</p>
+                <p className="text-white font-semibold text-xl">The introduction is the mission.</p>
+                <p className="text-[#E8D48B] text-sm">Everything else follows from it.</p>
               </div>
             </div>
           </motion.div>
 
-          {/* Story */}
+          {/* Beliefs */}
           <div className="lg:col-span-7">
             <motion.h2
               initial={{ opacity: 0, y: 24 }}
@@ -324,11 +320,14 @@ function FounderSection() {
               transition={{ duration: 0.8, ease: EASE }}
               className="font-semibold text-[#1A1A1A] text-3xl sm:text-4xl lg:text-[2.9rem] leading-[1.12] tracking-tight"
             >
-              &ldquo;{MISSION.founderNote}&rdquo;
+              You can&rsquo;t dream about{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
+                what you&rsquo;ve never seen.
+              </span>
             </motion.h2>
 
             <div className="mt-10 space-y-0">
-              {FOUNDER_BEATS.map((beat, i) => (
+              {BELIEFS.map((beat, i) => (
                 <motion.div
                   key={beat.kicker}
                   initial={{ opacity: 0, x: 24 }}
@@ -347,18 +346,6 @@ function FounderSection() {
                 </motion.div>
               ))}
             </div>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-10%" }}
-              transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
-              className="mt-10 text-[#1A1A1A] text-lg sm:text-xl leading-relaxed font-medium max-w-xl"
-            >
-              TJ has lived the story of the fathers in our programs, so everything
-              starts from respect, never rescue. We don&rsquo;t have it all figured
-              out, and that&rsquo;s kind of the point: we figure it out together.
-            </motion.p>
           </div>
         </div>
       </div>
@@ -962,6 +949,48 @@ function ClosingCTA() {
 }
 
 /* ----------------------------------------------------------------------------
+ * 7. Founder — a small note, mission first
+ * ------------------------------------------------------------------------- */
+
+function FounderBlurb() {
+  return (
+    <section className="relative bg-[#F5F3EF] py-16 sm:py-20 overflow-hidden">
+      <div className="absolute top-0 inset-x-0 h-16 bg-chevron-band opacity-50" aria-hidden />
+      <div className="relative max-w-4xl mx-auto px-5 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-10%" }}
+          transition={{ duration: 0.8, ease: EASE }}
+          className="flex flex-col sm:flex-row items-start sm:items-center gap-6 rounded-3xl bg-white border border-[#DDDDDD] p-7 sm:p-9"
+        >
+          <div className="shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden ring-2 ring-[#C9A84C] ring-offset-4 ring-offset-white">
+            <Image
+              src="/images/brand/founderpic.jpg"
+              alt="Thomas 'TJ' Wilform, Founder and CEO of Forever Forward"
+              width={96}
+              height={96}
+              className="object-cover w-full h-full"
+            />
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[#A68A2E]">
+              Our Founder
+            </p>
+            <p className="mt-2 text-[#555555] text-base sm:text-lg leading-relaxed">
+              Forever Forward was founded in 2023 by Thomas &ldquo;TJ&rdquo; Wilform, a
+              father and data center engineer who saw how one introduction to
+              technology can redirect a whole life. The organization has been making
+              those introductions ever since.
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------------------
  * Page
  * ------------------------------------------------------------------------- */
 
@@ -969,12 +998,13 @@ export function AboutContentPremium() {
   return (
     <>
       <AboutHero />
-      <FounderSection />
+      <BeliefsSection />
       <PillarsSection />
       <TechStrip />
       <StrongerTogether />
       <ValuesSection />
       <TimelineAndGoals />
+      <FounderBlurb />
       <ClosingCTA />
     </>
   );

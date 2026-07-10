@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SectionHeading } from "@/components/shared/section-heading";
+import { FFIcon, isFFIconName } from "@/components/shared/ff-icons";
 import { PROGRAMS } from "@/lib/constants";
 import { submitProgramAssessment } from "@/lib/actions/lead-routing";
 import type {
@@ -1176,7 +1177,12 @@ export default function AssessPage() {
                               <div className="flex items-start justify-between mb-3">
                                 <div>
                                   <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-2xl">{program.icon}</span>
+                                    {isFFIconName(program.icon) && (
+                                      <FFIcon
+                                        name={program.icon}
+                                        className="h-6 w-6 text-[#A68A2E]"
+                                      />
+                                    )}
                                     <h3 className="text-lg font-semibold text-[#1A1A1A]">
                                       {program.name}
                                     </h3>

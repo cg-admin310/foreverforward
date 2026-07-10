@@ -232,9 +232,9 @@ export function ContactContentPremium() {
             >
               <div className="text-[#C9A84C] text-3xl font-serif mb-2">&ldquo;</div>
               <p className="text-[#1A1A1A] font-medium text-sm leading-relaxed">
-                Every message gets read by a real person. Usually me.
+                Every message reaches a real person on our team.
               </p>
-              <p className="text-[#888888] text-xs mt-3">TJ Wilform, Founder</p>
+              <p className="text-[#888888] text-xs mt-3">The Forever Forward Team</p>
             </motion.div>
           </div>
         </div>

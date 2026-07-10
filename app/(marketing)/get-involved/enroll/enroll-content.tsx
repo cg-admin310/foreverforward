@@ -1,30 +1,41 @@
 "use client";
 
+/**
+ * Enroll — the front door to every program.
+ * Observatory design language around an untouched enrollment flow:
+ * the three-step state machine, validation, routeFormSubmission and
+ * createParticipant server actions are preserved exactly.
+ */
+
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  GraduationCap,
-  User,
-  Phone,
-  Mail,
-  MapPin,
-  Calendar,
-  Briefcase,
-  Users,
-  CheckCircle2,
-  ArrowRight,
-  ArrowLeft,
-  Rocket,
-} from "lucide-react";
+import { ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SectionHeading } from "@/components/shared/section-heading";
 import { Badge } from "@/components/shared/badge";
+import { FFIcon, isFFIconName, type FFIconName } from "@/components/shared/ff-icons";
 import { PROGRAMS } from "@/lib/constants";
 import { routeFormSubmission } from "@/lib/actions/lead-routing";
 import { createParticipant } from "@/lib/actions/participants";
 import type { ProgramType } from "@/types/database";
+import { cn } from "@/lib/utils";
+
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+function Eyebrow({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
+  return (
+    <div
+      className={cn(
+        "inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-[0.28em] uppercase",
+        light ? "text-[#C9A84C]" : "text-[#A68A2E]"
+      )}
+    >
+      <span className="inline-block h-px w-8 bg-current opacity-60" />
+      {children}
+    </div>
+  );
+}
 
 type FormStep = "program" | "details" | "confirmation";
 
@@ -89,6 +100,53 @@ const enrollablePrograms = PROGRAMS.filter(
     p.slug === "tech-ready-youth" ||
     p.slug === "stories-from-my-future"
 );
+
+const STEPS: { key: FormStep; label: string }[] = [
+  { key: "program", label: "Pick Your Program" },
+  { key: "details", label: "Tell Us About You" },
+  { key: "confirmation", label: "You're In Motion" },
+];
+
+const NEXT_STEPS: { icon: FFIconName; title: string; text: string }[] = [
+  {
+    icon: "route",
+    title: "You apply",
+    text: "Five minutes, no essays, no fees. Done from your phone.",
+  },
+  {
+    icon: "crew",
+    title: "We call",
+    text: "A real team member reads every word and reaches out within a week.",
+  },
+  {
+    icon: "rocket",
+    title: "You start",
+    text: "We handle the details together. You show up ready to build.",
+  },
+];
+
+/** Section card wrapper for the details form. */
+function FormSection({
+  icon,
+  title,
+  children,
+}: {
+  icon: FFIconName;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[#DDDDDD]">
+      <h3 className="flex items-center gap-3 text-lg font-semibold text-[#1A1A1A] mb-6">
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#C9A84C]/10 border border-[#C9A84C]/30 text-[#A68A2E]">
+          <FFIcon name={icon} className="h-5 w-5" />
+        </span>
+        {title}
+      </h3>
+      {children}
+    </div>
+  );
+}
 
 export function EnrollContent() {
   const [step, setStep] = useState<FormStep>("program");
@@ -191,92 +249,113 @@ export function EnrollContent() {
 
   const isFatherProgram = formData.program === "father-forward";
 
+  const stepIndex = STEPS.findIndex((s) => s.key === step);
+
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 bg-[#141413] overflow-hidden">
+      {/* Hero — the launch pad */}
+      <section className="relative py-24 lg:py-32 bg-[#141413] overflow-hidden">
         <div className="absolute inset-0 bg-starfield bg-starfield-twinkle" aria-hidden />
+        <div className="absolute inset-0 bg-blueprint opacity-30" aria-hidden />
         <div
           className="aurora-blob absolute -top-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-[#C9A84C]/12"
           aria-hidden
         />
+        <div
+          className="aurora-blob absolute -bottom-40 -left-24 w-[26rem] h-[26rem] rounded-full bg-[#5A7247]/15"
+          style={{ animationDelay: "-8s" }}
+          aria-hidden
+        />
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8, ease: EASE }}
           >
-            <span className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-[0.28em] uppercase text-[#C9A84C] mb-6">
-              <span className="inline-block h-px w-8 bg-current opacity-60" />
-              <GraduationCap className="h-4 w-4" />
-              Program Enrollment
-              <span className="inline-block h-px w-8 bg-current opacity-60" />
-            </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-              Your Path Forward{" "}
+            <div className="flex justify-center">
+              <Eyebrow light>
+                Program Enrollment
+                <span className="inline-block h-px w-8 bg-current opacity-60" />
+              </Eyebrow>
+            </div>
+            <h1 className="mt-5 text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight">
+              Your path forward{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] via-[#E8D48B] to-[#C9A84C]">
-                Starts Here
+                starts here.
               </span>
             </h1>
-            <p className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto">
-              Career pathways for fathers, future tech for kids and youth, free
-              for qualifying participants. It costs nothing but the decision.
+            <p className="mt-6 text-lg sm:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
+              Pick a program, tell us about you, and we take it from there.
             </p>
+            <div className="mt-7 flex flex-wrap justify-center items-center gap-x-5 gap-y-2 text-sm text-white/55">
+              {[
+                "Free for qualifying participants",
+                "Real humans review every application",
+              ].map((chip) => (
+                <span key={chip} className="inline-flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-[#C9A84C]" aria-hidden />
+                  {chip}
+                </span>
+              ))}
+            </div>
           </motion.div>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#C9A84C]" />
       </section>
 
-      {/* Progress Steps */}
+      {/* Step indicator — gold progress */}
       <section className="py-8 bg-white border-b border-[#DDDDDD]">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center gap-4">
-            {[
-              { key: "program", label: "Select Program", num: 1 },
-              { key: "details", label: "Your Details", num: 2 },
-              { key: "confirmation", label: "Confirmation", num: 3 },
-            ].map((s, index) => (
-              <div key={s.key} className="flex items-center">
-                <div
-                  className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold transition-colors ${
-                    step === s.key
-                      ? "bg-[#C9A84C] text-[#1A1A1A]"
-                      : step === "confirmation" ||
-                        (step === "details" && s.key === "program")
-                      ? "bg-[#5A7247] text-white"
-                      : "bg-[#DDDDDD] text-[#888888]"
-                  }`}
-                >
-                  {step === "confirmation" ||
-                  (step === "details" && s.key === "program") ? (
-                    <CheckCircle2 className="h-4 w-4" />
-                  ) : (
-                    s.num
+        <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center">
+            {STEPS.map((s, index) => {
+              const done = index < stepIndex;
+              const active = index === stepIndex;
+              return (
+                <div key={s.key} className={cn("flex items-center", index < 2 && "flex-1 sm:flex-initial")}>
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className={cn(
+                        "flex items-center justify-center w-9 h-9 rounded-full text-sm font-semibold transition-all",
+                        active &&
+                          "bg-[#C9A84C] text-[#1A1A1A] shadow-[0_0_20px_rgba(201,168,76,0.4)]",
+                        done && "bg-[#5A7247] text-white",
+                        !active && !done &&
+                          "bg-transparent border-2 border-[#DDDDDD] text-[#888888]"
+                      )}
+                    >
+                      {done ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
+                    </div>
+                    <span
+                      className={cn(
+                        "text-sm hidden sm:inline whitespace-nowrap",
+                        active ? "text-[#1A1A1A] font-semibold" : "text-[#888888]"
+                      )}
+                    >
+                      {s.label}
+                    </span>
+                  </div>
+                  {index < 2 && (
+                    <div className="relative flex-1 sm:w-14 lg:w-20 h-0.5 mx-3 sm:mx-4 bg-[#DDDDDD] overflow-hidden rounded-full">
+                      <div
+                        className={cn(
+                          "absolute inset-y-0 left-0 bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] transition-all duration-500",
+                          index < stepIndex ? "w-full" : "w-0"
+                        )}
+                      />
+                    </div>
                   )}
                 </div>
-                <span
-                  className={`ml-2 text-sm hidden sm:inline ${
-                    step === s.key
-                      ? "text-[#1A1A1A] font-medium"
-                      : "text-[#888888]"
-                  }`}
-                >
-                  {s.label}
-                </span>
-                {index < 2 && (
-                  <div className="w-8 sm:w-16 h-0.5 bg-[#DDDDDD] mx-4" />
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* Form Content */}
       <section className="py-16 lg:py-24 bg-[#FAFAF8]">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8">
           <AnimatePresence mode="wait">
             {/* Step 1: Program Selection */}
             {step === "program" && (
@@ -286,56 +365,82 @@ export function EnrollContent() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
               >
-                <SectionHeading
-                  title="Choose Your Door"
-                  subtitle="Career training for fathers, future tech for kids and youth. Pick the one that fits. You can't get this wrong."
-                  centered
-                />
+                <div className="text-center">
+                  <div className="flex justify-center">
+                    <Eyebrow>Step One</Eyebrow>
+                  </div>
+                  <h2 className="mt-4 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl tracking-tight">
+                    Choose your door.
+                  </h2>
+                  <p className="mt-3 text-[#555555] max-w-xl mx-auto">
+                    Career training for fathers, future tech for kids and youth.
+                    Pick the one that fits. You can&apos;t get this wrong.
+                  </p>
+                </div>
 
                 <div className="mt-12 space-y-4">
-                  {enrollablePrograms.map((program) => (
-                    <button
-                      key={program.slug}
-                      type="button"
-                      onClick={() => updateField("program", program.slug)}
-                      className={`w-full text-left p-6 rounded-xl border-2 transition-all ${
-                        formData.program === program.slug
-                          ? "border-[#C9A84C] bg-[#FBF6E9]"
-                          : "border-[#DDDDDD] bg-white hover:border-[#C9A84C]/50"
-                      }`}
-                    >
-                      <div className="flex items-start gap-4">
-                        <span className="text-3xl">{program.icon}</span>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-lg font-semibold text-[#1A1A1A]">
-                              {program.name}
-                            </h3>
-                            <Badge variant={program.audience} size="sm" />
-                          </div>
-                          <p className="text-[#555555] text-sm mb-2">
-                            {program.description}
-                          </p>
-                          <div className="flex items-center gap-4 text-xs text-[#888888]">
-                            <span>{program.duration}</span>
-                            <span>•</span>
-                            <span>{program.format}</span>
-                          </div>
-                        </div>
-                        <div
-                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                            formData.program === program.slug
-                              ? "border-[#C9A84C] bg-[#C9A84C]"
-                              : "border-[#DDDDDD]"
-                          }`}
-                        >
-                          {formData.program === program.slug && (
-                            <CheckCircle2 className="h-4 w-4 text-white" />
+                  {enrollablePrograms.map((program) => {
+                    const active = formData.program === program.slug;
+                    return (
+                      <button
+                        key={program.slug}
+                        type="button"
+                        onClick={() => updateField("program", program.slug)}
+                        className={cn(
+                          "w-full text-left p-6 rounded-2xl border-2 transition-all",
+                          active
+                            ? "border-[#C9A84C] bg-[#FBF6E9] shadow-[0_8px_30px_rgba(201,168,76,0.2)]"
+                            : "border-[#DDDDDD] bg-white hover:border-[#C9A84C]/50"
+                        )}
+                      >
+                        <div className="flex items-start gap-4">
+                          {isFFIconName(program.icon) && (
+                            <span
+                              className={cn(
+                                "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border transition-colors",
+                                active
+                                  ? "bg-[#C9A84C] border-[#A68A2E] text-[#1A1A1A]"
+                                  : "bg-[#C9A84C]/10 border-[#C9A84C]/30 text-[#A68A2E]"
+                              )}
+                            >
+                              <FFIcon name={program.icon} className="h-6 w-6" />
+                            </span>
                           )}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="text-lg font-semibold text-[#1A1A1A]">
+                                {program.name}
+                              </h3>
+                              <Badge variant={program.audience} size="sm" />
+                            </div>
+                            <p className="text-[#555555] text-sm mb-3 leading-relaxed">
+                              {program.description}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="inline-flex items-center rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#A68A2E]">
+                                {program.duration}
+                              </span>
+                              <span className="inline-flex items-center rounded-full border border-[#DDDDDD] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#888888]">
+                                {program.format}
+                              </span>
+                            </div>
+                          </div>
+                          <div
+                            className={cn(
+                              "w-6 h-6 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors",
+                              active
+                                ? "border-[#C9A84C] bg-[#C9A84C]"
+                                : "border-[#DDDDDD]"
+                            )}
+                          >
+                            {active && (
+                              <CheckCircle2 className="h-4 w-4 text-white" />
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </button>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <div className="mt-8 text-center">
@@ -354,7 +459,7 @@ export function EnrollContent() {
                   Looking for Making Moments family events?{" "}
                   <Link
                     href="/events"
-                    className="text-[#C9A84C] hover:underline"
+                    className="text-[#A68A2E] font-semibold hover:underline"
                   >
                     View upcoming events
                   </Link>
@@ -370,21 +475,25 @@ export function EnrollContent() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
               >
-                <div className="mb-8 p-4 rounded-lg bg-[#FBF6E9] border border-[#C9A84C]/30">
+                <div className="mb-8 p-4 rounded-2xl bg-[#FBF6E9] border border-[#C9A84C]/40">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{selectedProgram?.icon}</span>
+                    {selectedProgram && isFFIconName(selectedProgram.icon) && (
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#C9A84C] text-[#1A1A1A]">
+                        <FFIcon name={selectedProgram.icon} className="h-5 w-5" />
+                      </span>
+                    )}
                     <div>
                       <h3 className="font-semibold text-[#1A1A1A]">
                         {selectedProgram?.name}
                       </h3>
                       <p className="text-sm text-[#555555]">
-                        {selectedProgram?.duration} • {selectedProgram?.format}
+                        {selectedProgram?.duration} &middot; {selectedProgram?.format}
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setStep("program")}
-                      className="ml-auto text-sm text-[#C9A84C] hover:underline"
+                      className="ml-auto text-sm text-[#A68A2E] font-semibold hover:underline"
                     >
                       Change
                     </button>
@@ -393,12 +502,7 @@ export function EnrollContent() {
 
                 <form onSubmit={handleSubmit} className="space-y-8">
                   {/* Personal Information */}
-                  <div className="bg-white rounded-xl p-6 border border-[#DDDDDD]">
-                    <h3 className="flex items-center gap-2 text-lg font-semibold text-[#1A1A1A] mb-6">
-                      <User className="h-5 w-5 text-[#C9A84C]" />
-                      Personal Information
-                    </h3>
-
+                  <FormSection icon="compass" title="Personal Information">
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
@@ -464,15 +568,10 @@ export function EnrollContent() {
                         required
                       />
                     </div>
-                  </div>
+                  </FormSection>
 
                   {/* Address */}
-                  <div className="bg-white rounded-xl p-6 border border-[#DDDDDD]">
-                    <h3 className="flex items-center gap-2 text-lg font-semibold text-[#1A1A1A] mb-6">
-                      <MapPin className="h-5 w-5 text-[#C9A84C]" />
-                      Address
-                    </h3>
-
+                  <FormSection icon="network" title="Address">
                     <div>
                       <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
                         Street Address *
@@ -516,16 +615,11 @@ export function EnrollContent() {
                         />
                       </div>
                     </div>
-                  </div>
+                  </FormSection>
 
                   {/* Father Forward Specific Fields */}
                   {isFatherProgram && (
-                    <div className="bg-white rounded-xl p-6 border border-[#DDDDDD]">
-                      <h3 className="flex items-center gap-2 text-lg font-semibold text-[#1A1A1A] mb-6">
-                        <Briefcase className="h-5 w-5 text-[#C9A84C]" />
-                        Background Information
-                      </h3>
-
+                    <FormSection icon="briefcase" title="Background Information">
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
@@ -583,17 +677,12 @@ export function EnrollContent() {
                           </select>
                         </div>
                       </div>
-                    </div>
+                    </FormSection>
                   )}
 
                   {/* Youth Program Specific Fields */}
                   {isYouthProgram && (
-                    <div className="bg-white rounded-xl p-6 border border-[#DDDDDD]">
-                      <h3 className="flex items-center gap-2 text-lg font-semibold text-[#1A1A1A] mb-6">
-                        <Users className="h-5 w-5 text-[#C9A84C]" />
-                        Parent/Guardian Information
-                      </h3>
-
+                    <FormSection icon="crew" title="Parent/Guardian Information">
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
@@ -679,16 +768,11 @@ export function EnrollContent() {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </FormSection>
                   )}
 
                   {/* Goals & Additional Info */}
-                  <div className="bg-white rounded-xl p-6 border border-[#DDDDDD]">
-                    <h3 className="flex items-center gap-2 text-lg font-semibold text-[#1A1A1A] mb-6">
-                      <Rocket className="h-5 w-5 text-[#C9A84C]" />
-                      Your Goals
-                    </h3>
-
+                  <FormSection icon="route" title="Your Goals">
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
@@ -744,20 +828,15 @@ export function EnrollContent() {
                             updateField("barriers", e.target.value)
                           }
                           rows={2}
-                          placeholder="Transportation, childcare, work schedule: tell us and we'll figure it out together."
+                          placeholder="Transportation, childcare, work schedule: tell us and our team will help you plan around it."
                           className="w-full rounded-lg border border-[#DDDDDD] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
                         />
                       </div>
                     </div>
-                  </div>
+                  </FormSection>
 
                   {/* Emergency Contact */}
-                  <div className="bg-white rounded-xl p-6 border border-[#DDDDDD]">
-                    <h3 className="flex items-center gap-2 text-lg font-semibold text-[#1A1A1A] mb-6">
-                      <Phone className="h-5 w-5 text-[#C9A84C]" />
-                      Emergency Contact
-                    </h3>
-
+                  <FormSection icon="spark" title="Emergency Contact">
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
@@ -785,7 +864,7 @@ export function EnrollContent() {
                         />
                       </div>
                     </div>
-                  </div>
+                  </FormSection>
 
                   {/* Submit Buttons */}
                   <div className="flex items-center justify-between pt-4">
@@ -813,23 +892,30 @@ export function EnrollContent() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="text-center"
               >
-                <div className="w-20 h-20 rounded-full bg-[#EFF4EB] flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle2 className="h-10 w-10 text-[#5A7247]" />
+                <div className="relative w-24 h-24 mx-auto mb-8">
+                  <div className="absolute inset-0 rounded-full bg-[#C9A84C]/15 animate-pulse-glow-subtle" aria-hidden />
+                  <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-[#C9A84C] to-[#A68A2E] flex items-center justify-center text-[#1A1A1A] shadow-[0_0_40px_rgba(201,168,76,0.4)]">
+                    <FFIcon name="rocket" className="h-11 w-11" />
+                  </div>
                 </div>
 
-                <h2 className="text-3xl font-bold text-[#1A1A1A] mb-4">
-                  That Was the Hard Part
+                <div className="flex justify-center">
+                  <Eyebrow>Application Received</Eyebrow>
+                </div>
+
+                <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-[#1A1A1A] tracking-tight">
+                  That was the hard part.
                 </h2>
 
-                <p className="text-[#555555] text-lg max-w-lg mx-auto mb-8">
-                  Your application to {selectedProgram?.name} is in, and a real
-                  person will reach out within 3-5 business days. We save the
-                  robots for the workshops.
+                <p className="mt-4 text-[#555555] text-lg max-w-lg mx-auto">
+                  Your application to {selectedProgram?.name} is in. A real
+                  person will reach out within a week. We save the robots for
+                  the workshops.
                 </p>
 
-                <div className="bg-white rounded-xl p-6 border border-[#DDDDDD] text-left max-w-md mx-auto mb-8">
+                <div className="mt-8 bg-white rounded-2xl p-6 sm:p-7 border border-[#DDDDDD] text-left max-w-md mx-auto">
                   <h3 className="font-semibold text-[#1A1A1A] mb-4">
-                    What Happens Next?
+                    What happens next
                   </h3>
                   <ul className="space-y-3">
                     {[
@@ -842,7 +928,7 @@ export function EnrollContent() {
                         key={index}
                         className="flex items-start gap-3 text-sm text-[#555555]"
                       >
-                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#C9A84C] text-white text-xs font-bold shrink-0">
+                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#C9A84C] text-[#1A1A1A] text-xs font-bold shrink-0">
                           {index + 1}
                         </span>
                         {item}
@@ -851,7 +937,7 @@ export function EnrollContent() {
                   </ul>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Button asChild>
                     <Link href="/">Return Home</Link>
                   </Button>
@@ -865,22 +951,71 @@ export function EnrollContent() {
         </div>
       </section>
 
+      {/* What happens next — the flight plan */}
+      {step !== "confirmation" && (
+        <section className="relative bg-[#141413] py-20 lg:py-24 overflow-hidden">
+          <div className="absolute inset-0 bg-starfield opacity-60" aria-hidden />
+          <div
+            className="aurora-blob absolute -top-32 right-1/4 w-[26rem] h-[26rem] rounded-full bg-[#C9A84C]/10"
+            aria-hidden
+          />
+          <div className="relative max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-10%" }}
+              transition={{ duration: 0.8, ease: EASE }}
+              className="text-center"
+            >
+              <div className="flex justify-center">
+                <Eyebrow light>What Happens Next</Eyebrow>
+              </div>
+              <h2 className="mt-5 font-semibold text-white text-3xl sm:text-4xl tracking-tight">
+                Three steps. That&apos;s the whole thing.
+              </h2>
+            </motion.div>
+
+            <div className="mt-12 grid sm:grid-cols-3 gap-6">
+              {NEXT_STEPS.map((item, i) => (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-10%" }}
+                  transition={{ duration: 0.7, delay: i * 0.1, ease: EASE }}
+                  className="relative rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur p-7"
+                >
+                  <span className="absolute top-5 right-6 text-outline-gold font-bold text-4xl leading-none select-none" aria-hidden>
+                    0{i + 1}
+                  </span>
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#C9A84C]/15 border border-[#C9A84C]/30 text-[#E8D48B]">
+                    <FFIcon name={item.icon} className="h-6 w-6" />
+                  </span>
+                  <h3 className="mt-5 text-lg font-semibold text-white">{item.title}</h3>
+                  <p className="mt-2 text-white/60 text-sm leading-relaxed">{item.text}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Help Section */}
       {step !== "confirmation" && (
         <section className="py-12 bg-[#FBF6E9]">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 text-center">
             <p className="text-[#555555]">
               Stuck on a question? Happens to everybody.{" "}
               <Link
                 href="/contact"
-                className="text-[#C9A84C] font-semibold hover:underline"
+                className="text-[#A68A2E] font-semibold hover:underline"
               >
                 Contact us
               </Link>{" "}
               or call{" "}
               <a
                 href="tel:+19518775196"
-                className="text-[#C9A84C] font-semibold hover:underline"
+                className="text-[#A68A2E] font-semibold hover:underline"
               >
                 (951) 877-5196
               </a>

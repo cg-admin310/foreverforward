@@ -31,8 +31,7 @@ const navLinks = [
     })),
     viewAllHref: "/programs",
   },
-  { href: "/events", label: "Events" },
-  { href: "/blog", label: "Stories" },
+  { href: "/events", label: "Making Moments" },
 ];
 
 const getInvolvedLinks = [

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Heart, Handshake } from "lucide-react";
 import { getPublishedEvents } from "@/lib/actions/events";
 import { EventsContent } from "./events-content";
@@ -66,15 +67,22 @@ export default async function EventsPage() {
     <>
       {/* Hero — Making Moments, observatory style */}
       <section className="relative bg-[#141413] overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
-        <div className="absolute inset-0 bg-starfield bg-starfield-twinkle" aria-hidden />
-        <div className="absolute inset-0 bg-blueprint opacity-30" aria-hidden />
+        {/* Full-bleed festival night */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/future/events-scene.jpg"
+            alt="Families at a golden-hour community festival, kids racing robots while fathers cheer"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#141413] via-[#141413]/75 to-[#141413]/35" />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#141413] to-transparent" />
+        </div>
+        <div className="absolute inset-0 bg-starfield opacity-40" aria-hidden />
         <div
-          className="aurora-blob absolute -top-40 right-[-10%] w-[36rem] h-[36rem] rounded-full bg-[#C9A84C]/15"
-          aria-hidden
-        />
-        <div
-          className="aurora-blob absolute -bottom-48 -left-32 w-[30rem] h-[30rem] rounded-full bg-[#5A7247]/18"
-          style={{ animationDelay: "-8s" }}
+          className="aurora-blob absolute -top-40 right-[-10%] w-[36rem] h-[36rem] rounded-full bg-[#C9A84C]/10"
           aria-hidden
         />
 

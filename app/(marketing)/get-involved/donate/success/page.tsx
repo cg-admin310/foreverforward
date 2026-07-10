@@ -242,15 +242,15 @@ export default function DonationSuccessPage() {
               className="group"
             >
               <Link
-                href="/blog"
+                href="/events"
                 className="block bg-[#FAFAF8] rounded-xl p-6 border border-[#DDDDDD] hover:border-[#C9A84C] transition-all"
               >
                 <h3 className="font-semibold text-[#1A1A1A] mb-2 flex items-center justify-between">
-                  Read Our Stories
+                  Come Make a Moment
                   <ArrowRight className="h-5 w-5 text-[#C9A84C] group-hover:translate-x-1 transition-transform" />
                 </h3>
                 <p className="text-[#555555] text-sm">
-                  Discover inspiring stories from our community and programs.
+                  See the movie nights, dad outings, and family takeovers you just helped fund.
                 </p>
               </Link>
             </motion.div>

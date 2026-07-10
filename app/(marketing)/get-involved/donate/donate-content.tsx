@@ -1,68 +1,151 @@
 "use client";
 
-import { useState, useEffect } from "react";
+/**
+ * Donate — fund the mission.
+ * Observatory design language wrapped around untouched checkout logic:
+ * amount selection state, one-time/monthly toggle, POST /api/stripe/checkout,
+ * and Stripe redirect handling all preserved exactly.
+ */
+
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import {
-  Heart,
-  GraduationCap,
-  Users,
-  Gift,
+  motion,
+  useInView,
+  useMotionValue,
+  useSpring,
+} from "framer-motion";
+import {
+  AlertCircle,
+  ArrowRight,
   CheckCircle2,
   CreditCard,
-  Repeat,
-  AlertCircle,
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SectionHeading } from "@/components/shared/section-heading";
+import { FFIcon, type FFIconName } from "@/components/shared/ff-icons";
+import { IMPACT_GOALS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-const impactTiers = [
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+function Eyebrow({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
+  return (
+    <div
+      className={cn(
+        "inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-[0.28em] uppercase",
+        light ? "text-[#C9A84C]" : "text-[#A68A2E]"
+      )}
+    >
+      <span className="inline-block h-px w-8 bg-current opacity-60" />
+      {children}
+    </div>
+  );
+}
+
+/** Animated counter that spins up when scrolled into view. */
+function GoalCounter({ value, suffix, label }: { value: number; suffix: string; label: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-10% 0px" });
+  const motionVal = useMotionValue(0);
+  const spring = useSpring(motionVal, { duration: 2200, bounce: 0 });
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    if (inView) motionVal.set(value);
+  }, [inView, motionVal, value]);
+
+  useEffect(() => {
+    const unsub = spring.on("change", (v) => setDisplay(Math.round(v)));
+    return () => unsub();
+  }, [spring]);
+
+  return (
+    <div ref={ref} className="text-center">
+      <div className="font-bold text-4xl sm:text-5xl text-transparent bg-clip-text bg-gradient-to-b from-[#E8D48B] to-[#C9A84C] tabular-nums">
+        {display.toLocaleString()}
+        {suffix}
+      </div>
+      <div className="mt-2 text-xs sm:text-sm tracking-[0.2em] uppercase text-white/50">{label}</div>
+    </div>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * Content data
+ * ------------------------------------------------------------------------- */
+
+const AMOUNT_TIERS: {
+  amount: number;
+  icon: FFIconName;
+  title: string;
+  impact: string;
+  popular?: boolean;
+}[] = [
   {
     amount: 50,
-    title: "Spark",
-    impact: "Puts a robotics kit in a kid's hands and a \"why not me?\" in their head",
-    icon: "🤖",
+    icon: "robot",
+    title: "The Spark",
+    impact: "Puts a robotics kit in a kid's hands.",
   },
   {
     amount: 200,
-    title: "Builder",
-    impact: "Covers a father's certification exam. That's a career, changing hands for $200",
-    icon: "🎓",
+    icon: "certificate",
+    title: "The Builder",
+    impact: "Covers a father's certification exam. That's a career for $200.",
     popular: true,
   },
   {
     amount: 500,
-    title: "Transformer",
-    impact: "Funds a family movie night or a full 3D-printing workshop for kids",
-    icon: "🍿",
+    icon: "spark",
+    title: "The Moment",
+    impact: "Funds a full family movie night, dinner included.",
   },
 ];
 
-const impactAreas = [
+const PILLAR_IMPACT: { icon: FFIconName; title: string; text: string }[] = [
   {
-    icon: GraduationCap,
+    icon: "briefcase",
     title: "Career Forward",
-    description:
-      "Twelve weeks of free IT training for fathers toward their CompTIA ITF+. HVAC, auto, and the trades are coming next. Real certifications, real paychecks.",
+    text: "Free IT training for fathers, toward a CompTIA ITF+ and a paycheck that holds.",
   },
   {
-    icon: Users,
+    icon: "chip",
     title: "Future Builders",
-    description:
-      "Robotics, AI, 3D printing, and satellite-tracking workshops. The first time a kid's own code makes a robot move, the ceiling moves too.",
+    text: "Robotics, AI, 3D printing, and satellite tracking for kids who deserve a head start.",
   },
   {
-    icon: Heart,
+    icon: "crew",
     title: "Making Moments",
-    description:
-      "Movies on the Menu, robot races, festivals. Dinner's covered, the movie's picked. Dad's only job is to be there.",
+    text: "Movie nights, robot races, and festivals that put dads and kids in the same moment.",
   },
 ];
+
+const OTHER_WAYS = [
+  {
+    title: "Corporate matching",
+    text: "Many employers match dollar for dollar. One email to HR could double your gift.",
+  },
+  {
+    title: "Monthly giving",
+    text: "Recurring gifts keep programs running all year. Cancel anytime, no hard feelings.",
+  },
+  {
+    title: "In-kind donations",
+    text: "Laptops, robotics kits, 3D printers, tools, skills. If it helps, we put it to work.",
+  },
+  {
+    title: "Planned giving",
+    text: "Legacy is kind of our whole thing. Include Forever Forward in your estate plans.",
+  },
+];
+
+/* ----------------------------------------------------------------------------
+ * Page
+ * ------------------------------------------------------------------------- */
 
 export function DonateContent() {
   const searchParams = useSearchParams();
@@ -74,8 +157,6 @@ export function DonateContent() {
   const [donorEmail, setDonorEmail] = useState("");
   const [donorFirstName, setDonorFirstName] = useState("");
   const [donorLastName, setDonorLastName] = useState("");
-
-  const amounts = [25, 50, 100, 200, 500, 1000];
 
   // Scroll to top on mount
   useEffect(() => {
@@ -137,61 +218,89 @@ export function DonateContent() {
 
   const currentAmount = customAmount ? parseInt(customAmount) : selectedAmount;
 
+  const scrollToGive = (monthly: boolean) => {
+    if (monthly) setDonationType("monthly");
+    document.getElementById("give")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative min-h-[60vh] lg:min-h-[70vh] bg-[#141413] overflow-hidden">
-        {/* Background Image */}
+      {/* 1. Hero — the night sky, the ask */}
+      <section className="relative min-h-[72vh] lg:min-h-[82vh] bg-[#141413] overflow-hidden flex items-center">
         <div className="absolute inset-0 grain-overlay">
           <Image
             src="/images/future/impact-hands.jpg"
             alt="Hands joined together over future technology"
             fill
-            className="object-cover"
             priority
+            sizes="100vw"
+            className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#141413] via-[#141413]/80 to-[#141413]/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#141413] via-[#141413]/85 to-[#141413]/35" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#141413] to-transparent" />
         </div>
         <div className="absolute inset-0 bg-starfield opacity-50" aria-hidden />
+        <div
+          className="aurora-blob absolute -top-40 -right-40 w-[34rem] h-[34rem] rounded-full bg-[#C9A84C]/12"
+          aria-hidden
+        />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center py-20 lg:py-32">
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 w-full py-24 lg:py-32">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8, ease: EASE }}
             className="max-w-2xl"
           >
-            <span className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-[0.28em] uppercase text-[#C9A84C] mb-6">
-              <span className="inline-block h-px w-8 bg-current opacity-60" />
-              <Heart className="h-4 w-4" />
-              Fund the Mission
-            </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-              Fund the Future You{" "}
+            <Eyebrow light>Fund the Mission</Eyebrow>
+            <h1 className="mt-5 text-4xl sm:text-5xl lg:text-[4.25rem] font-bold text-white leading-[1.02] tracking-tight">
+              Fund the future you{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] via-[#E8D48B] to-[#C9A84C]">
-                Want to See
+                want to see.
               </span>
             </h1>
-            <p className="text-lg sm:text-xl text-white/80">
+            <p className="mt-6 text-lg sm:text-xl text-white/75 leading-relaxed max-w-xl">
               Every dollar puts real technology in real hands: a father&apos;s
-              certification, a kid&apos;s first robot, a family&apos;s movie night
-              under the stars.
+              certification, a kid&apos;s first robot, a family&apos;s night under
+              the stars.
             </p>
+
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <a
+                href="#give"
+                className="group inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] text-[#1A1A1A] font-semibold shadow-[0_0_40px_rgba(201,168,76,0.3)] hover:shadow-[0_0_60px_rgba(201,168,76,0.5)] transition-shadow"
+              >
+                Give Now
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </a>
+            </div>
+
+            <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/55">
+              {["501(c)(3) nonprofit", "Tax-deductible", "Receipt by email"].map((chip) => (
+                <span key={chip} className="inline-flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-[#C9A84C]" aria-hidden />
+                  {chip}
+                </span>
+              ))}
+            </div>
           </motion.div>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#C9A84C]" />
       </section>
 
-      {/* Donation Form */}
-      <section className="py-16 lg:py-24 bg-[#FAFAF8]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 2. The give — untouched checkout logic in a premium shell */}
+      <section id="give" className="relative py-16 lg:py-24 bg-[#FAFAF8] scroll-mt-20">
+        <div className="max-w-4xl mx-auto px-5 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-white rounded-2xl p-6 lg:p-10 shadow-lg border border-[#DDDDDD]"
+            transition={{ duration: 0.8, ease: EASE }}
+            className="relative bg-white rounded-3xl p-6 sm:p-8 lg:p-12 shadow-[0_20px_60px_rgba(26,26,26,0.08)] border border-[#DDDDDD] overflow-hidden"
           >
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#C9A84C] via-[#E8D48B] to-[#C9A84C]" aria-hidden />
+
             {/* Error Message */}
             {error && (
               <motion.div
@@ -205,61 +314,86 @@ export function DonateContent() {
             )}
 
             {/* Donation Type Toggle */}
-            <div className="flex justify-center mb-8">
-              <div className="inline-flex rounded-lg bg-[#F5F3EF] p-1">
+            <div className="flex justify-center mb-10">
+              <div className="inline-flex rounded-xl bg-[#F5F3EF] p-1.5 border border-[#DDDDDD]">
                 <button
                   onClick={() => setDonationType("one_time")}
                   className={cn(
-                    "flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all",
+                    "px-6 sm:px-8 py-3 rounded-lg text-sm font-semibold transition-all",
                     donationType === "one_time"
-                      ? "bg-[#C9A84C] text-[#1A1A1A]"
+                      ? "bg-[#C9A84C] text-[#1A1A1A] shadow-sm"
                       : "text-[#555555] hover:text-[#1A1A1A]"
                   )}
                 >
-                  <Gift className="h-4 w-4" />
                   One-Time Gift
                 </button>
                 <button
                   onClick={() => setDonationType("monthly")}
                   className={cn(
-                    "flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all",
+                    "px-6 sm:px-8 py-3 rounded-lg text-sm font-semibold transition-all",
                     donationType === "monthly"
-                      ? "bg-[#C9A84C] text-[#1A1A1A]"
+                      ? "bg-[#C9A84C] text-[#1A1A1A] shadow-sm"
                       : "text-[#555555] hover:text-[#1A1A1A]"
                   )}
                 >
-                  <Repeat className="h-4 w-4" />
                   Monthly Giving
                 </button>
               </div>
             </div>
 
-            {/* Amount Selection */}
+            {/* Amount Tiles */}
             <div className="mb-8">
-              <label className="block text-sm font-medium text-[#1A1A1A] mb-4 text-center">
-                Select an amount{" "}
+              <p className="text-center text-sm font-medium text-[#555555] mb-6">
+                Pick what your gift does
                 {donationType === "monthly" && (
-                  <span className="text-[#888888]">(charged monthly)</span>
+                  <span className="text-[#888888]"> (charged monthly)</span>
                 )}
-              </label>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                {amounts.map((amount) => (
-                  <button
-                    key={amount}
-                    onClick={() => {
-                      setSelectedAmount(amount);
-                      setCustomAmount("");
-                    }}
-                    className={cn(
-                      "py-4 rounded-lg text-lg font-semibold transition-all",
-                      selectedAmount === amount && !customAmount
-                        ? "bg-[#C9A84C] text-[#1A1A1A]"
-                        : "bg-[#F5F3EF] text-[#555555] hover:bg-[#FBF6E9] hover:text-[#1A1A1A]"
-                    )}
-                  >
-                    ${amount}
-                  </button>
-                ))}
+              </p>
+              <div className="grid sm:grid-cols-3 gap-4">
+                {AMOUNT_TIERS.map((tier) => {
+                  const active = selectedAmount === tier.amount && !customAmount;
+                  return (
+                    <button
+                      key={tier.amount}
+                      type="button"
+                      onClick={() => {
+                        setSelectedAmount(tier.amount);
+                        setCustomAmount("");
+                      }}
+                      className={cn(
+                        "relative rounded-2xl p-5 text-left border-2 transition-all",
+                        active
+                          ? "border-[#C9A84C] bg-[#FBF6E9] shadow-[0_8px_30px_rgba(201,168,76,0.25)]"
+                          : "border-[#DDDDDD] bg-[#FAFAF8] hover:border-[#C9A84C]/50"
+                      )}
+                    >
+                      {tier.popular && (
+                        <span className="absolute -top-3 left-5 px-3 py-1 bg-[#C9A84C] text-[#1A1A1A] text-[11px] font-semibold uppercase tracking-wide rounded-full">
+                          Most Popular
+                        </span>
+                      )}
+                      <span
+                        className={cn(
+                          "flex h-11 w-11 items-center justify-center rounded-xl border transition-colors",
+                          active
+                            ? "bg-[#C9A84C] border-[#A68A2E] text-[#1A1A1A]"
+                            : "bg-[#C9A84C]/10 border-[#C9A84C]/30 text-[#A68A2E]"
+                        )}
+                      >
+                        <FFIcon name={tier.icon} className="h-5.5 w-5.5" />
+                      </span>
+                      <span className="mt-4 block text-3xl font-bold text-[#1A1A1A]">
+                        ${tier.amount}
+                      </span>
+                      <span className="mt-0.5 block text-xs font-semibold tracking-[0.18em] uppercase text-[#A68A2E]">
+                        {tier.title}
+                      </span>
+                      <span className="mt-2 block text-sm text-[#555555] leading-snug">
+                        {tier.impact}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Custom Amount */}
@@ -270,13 +404,16 @@ export function DonateContent() {
                   </span>
                   <Input
                     type="number"
-                    placeholder="Other amount"
+                    placeholder="Or name your own amount"
                     value={customAmount}
                     onChange={(e) => {
                       setCustomAmount(e.target.value);
                       setSelectedAmount(null);
                     }}
-                    className="pl-8 text-center text-lg h-14"
+                    className={cn(
+                      "pl-8 text-center text-lg h-14 rounded-xl",
+                      customAmount && "border-[#C9A84C] bg-[#FBF6E9]"
+                    )}
                   />
                 </div>
               </div>
@@ -287,9 +424,9 @@ export function DonateContent() {
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
-                className="mb-8 p-4 rounded-lg bg-[#EFF4EB] border border-[#7A9A63]"
+                className="mb-8 p-4 rounded-xl bg-[#EFF4EB] border border-[#7A9A63]"
               >
-                <p className="text-[#5A7247] text-center">
+                <p className="text-[#3D5030] text-center text-sm sm:text-base">
                   <span className="font-semibold">Your ${currentAmount}</span>{" "}
                   {donationType === "monthly" ? "monthly " : ""}gift will help
                   us {currentAmount >= 500 ? "host a family movie night or a full 3D-printing workshop" : currentAmount >= 200 ? "cover a father's certification exam" : "put a robotics kit in a kid's hands"}.
@@ -348,166 +485,213 @@ export function DonateContent() {
 
             {/* Security Note */}
             <p className="text-center text-sm text-[#888888] mt-4">
-              Secure checkout via Stripe. Tax-deductible, and yes, the receipt
-              hits your inbox before you can ask for it.
+              Secure checkout via Stripe. Tax-deductible, and the receipt hits
+              your inbox before you can ask for it.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Impact Tiers */}
-      <section className="py-16 lg:py-24 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            title="Your Impact"
-            subtitle="Here's what your money actually does."
-            centered
-          />
-
-          <div className="grid md:grid-cols-3 gap-6 mt-12">
-            {impactTiers.map((tier, index) => (
-              <motion.div
-                key={tier.amount}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className={cn(
-                  "relative rounded-xl p-6 border-2 text-center",
-                  tier.popular
-                    ? "border-[#C9A84C] bg-[#FBF6E9]"
-                    : "border-[#DDDDDD] bg-[#FAFAF8]"
-                )}
-              >
-                {tier.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-[#C9A84C] text-[#1A1A1A] text-xs font-semibold rounded-full">
-                    Most Popular
-                  </div>
-                )}
-                <span className="text-4xl mb-4 block">{tier.icon}</span>
-                <span className="text-3xl font-bold text-[#C9A84C]">
-                  ${tier.amount}
-                </span>
-                <h3 className="text-lg font-semibold text-[#1A1A1A] mt-2 mb-3">
-                  {tier.title}
-                </h3>
-                <p className="text-[#555555] text-sm">{tier.impact}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Where Your Money Goes */}
-      <section className="relative py-16 lg:py-24 bg-[#141413] overflow-hidden">
-        <div className="absolute inset-0 bg-starfield opacity-70" aria-hidden />
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 3. Where every dollar goes */}
+      <section className="relative py-20 lg:py-28 bg-[#F5F3EF] overflow-hidden">
+        <div className="absolute inset-0 bg-mesh" aria-hidden />
+        <div className="relative max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 0.8, ease: EASE }}
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Where Your Money Goes
+            <Eyebrow>Where Every Dollar Goes</Eyebrow>
+            <h2 className="mt-5 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl lg:text-5xl leading-tight tracking-tight max-w-2xl">
+              Three pillars.{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
+                Zero mystery.
+              </span>
             </h2>
-            <p className="text-white/70 max-w-2xl mx-auto">
-              We&apos;re a 501(c)(3), and we like receipts as much as you do.
-              Here&apos;s exactly where your donation lands.
+            <p className="mt-4 text-[#555555] text-base sm:text-lg max-w-2xl">
+              We&apos;re a 501(c)(3) and we like receipts as much as you do. Your
+              donation lands in one of three places.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {impactAreas.map((area, index) => (
+          <div className="mt-12 grid md:grid-cols-3 gap-6">
+            {PILLAR_IMPACT.map((pillar, i) => (
               <motion.div
-                key={area.title}
-                initial={{ opacity: 0, y: 20 }}
+                key={pillar.title}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-[#2D2D2D] rounded-xl p-6 border border-[#444444]"
+                viewport={{ once: true, margin: "-10%" }}
+                transition={{ duration: 0.7, delay: i * 0.1, ease: EASE }}
+                className="group bg-white rounded-2xl p-7 border border-[#DDDDDD] hover:border-[#C9A84C]/60 hover:shadow-[0_12px_40px_rgba(26,26,26,0.08)] transition-all"
               >
-                <div className="w-12 h-12 rounded-xl bg-[#C9A84C]/10 flex items-center justify-center mb-4">
-                  <area.icon className="h-6 w-6 text-[#C9A84C]" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">
-                  {area.title}
-                </h3>
-                <p className="text-white/60 text-sm">{area.description}</p>
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#C9A84C]/10 border border-[#C9A84C]/30 text-[#A68A2E] group-hover:bg-[#C9A84C] group-hover:text-[#1A1A1A] transition-colors">
+                  <FFIcon name={pillar.icon} className="h-6 w-6" />
+                </span>
+                <h3 className="mt-5 text-lg font-semibold text-[#1A1A1A]">{pillar.title}</h3>
+                <p className="mt-2 text-[#555555] text-sm leading-relaxed">{pillar.text}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Other Ways to Give */}
-      <section className="py-16 lg:py-24 bg-[#FAFAF8]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            title="Other Ways to Give"
-            subtitle="Cash isn't the only way in."
-            centered
-          />
+      {/* 4. The goals your gift moves */}
+      <section className="relative py-20 lg:py-28 bg-[#141413] overflow-hidden">
+        <div className="absolute inset-0 bg-starfield opacity-60" aria-hidden />
+        <div
+          className="aurora-blob absolute -bottom-40 left-1/4 w-[30rem] h-[30rem] rounded-full bg-[#5A7247]/12"
+          aria-hidden
+        />
+        <div className="relative max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 0.8, ease: EASE }}
+            className="text-center"
+          >
+            <div className="flex justify-center">
+              <Eyebrow light>The Mission, In Numbers</Eyebrow>
+            </div>
+            <h2 className="mt-5 font-semibold text-white text-3xl sm:text-4xl tracking-tight">
+              This is what we&apos;re building toward.
+            </h2>
+          </motion.div>
 
-          <div className="mt-12 space-y-6">
-            {[
-              {
-                title: "Corporate Matching",
-                description:
-                  "Many employers match donations dollar for dollar. One email to HR could double your gift.",
-              },
-              {
-                title: "Stock Donations",
-                description:
-                  "Appreciated securities work too, often with tax perks your accountant will approve of.",
-              },
-              {
-                title: "Planned Giving",
-                description:
-                  "Legacy is kind of our whole thing. Include Forever Forward in your estate plans and keep the mission moving.",
-              },
-              {
-                title: "In-Kind Donations",
-                description:
-                  "Laptops, robotics kits, 3D printers, tools, professional skills. If it helps, we'll put it to work.",
-              },
-            ].map((item, index) => (
+          <div className="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+            {IMPACT_GOALS.map((goal) => (
+              <GoalCounter
+                key={goal.label}
+                value={goal.value}
+                suffix={goal.suffix}
+                label={goal.label}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Other ways to give */}
+      <section className="py-20 lg:py-28 bg-[#FAFAF8]">
+        <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 0.8, ease: EASE }}
+          >
+            <Eyebrow>Other Ways In</Eyebrow>
+            <h2 className="mt-5 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl tracking-tight">
+              Cash isn&apos;t the only way to move a family forward.
+            </h2>
+          </motion.div>
+
+          <div className="mt-10 grid sm:grid-cols-2 gap-5">
+            {OTHER_WAYS.map((item, i) => (
               <motion.div
                 key={item.title}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="flex items-start gap-4 p-4 rounded-lg bg-white border border-[#DDDDDD]"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-10%" }}
+                transition={{ duration: 0.6, delay: i * 0.08, ease: EASE }}
+                className="flex items-start gap-4 p-5 rounded-2xl bg-white border border-[#DDDDDD] hover:border-[#C9A84C]/50 transition-colors"
               >
-                <CheckCircle2 className="h-6 w-6 text-[#5A7247] shrink-0 mt-0.5" />
+                <CheckCircle2 className="h-5 w-5 text-[#5A7247] shrink-0 mt-0.5" />
                 <div>
                   <h3 className="font-semibold text-[#1A1A1A]">{item.title}</h3>
-                  <p className="text-[#555555] text-sm">{item.description}</p>
+                  <p className="mt-1 text-[#555555] text-sm leading-relaxed">{item.text}</p>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-center mt-12"
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mt-8 text-sm text-[#888888]"
           >
-            <p className="text-[#555555] mb-4">
-              Questions about giving? Ask away. We&apos;re easy to talk to.
-            </p>
-            <Button asChild variant="outline">
-              <Link href="/contact">Contact Us</Link>
-            </Button>
-          </motion.div>
+            Questions about stock gifts or anything else?{" "}
+            <Link href="/contact" className="text-[#A68A2E] font-semibold hover:underline">
+              Ask away.
+            </Link>{" "}
+            We&apos;re easy to talk to.
+          </motion.p>
         </div>
       </section>
 
-      {/* Tax Info */}
+      {/* 6. Closing dual CTA */}
+      <section className="relative bg-[#141413] py-24 sm:py-28 overflow-hidden">
+        <div className="absolute inset-0 bg-starfield" aria-hidden />
+        <div
+          className="aurora-blob absolute -top-32 right-1/4 w-[30rem] h-[30rem] rounded-full bg-[#C9A84C]/12"
+          aria-hidden
+        />
+        <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-10%" }}
+              transition={{ duration: 0.8, ease: EASE }}
+            >
+              <button
+                type="button"
+                onClick={() => scrollToGive(true)}
+                className="group relative block w-full text-left rounded-3xl overflow-hidden border border-[#C9A84C]/30 bg-gradient-to-br from-[#C9A84C] to-[#A68A2E] p-8 sm:p-10 min-h-[15rem] hover:shadow-[0_0_80px_rgba(201,168,76,0.35)] transition-shadow"
+              >
+                <p className="text-[#1A1A1A]/70 text-xs font-semibold tracking-[0.3em] uppercase">
+                  Keep It Going
+                </p>
+                <h3 className="mt-3 font-bold text-[#1A1A1A] text-2xl sm:text-3xl leading-tight max-w-md">
+                  Give monthly. Build steady.
+                </h3>
+                <p className="mt-2 text-[#1A1A1A]/75 max-w-md">
+                  Monthly donors keep cohorts funded and movie nights on the
+                  calendar all year. Cancel anytime.
+                </p>
+                <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[#1A1A1A]">
+                  Start a monthly gift
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-10%" }}
+              transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
+            >
+              <Link
+                href="/get-involved/partner"
+                className="group relative block rounded-3xl overflow-hidden border border-white/15 bg-white/[0.04] backdrop-blur p-8 sm:p-10 min-h-[15rem] hover:border-[#C9A84C]/50 transition-colors"
+              >
+                <p className="text-[#C9A84C] text-xs font-semibold tracking-[0.3em] uppercase">
+                  Go Bigger
+                </p>
+                <h3 className="mt-3 font-bold text-white text-2xl sm:text-3xl leading-tight max-w-md">
+                  Talk to us about sponsorship.
+                </h3>
+                <p className="mt-2 text-white/60 max-w-md">
+                  Sponsor a cohort, an event series, or a whole program. We&apos;ll
+                  show you exactly what your name makes possible.
+                </p>
+                <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[#E8D48B]">
+                  Join forces
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Tax info */}
       <section className="py-12 bg-[#FBF6E9]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 text-center">
           <p className="text-[#555555]">
             Forever Forward Foundation is a registered 501(c)(3) nonprofit
             organization. Your donation is tax-deductible to the fullest extent

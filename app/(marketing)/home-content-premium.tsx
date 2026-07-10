@@ -16,22 +16,17 @@ import {
   useInView,
   useSpring,
   useMotionValue,
-  AnimatePresence,
 } from "framer-motion";
 import {
   ArrowRight,
   ArrowUpRight,
   Sparkles,
-  Cpu,
   Bot,
-  Printer,
-  Satellite,
   Heart,
   Popcorn,
   Rocket,
-  Blocks,
-  Zap,
 } from "lucide-react";
+import { FFIcon, type FFIconName } from "@/components/shared/ff-icons";
 import {
   MISSION,
   PILLARS,
@@ -384,41 +379,32 @@ function Manifesto() {
           />
         </h2>
 
-        <div className="mt-14 grid lg:grid-cols-[auto_1fr] gap-8 items-start max-w-3xl">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-10%" }}
-            transition={{ duration: 0.7, ease: EASE }}
-            className="relative"
-          >
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden ring-2 ring-[#C9A84C] ring-offset-4 ring-offset-[#FAFAF8]">
-              <Image
-                src="/images/brand/founderpic.jpg"
-                alt="Thomas 'TJ' Wilform, Founder and CEO of Forever Forward"
-                width={96}
-                height={96}
-                className="object-cover w-full h-full"
-              />
-            </div>
-          </motion.div>
-          <motion.blockquote
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-10%" }}
-            transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
-          >
-            <p className="text-lg sm:text-xl text-[#555555] leading-relaxed">
-              &ldquo;{MISSION.founderNote}{" "}
-              The more you get exposed to, the more you find out about
-              yourself.&rdquo;
-            </p>
-            <footer className="mt-4 text-sm font-semibold text-[#1A1A1A]">
-              Thomas &ldquo;TJ&rdquo; Wilform
-              <span className="text-[#888888] font-normal">, Founder &amp; CEO</span>
-            </footer>
-          </motion.blockquote>
-        </div>
+        <motion.p
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-10%" }}
+          transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
+          className="mt-10 max-w-2xl text-lg sm:text-xl text-[#555555] leading-relaxed"
+        >
+          Forever Forward puts real technology in the hands of families the industry
+          usually skips, then walks with them from that first spark to a
+          certification, a career, and a community that shows up.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-10%" }}
+          transition={{ duration: 0.7, delay: 0.3, ease: EASE }}
+          className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-semibold text-[#888888]"
+        >
+          {["501(c)(3) nonprofit", "Founded 2023", "Greater Los Angeles"].map((item) => (
+            <span key={item} className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#C9A84C]" />
+              {item}
+            </span>
+          ))}
+        </motion.div>
       </div>
     </section>
   );
@@ -530,123 +516,123 @@ function PillarsSection() {
 }
 
 /* ----------------------------------------------------------------------------
- * 5. Future tech — what we put in their hands
+ * 5. Future tech — the console. What we put in their hands.
  * ------------------------------------------------------------------------- */
 
-const TECH_ICONS = {
-  ai: Cpu,
-  robotics: Bot,
-  printing: Printer,
-  orbit: Satellite,
-  blockchain: Blocks,
-  energy: Zap,
-} as const;
+const TECH_FF_ICONS: Record<string, FFIconName> = {
+  ai: "chip",
+  robotics: "robot",
+  printing: "printer3d",
+  orbit: "satellite",
+  blockchain: "blocks",
+  energy: "bolt",
+};
 
 function FutureTechSection() {
-  const [active, setActive] = useState<string>("orbit");
-  const activeTech = FUTURE_TECH.find((t) => t.id === active) ?? FUTURE_TECH[3];
-
   return (
-    <section className="relative bg-[#FAFAF8] py-24 sm:py-32 overflow-hidden">
-      <div className="absolute inset-0 bg-blueprint opacity-60" aria-hidden />
+    <section className="relative bg-[#141413] py-24 sm:py-32 overflow-hidden">
+      <div className="absolute inset-0 bg-starfield opacity-70" aria-hidden />
+      <div className="absolute inset-0 bg-blueprint opacity-30" aria-hidden />
+      <div
+        className="aurora-blob absolute -top-40 left-1/3 w-[34rem] h-[34rem] rounded-full bg-[#C9A84C]/10"
+        aria-hidden
+      />
+
       <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <div>
-            <Eyebrow>The Tools of Tomorrow</Eyebrow>
-            <h2 className="mt-6 font-semibold text-[#1A1A1A] text-3xl sm:text-5xl leading-[1.1] tracking-tight">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+          <div className="max-w-3xl">
+            <Eyebrow light>The Tools of Tomorrow</Eyebrow>
+            <h2 className="mt-6 font-semibold text-white text-3xl sm:text-5xl leading-[1.1] tracking-tight">
               We don&rsquo;t wait for the future to visit our neighborhoods.{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] to-[#E8D48B]">
                 We bring it home.
               </span>
             </h2>
-            <p className="mt-5 text-[#555555] text-base sm:text-lg leading-relaxed max-w-xl">
-              Every program puts real, working future-tech in real hands, until
-              &ldquo;someday&rdquo; becomes &ldquo;why not me?&rdquo;
-            </p>
-
-            <div className="mt-8 grid grid-cols-2 gap-3">
-              {FUTURE_TECH.map((tech) => {
-                const Icon = TECH_ICONS[tech.id as keyof typeof TECH_ICONS] ?? Cpu;
-                const isActive = tech.id === active;
-                return (
-                  <button
-                    key={tech.id}
-                    onMouseEnter={() => setActive(tech.id)}
-                    onFocus={() => setActive(tech.id)}
-                    onClick={() => setActive(tech.id)}
-                    className={cn(
-                      "text-left rounded-2xl border p-4 sm:p-5 transition-all duration-300",
-                      isActive
-                        ? "border-[#C9A84C] bg-[#FBF6E9] shadow-[0_8px_30px_rgba(201,168,76,0.18)]"
-                        : "border-[#DDDDDD] bg-white/70 hover:border-[#C9A84C]/50"
-                    )}
-                  >
-                    <Icon
-                      className={cn(
-                        "h-6 w-6 mb-3 transition-colors",
-                        isActive ? "text-[#A68A2E]" : "text-[#888888]"
-                      )}
-                    />
-                    <div className="font-semibold text-[#1A1A1A] text-sm sm:text-base leading-snug">
-                      {tech.name}
-                    </div>
-                    <AnimatePresence initial={false}>
-                      {isActive && (
-                        <motion.p
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3, ease: EASE }}
-                          className="text-[#555555] text-xs sm:text-sm mt-1.5 overflow-hidden"
-                        >
-                          {tech.line}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
-                  </button>
-                );
-              })}
-            </div>
           </div>
+          <p className="text-white/50 text-sm sm:text-base max-w-xs shrink-0 lg:pb-2">
+            Six technologies. Real hardware, real reps, in real hands.
+          </p>
+        </div>
 
-          {/* Image side */}
-          <div className="relative">
-            <div className="grain-overlay relative aspect-[3/2] lg:aspect-[4/3.4] rounded-3xl overflow-hidden border border-[#DDDDDD]">
-              <Image
-                src="/images/future/program-satellite-kids.jpg"
-                alt="A father and son on a rooftop at twilight tracking satellites with a tablet"
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
+        {/* The console grid */}
+        <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          {FUTURE_TECH.map((tech, i) => (
+            <motion.div
+              key={tech.id}
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ duration: 0.7, delay: (i % 3) * 0.1, ease: EASE }}
+              className="group relative rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur p-6 sm:p-7 overflow-hidden hover:border-[#C9A84C]/50 transition-colors duration-300"
+            >
+              {/* Holo sweep on hover */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-0 group-hover:opacity-30 transition-opacity">
+                <div className="holo-sweep absolute inset-x-0 h-16 bg-gradient-to-b from-transparent via-[#E8D48B]/30 to-transparent" />
+              </div>
+              {/* Gold seam on hover */}
+              <div
+                className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C9A84C]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+                aria-hidden
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#141413]/70 via-transparent to-transparent" />
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTech.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.35, ease: EASE }}
-                  className="absolute bottom-5 left-5 right-5"
-                >
-                  <p className="text-[#E8D48B] text-xs font-semibold tracking-[0.25em] uppercase">
-                    {activeTech.name}
-                  </p>
-                  <p className="text-white text-lg sm:text-xl font-semibold mt-1">
-                    {activeTech.line}
-                  </p>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-            {/* Orbiting accent */}
-            <div className="absolute -top-8 -right-8 w-28 h-28 hidden sm:block" aria-hidden>
-              <div className="absolute inset-0 orbit-ring" />
-              <div className="absolute inset-0 orbit-carrier">
-                <span className="orbit-satellite absolute -top-1 left-1/2 w-2 h-2" />
+
+              <div className="flex items-start justify-between">
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#C9A84C]/30 bg-[#C9A84C]/10 text-[#E8D48B] group-hover:shadow-[0_0_24px_rgba(201,168,76,0.35)] transition-shadow">
+                  <FFIcon name={TECH_FF_ICONS[tech.id] ?? "spark"} className="h-6 w-6" />
+                </span>
+                <div className="text-right">
+                  <span className="block text-outline-gold font-bold text-2xl leading-none select-none" aria-hidden>
+                    0{i + 1}
+                  </span>
+                  <span className="mt-1 block text-[9px] font-semibold tracking-[0.3em] uppercase text-white/30">
+                    {tech.field}
+                  </span>
+                </div>
+              </div>
+
+              <h3 className="mt-5 text-white font-semibold text-lg sm:text-xl leading-snug">
+                {tech.name}
+              </h3>
+              <p className="mt-1.5 text-white/55 text-sm sm:text-[0.95rem] leading-relaxed">
+                {tech.line}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Live feed — the sky over our block */}
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-10%" }}
+          transition={{ duration: 0.9, ease: EASE }}
+          className="mt-5 grain-overlay relative rounded-2xl overflow-hidden border border-white/10"
+        >
+          <div className="relative aspect-[16/8] sm:aspect-[21/7]">
+            <Image
+              src="/images/future/program-satellite-kids.jpg"
+              alt="A father and son on a rooftop at twilight tracking satellites with a tablet"
+              fill
+              sizes="(max-width: 1024px) 100vw, 80vw"
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#141413]/85 via-[#141413]/30 to-transparent" />
+            <div className="absolute inset-0 flex items-end sm:items-center">
+              <div className="p-6 sm:p-10 max-w-lg">
+                <p className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.3em] uppercase text-[#E8D48B]">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C9A84C] opacity-60" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C9A84C]" />
+                  </span>
+                  Overhead right now
+                </p>
+                <p className="mt-3 text-white text-lg sm:text-2xl font-semibold leading-snug">
+                  Thousands of satellites cross our sky every night. Our families
+                  know some of them by name.
+                </p>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

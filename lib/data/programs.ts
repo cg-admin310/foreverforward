@@ -47,13 +47,13 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     audience: "fathers",
     duration: "12 weeks",
     format: "Hybrid",
-    icon: "💼",
+    icon: "briefcase",
     heroImage: "/images/future/program-it-pathway.jpg",
     heroDescription:
-      "Twelve weeks of free IT training built for dads, by a dad. Earn your CompTIA ITF+, get real data center time, and walk out with a credential, a portfolio, and a crew that's got your back. This track is IT. HVAC, auto, and the trades are next.",
+      "Twelve weeks of free IT training built for fathers. Earn your CompTIA ITF+, get real data center time, and walk out with a credential, a portfolio, and a community behind you. This track is IT. HVAC, auto, and the trades are next.",
     overview: [
-      "Father Forward is our flagship, built by a dad from Compton who built data centers for a living and figured out the fastest way to change a family's future is to hand its father a career. Right now, that career is IT. You'll earn your CompTIA ITF+, learn how networks actually run the world, get inside a real data center, and see the road from help desk to network and systems engineer laid out in front of you.",
-      "Every week brings guest speakers who do this work right now, a leadership thread on goals, money, and showing up for your kids, and Travis, our AI mentor, on call 24/7. It's free, and we're not looking for perfect. Progress over perfection, every single week. And IT is only the first track: HVAC, auto and EV, and the skilled trades are coming next.",
+      "Father Forward is our flagship program, built on a simple idea: the fastest way to change a family's future is to hand its father a real career. Right now, that career is IT. You'll earn your CompTIA ITF+, learn how networks actually run the world, get inside a working data center, and see the road from help desk to network and systems engineer laid out in front of you.",
+      "Every week brings guest speakers who do this work today, a leadership thread on goals, money, and showing up for your kids, and Travis, our AI mentor, on call 24/7. It's free, and IT is only the first track. HVAC, auto and EV, and the skilled trades are coming next.",
     ],
     atAGlance: {
       duration: "12 weeks",
@@ -186,25 +186,25 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     ],
     deliverables: [
       {
-        icon: "🎓",
+        icon: "certificate",
         title: "CompTIA ITF+",
         description:
           "Certification prep and exam support for CompTIA ITF+, your first real credential in tech.",
       },
       {
-        icon: "🗺️",
+        icon: "route",
         title: "Path Forward Plan",
         description:
           "A personal roadmap covering career, family, and finances, built with your case worker and tracked with Travis.",
       },
       {
-        icon: "🤝",
+        icon: "crew",
         title: "A Crew for Life",
         description:
           "Your cohort, our alumni network, guest speakers who take your calls, and mentors who've walked the same road.",
       },
       {
-        icon: "💼",
+        icon: "briefcase",
         title: "Job-Ready Portfolio",
         description:
           "Resume, interview reps, and direct introductions to employers and apprenticeship programs.",
@@ -225,7 +225,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     audience: "youth",
     duration: "8 weeks",
     format: "Hybrid",
-    icon: "🤖",
+    icon: "robot",
     heroImage: "/images/future/pillar-future-tech.jpg",
     heroDescription:
       "Robots you build, AI you get to boss around, designs you print. Then a capstone gaming tournament to put it all on the line.",
@@ -317,25 +317,25 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     ],
     deliverables: [
       {
-        icon: "🤖",
+        icon: "robot",
         title: "Projects You Built",
         description:
           "A robot your team programmed, parts you printed, and an AI project with your name on it.",
       },
       {
-        icon: "🎓",
+        icon: "certificate",
         title: "Certificate Momentum",
         description:
           "Google IT Support Certificate prep and a study plan to finish it.",
       },
       {
-        icon: "🏆",
+        icon: "trophy",
         title: "Capstone Tournament",
         description:
           "A community gaming event you help produce, then compete in.",
       },
       {
-        icon: "🧭",
+        icon: "compass",
         title: "A Map to a Career",
         description:
           "Exposure to five future-facing fields and mentors inside each one.",
@@ -356,7 +356,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     audience: "kids",
     duration: "Workshop",
     format: "In-person",
-    icon: "✨",
+    icon: "spark",
     heroImage: "/images/future/program-3dprint-kids.jpg",
     heroDescription:
       "Kids write the story of who they'll become, illustrate it with AI, publish it as a real book with their name on the cover, and 3D-print a piece of that future to take home.",
@@ -399,17 +399,17 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     ],
     deliverables: [
       {
-        icon: "📖",
+        icon: "book",
         title: "A Published Book",
         description: "Their future, written and illustrated with AI as the art department, with their name on the cover.",
       },
       {
-        icon: "🚀",
+        icon: "rocket",
         title: "A 3D-Printed Keepsake",
         description: "One object from their future self, printed and kept.",
       },
       {
-        icon: "💡",
+        icon: "spark",
         title: "A New Default",
         description: "The quiet belief that technology is theirs to use.",
       },

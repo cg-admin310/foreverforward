@@ -503,8 +503,7 @@ function FutureBuildersSection() {
 
         <p className="mt-6 max-w-2xl text-white/60 text-base sm:text-lg leading-relaxed">
           A robot answering their code. A story printed into something they can hold.
-          Their film on a real screen. The first time a kid sees the future,
-          everything changes. Four programs, four ways in.
+          The first time a kid sees the future, everything changes. Two ways in.
         </p>
 
         <div className="mt-14 sm:mt-16 grid lg:grid-cols-2 gap-x-10 gap-y-14 lg:gap-y-10 lg:pb-14">

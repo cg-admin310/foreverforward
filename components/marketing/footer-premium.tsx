@@ -12,8 +12,7 @@ import { subscribeToNewsletter } from '@/lib/actions/newsletter'
 const QUICK_LINKS = [
   { label: 'Our Mission', href: '/about' },
   { label: 'Programs', href: '/programs' },
-  { label: 'Events', href: '/events' },
-  { label: 'Stories', href: '/blog' },
+  { label: 'Making Moments', href: '/events' },
   { label: 'Donate', href: '/get-involved/donate' },
   { label: 'Contact', href: '/contact' },
 ]
