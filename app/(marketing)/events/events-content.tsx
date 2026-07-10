@@ -390,8 +390,8 @@ export function EventsContent({
                   The Next Moment Is in the Works
                 </h2>
                 <p className="text-lg text-[#555555] mb-8 max-w-lg mx-auto leading-relaxed">
-                  Movie nights, robot races, night-sky watch parties: we&apos;re cooking
-                  up the next one now. Be the first to know when it drops.
+                  The next movie night, dad outing, or family takeover is in the
+                  works. Be the first to know when the date drops.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -434,52 +434,43 @@ export function EventsContent({
 
   return (
     <>
-      {/* All Upcoming Events Grid */}
+      {/* Series + Upcoming Events */}
       <section className="py-16 lg:py-24 bg-[#FAFAF8]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12"
-          >
-            <div>
-              <span className="inline-flex items-center gap-2 text-xs font-semibold text-[#C9A84C] uppercase tracking-[0.28em] mb-2">
-                <span className="inline-block h-px w-8 bg-current opacity-60" />
-                <Calendar className="h-4 w-4" />
-                Making Moments
-              </span>
-              <h2 className="text-3xl lg:text-4xl font-bold text-[#1A1A1A]">
-                Joy Is a{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
-                  Strategy
-                </span>
-              </h2>
-            </div>
-            <p className="text-[#555555] max-w-md">
-              Dinner-and-a-movie nights, robot races, night-sky watch parties, and
-              festivals. Moments built for fathers, kids, and the whole family.
-            </p>
-          </motion.div>
-
           {/* The Series grid */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-12"
+            className="mb-14"
           >
-            <div className="mb-6">
+            <div className="mb-8">
               <span className="inline-flex items-center gap-2 text-xs font-semibold text-[#C9A84C] uppercase tracking-[0.28em]">
                 <span className="inline-block h-px w-8 bg-current opacity-60" />
                 The Series
               </span>
-              <h3 className="mt-2 text-2xl lg:text-3xl font-bold text-[#1A1A1A]">
+              <h2 className="mt-2 text-3xl lg:text-4xl font-bold text-[#1A1A1A]">
                 Three Ways We Make Moments
-              </h3>
+              </h2>
             </div>
             <SeriesGrid />
+          </motion.div>
+
+          {/* Upcoming Events */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-8"
+          >
+            <span className="inline-flex items-center gap-2 text-xs font-semibold text-[#C9A84C] uppercase tracking-[0.28em]">
+              <span className="inline-block h-px w-8 bg-current opacity-60" />
+              <Calendar className="h-4 w-4" />
+              On the Calendar
+            </span>
+            <h2 className="mt-2 text-3xl lg:text-4xl font-bold text-[#1A1A1A]">
+              Upcoming Events
+            </h2>
           </motion.div>
 
           {/* Events Grid */}

@@ -1,34 +1,30 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import {
-  Calendar,
-  MapPin,
-  Clock,
-  Users,
-  Ticket,
-  Film,
-  Utensils,
-  ArrowRight,
-  Star,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/shared/badge";
-import { SectionHeading } from "@/components/shared/section-heading";
+import { ArrowRight, Heart, Handshake } from "lucide-react";
 import { getPublishedEvents } from "@/lib/actions/events";
 import { EventsContent } from "./events-content";
 
 export const metadata = {
-  title: "Events | Forever Forward",
+  title: "Making Moments",
   description:
-    "Join Forever Forward for community events including our signature Movies on the Menu dinner and movie series, info sessions, workshops, and job fairs in Los Angeles.",
+    "Making Moments is how Forever Forward brings families together: Movies on the Menu dinner-and-a-movie nights, dads-only Off the Clock outings, and Family Takeovers of the fun spots. Free for families across Greater Los Angeles.",
   keywords: [
+    "Making Moments",
     "family events Los Angeles",
     "Movies on the Menu",
+    "father child events",
+    "free family events LA",
     "community events",
-    "father-child events",
-    "nonprofit events LA",
   ],
+  openGraph: {
+    title: "Making Moments | Forever Forward",
+    description:
+      "Movie nights, dad outings, and family takeovers. Joy, on the calendar, all year long.",
+    type: "website",
+    url: "/events",
+    images: [{ url: "/images/motm/motm-hero.jpg", width: 1200, height: 630 }],
+  },
+  alternates: { canonical: "/events" },
 };
 
 const eventTypeLabels: Record<string, string> = {
@@ -44,12 +40,14 @@ const eventTypeLabels: Record<string, string> = {
 // Loading skeleton
 function EventsSkeleton() {
   return (
-    <div className="animate-pulse space-y-8">
-      <div className="h-64 bg-gray-200 rounded-2xl" />
-      <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-32 bg-gray-200 rounded-xl" />
-        ))}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="animate-pulse space-y-8">
+        <div className="h-64 bg-[#2D2D2D] rounded-3xl" />
+        <div className="grid sm:grid-cols-2 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-56 bg-[#2D2D2D] rounded-3xl" />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -66,31 +64,47 @@ export default async function EventsPage() {
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 bg-[#1A1A1A] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A1A] via-[#1A1A1A] to-[#2D2D2D]" />
+      {/* Hero — Making Moments, observatory style */}
+      <section className="relative bg-[#141413] overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
+        <div className="absolute inset-0 bg-starfield bg-starfield-twinkle" aria-hidden />
+        <div className="absolute inset-0 bg-blueprint opacity-30" aria-hidden />
+        <div
+          className="aurora-blob absolute -top-40 right-[-10%] w-[36rem] h-[36rem] rounded-full bg-[#C9A84C]/15"
+          aria-hidden
+        />
+        <div
+          className="aurora-blob absolute -bottom-48 -left-32 w-[30rem] h-[30rem] rounded-full bg-[#5A7247]/18"
+          style={{ animationDelay: "-8s" }}
+          aria-hidden
+        />
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div>
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444] text-sm text-white/80 mb-6">
-              <Calendar className="h-4 w-4 text-[#C9A84C]" />
-              Community Events
-            </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-              Where Families{" "}
-              <span className="text-[#C9A84C]">Come Together</span>
-            </h1>
-            <p className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto">
-              From our signature Movies on the Menu series to workshops and job
-              fairs, our events create opportunities for connection, learning, and fun.
-            </p>
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+          <div className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-[0.28em] uppercase text-[#C9A84C]">
+            <span className="inline-block h-px w-8 bg-current opacity-60" />
+            Our Events · Free for Families · Greater LA
           </div>
-        </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#C9A84C]" />
+          <h1 className="mt-6 font-bold leading-[0.95] tracking-tight max-w-4xl">
+            <span className="block text-outline-gold text-[13vw] sm:text-7xl lg:text-[6rem]">
+              MAKING
+            </span>
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] via-[#E8D48B] to-[#C9A84C] animate-gradient text-[13vw] sm:text-7xl lg:text-[6rem] pb-2">
+              MOMENTS
+            </span>
+          </h1>
+
+          <p className="mt-6 max-w-xl text-lg sm:text-xl text-white/70 leading-relaxed">
+            Joy is a strategy. Movie nights, dad outings, and family takeovers,
+            on the calendar all year long.
+          </p>
+
+          <p className="mt-4 text-sm text-white/40">
+            Free for families. Founded by a father. 501(c)(3) nonprofit.
+          </p>
+        </div>
       </section>
 
-      {/* Events Content */}
+      {/* Series grid + upcoming events + registration */}
       <Suspense fallback={<EventsSkeleton />}>
         <EventsContent
           featured={featured ?? null}
@@ -101,96 +115,56 @@ export default async function EventsPage() {
         />
       </Suspense>
 
-      {/* Movies on the Menu Spotlight */}
-      <section className="py-16 lg:py-24 bg-[#1A1A1A]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <span className="text-sm font-semibold text-[#C9A84C] uppercase tracking-wider">
-                Our Signature Series
+      {/* Partner / sponsor CTA */}
+      <section className="relative bg-[#141413] py-20 sm:py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-starfield opacity-60" aria-hidden />
+        <div
+          className="aurora-blob absolute -top-32 left-1/4 w-[30rem] h-[30rem] rounded-full bg-[#C9A84C]/10"
+          aria-hidden
+        />
+        <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-6">
+            <Link
+              href="/get-involved/donate"
+              className="group relative block rounded-3xl overflow-hidden border border-[#C9A84C]/30 bg-gradient-to-br from-[#C9A84C] to-[#A68A2E] p-8 sm:p-10 min-h-[14rem]"
+            >
+              <div className="absolute top-6 right-6 w-11 h-11 rounded-full bg-[#1A1A1A]/15 flex items-center justify-center text-[#1A1A1A] group-hover:bg-[#1A1A1A] group-hover:text-[#C9A84C] transition-colors">
+                <Heart className="h-5 w-5" />
+              </div>
+              <p className="text-[#1A1A1A]/70 text-xs font-semibold tracking-[0.3em] uppercase">
+                Sponsor a Night
+              </p>
+              <h3 className="mt-3 font-bold text-[#1A1A1A] text-2xl sm:text-3xl leading-tight max-w-md">
+                Put a family in the front row.
+              </h3>
+              <p className="mt-2 text-[#1A1A1A]/75 max-w-md">
+                $500 covers a full Movies on the Menu night. Dinner, seats, and
+                the memory.
+              </p>
+            </Link>
+
+            <Link
+              href="/get-involved/partner"
+              className="group relative block rounded-3xl overflow-hidden border border-white/15 bg-white/[0.04] backdrop-blur p-8 sm:p-10 min-h-[14rem] hover:border-[#C9A84C]/50 transition-colors"
+            >
+              <div className="absolute top-6 right-6 w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white group-hover:bg-[#C9A84C] group-hover:text-[#1A1A1A] transition-colors">
+                <Handshake className="h-5 w-5" />
+              </div>
+              <p className="text-[#C9A84C] text-xs font-semibold tracking-[0.3em] uppercase">
+                Host With Us
+              </p>
+              <h3 className="mt-3 font-bold text-white text-2xl sm:text-3xl leading-tight max-w-md">
+                Bring an event to your block.
+              </h3>
+              <p className="mt-2 text-white/60 max-w-md">
+                Organizations, venues, and community leaders: let&apos;s make
+                something together.
+              </p>
+              <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[#E8D48B]">
+                Start the conversation
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-6">
-                Movies on the Menu
-              </h2>
-              <p className="text-white/70 leading-relaxed mb-6">
-                It started as a simple idea: what if movie night could be more
-                than just a movie? What if it could be a full experience: a
-                themed dinner, a community gathering, and quality time with the
-                people who matter most?
-              </p>
-              <p className="text-white/70 leading-relaxed mb-8">
-                Every Movies on the Menu event pairs a family-friendly
-                blockbuster with a custom dinner menu. We handle the cooking, the
-                screening, and the details. You just show up ready to make
-                memories.
-              </p>
-              <ul className="space-y-3 mb-8">
-                {[
-                  "Themed dinner included in ticket price",
-                  "Family-style seating to encourage connection",
-                  "Big-screen movie experience",
-                  "Activities and games for kids",
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-white/70">
-                    <Star className="h-4 w-4 text-[#C9A84C] fill-[#C9A84C]" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Button asChild>
-                <Link href="/get-involved/enroll">
-                  Sign Up for Event Updates
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Link>
-              </Button>
-            </div>
-
-            <div className="relative">
-              <div className="aspect-[4/3] rounded-2xl overflow-hidden relative">
-                <Image
-                  src="/images/generated/movies-on-menu.png"
-                  alt="Black families enjoying Movies on the Menu - fathers and children bonding over dinner and a movie"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              </div>
-              {/* Stats Card */}
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-xl p-4 shadow-lg">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-[#FBF6E9] flex items-center justify-center">
-                    <Users className="h-6 w-6 text-[#C9A84C]" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-[#1A1A1A]">500+</p>
-                    <p className="text-sm text-[#888888]">Attendee Goal 2025</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 lg:py-20 bg-[#FBF6E9]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#1A1A1A] mb-4">
-              Want to Host an Event With Us?
-            </h2>
-            <p className="text-[#555555] mb-8">
-              We partner with organizations, sponsors, and community leaders to
-              create impactful events. Let&apos;s talk about how we can collaborate.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg">
-                <Link href="/get-involved/partner">Become a Partner</Link>
-              </Button>
-              <Button asChild variant="outline" size="lg">
-                <Link href="/contact">Contact Us</Link>
-              </Button>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
