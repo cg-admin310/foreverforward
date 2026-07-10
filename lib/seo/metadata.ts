@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 const siteConfig = {
   name: "Forever Forward",
   description:
-    "Introducing underserved communities to the technologies shaping tomorrow — career training for fathers, robotics and AI for youth, and unforgettable moments for families across Greater Los Angeles.",
+    "Introducing underserved communities to the technologies shaping tomorrow: career training for fathers, robotics and AI for youth, and unforgettable moments for families across Greater Los Angeles.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://forever4ward.org",
   ogImage: "/og-image.jpg",
   author: "Forever Forward Foundation",

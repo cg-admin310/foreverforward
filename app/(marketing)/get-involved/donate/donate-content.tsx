@@ -25,13 +25,13 @@ const impactTiers = [
   {
     amount: 50,
     title: "Spark",
-    impact: "Puts a robotics kit in a kid's hands at a Future Builders workshop",
+    impact: "Puts a robotics kit in a kid's hands and a \"why not me?\" in their head",
     icon: "🤖",
   },
   {
     amount: 200,
     title: "Builder",
-    impact: "Covers a father's certification exam on his career pathway",
+    impact: "Covers a father's certification exam. That's a career, changing hands for $200",
     icon: "🎓",
     popular: true,
   },
@@ -48,19 +48,19 @@ const impactAreas = [
     icon: GraduationCap,
     title: "Career Forward",
     description:
-      "Your gift trains fathers in IT & cybersecurity, plumbing & skilled trades, and auto & EV mechanics.",
+      "Twelve weeks of career training for fathers: IT & cybersecurity, plumbing & skilled trades, auto & EV mechanics. Real certifications, real paychecks.",
   },
   {
     icon: Users,
     title: "Future Builders",
     description:
-      "Fund robotics, AI, 3D printing, and satellite-tracking workshops that show kids the future is theirs.",
+      "Robotics, AI, 3D printing, and satellite-tracking workshops. The first time a kid's own code makes a robot move, the ceiling moves too.",
   },
   {
     icon: Heart,
     title: "Making Moments",
     description:
-      "Support Movies on the Menu, robot races, and festivals that strengthen father-child bonds.",
+      "Movies on the Menu, robot races, festivals. Dinner's covered, the movie's picked. Dad's only job is to be there.",
   },
 ];
 
@@ -85,7 +85,7 @@ export function DonateContent() {
   // Check for cancelled checkout
   useEffect(() => {
     if (searchParams.get("cancelled") === "true") {
-      setError("Your donation was cancelled. Feel free to try again when you're ready.");
+      setError("No worries, checkout got cancelled. We'll be right here when you're ready.");
     }
   }, [searchParams]);
 
@@ -173,7 +173,7 @@ export function DonateContent() {
               </span>
             </h1>
             <p className="text-lg sm:text-xl text-white/80">
-              Every dollar puts real technology in real hands — a father&apos;s
+              Every dollar puts real technology in real hands: a father&apos;s
               certification, a kid&apos;s first robot, a family&apos;s movie night
               under the stars.
             </p>
@@ -300,7 +300,7 @@ export function DonateContent() {
             {/* Optional Donor Info */}
             <div className="mb-8 space-y-4">
               <p className="text-sm text-[#888888] text-center">
-                Optional: Pre-fill your information (you can also enter it on the next page)
+                Optional: save yourself some typing on the next page
               </p>
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input
@@ -348,7 +348,8 @@ export function DonateContent() {
 
             {/* Security Note */}
             <p className="text-center text-sm text-[#888888] mt-4">
-              Secure payment powered by Stripe. Your donation is tax-deductible.
+              Secure checkout via Stripe. Tax-deductible, and yes, the receipt
+              hits your inbox before you can ask for it.
             </p>
           </motion.div>
         </div>
@@ -359,7 +360,7 @@ export function DonateContent() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Your Impact"
-            subtitle="See how your generosity transforms lives."
+            subtitle="Here's what your money actually does."
             centered
           />
 
@@ -411,8 +412,8 @@ export function DonateContent() {
               Where Your Money Goes
             </h2>
             <p className="text-white/70 max-w-2xl mx-auto">
-              As a 501(c)(3) nonprofit, we&apos;re committed to transparency. Here&apos;s
-              how your donation makes an impact.
+              We&apos;re a 501(c)(3), and we like receipts as much as you do.
+              Here&apos;s exactly where your donation lands.
             </p>
           </motion.div>
 
@@ -444,7 +445,7 @@ export function DonateContent() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Other Ways to Give"
-            subtitle="There are many ways to support our mission."
+            subtitle="Cash isn't the only way in."
             centered
           />
 
@@ -453,22 +454,22 @@ export function DonateContent() {
               {
                 title: "Corporate Matching",
                 description:
-                  "Many employers match charitable donations. Check if yours does!",
+                  "Many employers match donations dollar for dollar. One email to HR could double your gift.",
               },
               {
                 title: "Stock Donations",
                 description:
-                  "Donate appreciated securities for potential tax benefits.",
+                  "Appreciated securities work too, often with tax perks your accountant will approve of.",
               },
               {
                 title: "Planned Giving",
                 description:
-                  "Include Forever Forward in your estate planning.",
+                  "Legacy is kind of our whole thing. Include Forever Forward in your estate plans and keep the mission moving.",
               },
               {
                 title: "In-Kind Donations",
                 description:
-                  "Donate laptops, robotics kits, 3D printers, tools, or professional services.",
+                  "Laptops, robotics kits, 3D printers, tools, professional skills. If it helps, we'll put it to work.",
               },
             ].map((item, index) => (
               <motion.div
@@ -495,7 +496,7 @@ export function DonateContent() {
             className="text-center mt-12"
           >
             <p className="text-[#555555] mb-4">
-              Questions about giving? We&apos;re happy to help.
+              Questions about giving? Ask away. We&apos;re easy to talk to.
             </p>
             <Button asChild variant="outline">
               <Link href="/contact">Contact Us</Link>

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     template: "%s | Forever Forward",
   },
   description:
-    "Forever Forward is a 501(c)(3) nonprofit introducing underserved communities to the technologies shaping tomorrow — AI, robotics, 3D printing, and satellites — while training fathers for real careers in IT, skilled trades, and auto mechanics, and bringing families together through unforgettable community events.",
+    "Forever Forward is a 501(c)(3) nonprofit introducing Black and brown communities to the technologies shaping tomorrow: AI, robotics, 3D printing, satellites, and more. We train fathers for real careers in IT, skilled trades, and auto mechanics, and bring families together through unforgettable community events.",
   keywords: [
     "Forever Forward",
     "nonprofit",

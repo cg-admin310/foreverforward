@@ -53,7 +53,7 @@ export function FooterPremium() {
                 The future has a newsletter.
               </h3>
               <p className="text-white/60">
-                Program dates, movie nights, robot races, and wins from the community. No spam — just forward motion.
+                Program dates, movie nights, robot races, and wins from the community. No spam, just forward motion.
               </p>
             </div>
 
@@ -64,7 +64,7 @@ export function FooterPremium() {
                 className="flex items-center gap-3 px-6 py-4 rounded-xl bg-[#5A7247]/20 text-[#5A7247]"
               >
                 <CheckCircle className="h-5 w-5" />
-                <span className="font-medium">You&apos;re subscribed! Watch for updates.</span>
+                <span className="font-medium">You&apos;re in. Forward motion, delivered.</span>
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="flex gap-3">
@@ -100,7 +100,7 @@ export function FooterPremium() {
               />
             </Link>
             <p className="text-white/60 text-sm leading-relaxed mb-6">
-              Introducing underserved communities to the technologies shaping tomorrow — and turning that spark into careers, confidence, and legacy.
+              Introducing underserved communities to the technologies shaping tomorrow, and turning that spark into careers, confidence, and legacy.
             </p>
             <p className="text-white/40 text-xs">
               501(c)(3) Nonprofit Organization

@@ -82,7 +82,7 @@ export default async function EventsPage() {
             </h1>
             <p className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto">
               From our signature Movies on the Menu series to workshops and job
-              fairs—our events create opportunities for connection, learning, and fun.
+              fairs, our events create opportunities for connection, learning, and fun.
             </p>
           </div>
         </div>
@@ -114,14 +114,14 @@ export default async function EventsPage() {
               </h2>
               <p className="text-white/70 leading-relaxed mb-6">
                 It started as a simple idea: what if movie night could be more
-                than just a movie? What if it could be a full experience—a
+                than just a movie? What if it could be a full experience: a
                 themed dinner, a community gathering, and quality time with the
                 people who matter most?
               </p>
               <p className="text-white/70 leading-relaxed mb-8">
                 Every Movies on the Menu event pairs a family-friendly
                 blockbuster with a custom dinner menu. We handle the cooking, the
-                screening, and the details—you just show up ready to make
+                screening, and the details. You just show up ready to make
                 memories.
               </p>
               <ul className="space-y-3 mb-8">

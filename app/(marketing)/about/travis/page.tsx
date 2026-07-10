@@ -24,13 +24,13 @@ const capabilities = [
     icon: MessageCircle,
     title: "24/7 Support",
     description:
-      "Travis is always available to answer questions, provide guidance, and offer encouragement—day or night.",
+      "Travis is always available to answer questions, provide guidance, and offer encouragement, day or night.",
   },
   {
     icon: BookOpen,
     title: "Study Assistance",
     description:
-      "Get help with coursework, exam prep, and understanding tough concepts in plain language — whatever pathway you're on.",
+      "Get help with coursework, exam prep, and understanding tough concepts in plain language, whatever pathway you're on.",
   },
   {
     icon: Brain,
@@ -126,7 +126,7 @@ export default function TravisPage() {
               <p className="text-lg sm:text-xl text-white/70 mb-8">
                 Your AI case manager who&apos;s available 24/7 to answer questions,
                 provide study help, connect you with resources, and support you
-                on your journey—with a kind heart and endless patience.
+                on your journey, with a kind heart and endless patience.
               </p>
               <Button asChild size="lg">
                 <Link href="/get-involved/enroll">
@@ -285,13 +285,13 @@ export default function TravisPage() {
 
                   <div className="flex">
                     <div className="bg-[#444444] text-white rounded-lg rounded-bl-sm px-4 py-3 max-w-[85%]">
-                      I totally get it—networking can feel like drinking from a
+                      I totally get it. Networking can feel like drinking from a
                       fire hose at first. The good news? You don&apos;t need to master
                       everything at once.
                       <br />
                       <br />
                       Let&apos;s break it down: which part feels most confusing right
-                      now—subnetting, protocols, or something else?
+                      now? Subnetting, protocols, or something else?
                     </div>
                   </div>
 
@@ -303,7 +303,7 @@ export default function TravisPage() {
 
                   <div className="flex">
                     <div className="bg-[#444444] text-white rounded-lg rounded-bl-sm px-4 py-3 max-w-[85%]">
-                      Perfect—that&apos;s actually one of the most common pain points,
+                      Perfect, that&apos;s actually one of the most common pain points,
                       so you&apos;re not alone! I&apos;ve got a great 10-minute video that
                       explains subnetting using a pizza analogy. Want me to pull
                       that up?
@@ -343,7 +343,7 @@ export default function TravisPage() {
                 A Conversation With Travis
               </h2>
               <p className="text-white/70 leading-relaxed mb-6">
-                Travis doesn&apos;t just give generic answers—he understands the
+                Travis doesn&apos;t just give generic answers. He understands the
                 challenges our participants face and responds with empathy,
                 patience, and practical help.
               </p>
@@ -414,11 +414,11 @@ export default function TravisPage() {
               },
               {
                 q: "Can Travis help with non-program questions?",
-                a: "Yes! Travis can help with general life challenges—finding childcare, understanding legal resources, managing stress. If something is outside his expertise, he'll connect you with the right person or organization.",
+                a: "Yes! Travis can help with general life challenges: finding childcare, understanding legal resources, managing stress. If something is outside his expertise, he'll connect you with the right person or organization.",
               },
               {
                 q: "Is my conversation data private?",
-                a: "Absolutely. Your conversations are encrypted and only accessible to you and your case worker. We never sell or share your data. Travis will only escalate to human staff when you need more support—and you'll always be informed.",
+                a: "Absolutely. Your conversations are encrypted and only accessible to you and your case worker. We never sell or share your data. Travis will only escalate to human staff when you need more support, and you'll always be informed.",
               },
               {
                 q: "What if Travis gives wrong information?",

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Join Forces with Forever Forward",
     description:
-      "Community organizations, employers, sponsors, and schools — joining forces so the whole neighborhood levels up.",
+      "Community organizations, employers, sponsors, and schools, joining forces so the whole neighborhood levels up.",
     type: "website",
     url: "/get-involved/partner",
   },

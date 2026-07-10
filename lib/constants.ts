@@ -23,9 +23,10 @@ export const BRAND_COLORS = {
 export const MISSION = {
   headline: "The future belongs to our families.",
   statement:
-    "Forever Forward introduces underserved communities to the technologies shaping tomorrow — AI, robotics, 3D printing, satellites orbiting overhead — and turns that first spark of curiosity into careers, confidence, and legacy.",
+    "We're a crew of dads, builders, and believers putting tomorrow's technology in the hands of Black and brown communities. AI, robotics, 3D printing, satellites, even rockets. The kind of exposure that turns a first \"whoa\" into careers, confidence, and legacy. We're not chasing perfect. We're chasing forward.",
   founderNote:
-    "I'm a Black father. I started with what I knew — and built forward from there.",
+    "I'm a Black father, born in Compton in the late 1900s. I started with what I knew and built forward from there.",
+  mantra: "Progress over perfection. Every single week.",
 } as const;
 
 // The three pillars everything on the site rolls up to.
@@ -36,7 +37,7 @@ export const PILLARS = [
     name: "Career Forward",
     headline: "Real training. Real credentials. Real careers.",
     description:
-      "Career pathways built for fathers — IT and cybersecurity, plumbing and skilled trades, EV and auto mechanics. Modern industries that pay real wages and can't be outsourced. Pick a path. Build a legacy.",
+      "Twelve weeks of career training built around real life: evenings and Saturdays, in IT and cybersecurity, plumbing and skilled trades, or auto and EV mechanics. Work that pays real money and can't be outsourced. You don't need to have it all figured out. You just need to show up. We'll figure out the rest together.",
     image: "/images/future/pillar-careers.jpg",
     href: "/programs/father-forward",
   },
@@ -46,7 +47,7 @@ export const PILLARS = [
     name: "Future Builders",
     headline: "The first time a kid sees the future, everything changes.",
     description:
-      "Robotics they can build. AI they can direct. 3D printers that turn their ideas into objects. Satellites they can track across the night sky. We put tomorrow's tools in young hands — the same hands the future is waiting on.",
+      "Robots they build. AI they get to boss around. 3D printers that turn \"what if\" into \"look what I made.\" Books they write and publish with their own name on the cover. We hand kids tomorrow's tools, then get out of the way.",
     image: "/images/future/pillar-future-tech.jpg",
     href: "/programs/tech-ready-youth",
   },
@@ -56,7 +57,7 @@ export const PILLARS = [
     name: "Making Moments",
     headline: "Joy is a strategy.",
     description:
-      "Movie nights with dinner on us. Robot races in the park. Festivals where fathers and kids show up as a team. Because strong families aren't built in classrooms alone — they're built in moments.",
+      "Movie nights with dinner on us. Robot races in the park. Evenings where the only assignment is being together. Strong families aren't built in classrooms. They're built in moments, so we make moments, on purpose, all year long.",
     image: "/images/future/pillar-moments.jpg",
     href: "/programs/making-moments",
   },
@@ -67,7 +68,8 @@ export const CAREER_PATHWAYS = [
   {
     id: "it",
     name: "IT & Cybersecurity",
-    detail: "Google IT Support Certificate prep, networks, cloud, and security fundamentals.",
+    detail:
+      "CompTIA ITF+ certification prep, networks, data centers, and security. A real runway from help desk to network and systems engineer.",
   },
   {
     id: "trades",
@@ -85,32 +87,42 @@ export const CAREER_PATHWAYS = [
 export const FUTURE_TECH = [
   {
     id: "ai",
-    name: "Artificial Intelligence",
-    line: "Not just using it — directing it.",
+    name: "AI & Machine Learning",
+    line: "Not just using it. Directing it.",
   },
   {
     id: "robotics",
     name: "Robotics",
-    line: "Build it, code it, race it.",
+    line: "Build it. Code it. Race it.",
   },
   {
     id: "printing",
     name: "3D Printing",
-    line: "From imagination to object in an afternoon.",
+    line: "From \"what if\" to \"in your hand\" in an afternoon.",
   },
   {
     id: "orbit",
-    name: "Low Earth Orbit",
+    name: "Rockets & Low Earth Orbit",
     line: "Satellites overhead, tracked from our own rooftops.",
+  },
+  {
+    id: "blockchain",
+    name: "Blockchain",
+    line: "The rails tomorrow's money and records run on.",
+  },
+  {
+    id: "energy",
+    name: "Renewable Energy",
+    line: "The power of the future, and the paychecks that come with it.",
   },
 ] as const;
 
 // How we show up for the wider nonprofit community — collaboration, not sales.
 export const COMMUNITY_TECH = {
   kicker: "Stronger Together",
-  headline: "We help other organizations power up, too.",
+  headline: "We help other nonprofits power up, too.",
   description:
-    "Forever Forward builds apps and shares technology with fellow nonprofits — joining forces so the whole community-resource space can serve people better. When one organization levels up, everyone it serves levels up with it.",
+    "A lot of organizations are doing big work with old tools. So we jump in. We get fellow nonprofits onto modern platforms, tighten up their tech, build small custom tools, and put AI to work so limited resources stretch further. We're not selling anything. We're joining forces. When one org levels up, every family it serves levels up with it.",
 } as const;
 
 export const PROGRAMS = [
@@ -119,10 +131,10 @@ export const PROGRAMS = [
     name: "Father Forward",
     tagline: "Pick a Path. Build a Legacy.",
     audience: "fathers" as const,
-    duration: "8 weeks",
+    duration: "12 weeks",
     format: "Hybrid",
     description:
-      "Career training built for fathers — choose IT & cybersecurity, plumbing & skilled trades, or auto & EV mechanics, with leadership coaching and a community that has your back.",
+      "Twelve weeks of career training built for dads: IT & cybersecurity, plumbing & skilled trades, or auto & EV mechanics. Guest speakers from the industry, leadership you can use at home, and a crew that won't let you quit on yourself.",
     icon: "💼",
   },
   {
@@ -133,7 +145,7 @@ export const PROGRAMS = [
     duration: "8 weeks",
     format: "Hybrid",
     description:
-      "Hands-on robotics, AI, and real hardware for ages 16+ — ending in a capstone gaming tournament where the skills get put to the test.",
+      "Robots, AI, and real hardware for ages 16+. Eight weeks of building things that actually work, capped off with a gaming tournament they run themselves.",
     icon: "🤖",
   },
   {
@@ -144,7 +156,7 @@ export const PROGRAMS = [
     duration: "Ongoing",
     format: "In-person",
     description:
-      "Community events that strengthen father-child bonds — dinner-and-a-movie nights, robot races, and festivals the whole family looks forward to.",
+      "Dinner-and-a-movie nights, robot races, festivals. Events built so dads and kids get real time together, with no agenda except a good one.",
     icon: "❤️",
   },
   {
@@ -155,7 +167,7 @@ export const PROGRAMS = [
     duration: "Multi-phase",
     format: "Hybrid",
     description:
-      "A filmmaking program with Dawnn Lewis where students use AI and Unreal Engine to bring their own stories to the big screen.",
+      "Students write it, AI and Unreal Engine help build it, and a real festival premieres it. Filmmaking with Dawnn Lewis, from first line to final cut.",
     icon: "🎬",
   },
   {
@@ -166,7 +178,7 @@ export const PROGRAMS = [
     duration: "Workshop",
     format: "In-person",
     description:
-      "Kids write the story of who they'll become, design it with AI, and 3D-print a piece of that future to take home.",
+      "Kids write the story of their future self, illustrate it with AI, publish it as a real book, and 3D-print a piece of that future to take home. Published author by dinnertime.",
     icon: "✨",
   },
   {
@@ -177,7 +189,7 @@ export const PROGRAMS = [
     duration: "Ongoing",
     format: "Online",
     description:
-      "A gamified STEM platform with AI-powered tutoring, interactive lessons, and real-world projects.",
+      "A gamified STEM platform where the character kids level up is themselves. AI tutoring included, patience unlimited.",
     icon: "🎮",
   },
 ];

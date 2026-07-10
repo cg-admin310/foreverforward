@@ -99,7 +99,7 @@ export function ImpactContent({ metrics, allocation, tierStats }: ImpactContentP
               </span>
             </h2>
             <p className="text-[#555555] max-w-2xl mx-auto">
-              These are the numbers we&apos;re building toward — so you can hold us to
+              These are the numbers we&apos;re building toward, so you can hold us to
               them. Every donation, volunteer hour, and partnership moves the count.
             </p>
           </motion.div>
@@ -171,8 +171,8 @@ export function ImpactContent({ metrics, allocation, tierStats }: ImpactContentP
                 Where Your Dollar Goes
               </h2>
               <p className="text-[#555555] mb-8">
-                We believe in transparency. Here&apos;s exactly how we allocate every dollar
-                you contribute to Forever Forward.
+                No mystery math. Here&apos;s exactly where every dollar you give
+                ends up.
               </p>
 
               {/* Allocation Breakdown */}
@@ -329,8 +329,8 @@ export function ImpactContent({ metrics, allocation, tierStats }: ImpactContentP
               Our Donor Community
             </h2>
             <p className="text-[#555555] max-w-2xl mx-auto">
-              Thank you to every donor who believes in our mission. Together, we&apos;re
-              building a movement for economic empowerment.
+              These are the people who put their money where the mission is.
+              We don&apos;t take a single one for granted.
             </p>
           </motion.div>
 
@@ -406,8 +406,8 @@ export function ImpactContent({ metrics, allocation, tierStats }: ImpactContentP
                 Program Outcomes
               </h2>
               <p className="text-[#555555] max-w-2xl mx-auto">
-                Measuring success through real career placements, certifications earned,
-                and families strengthened.
+                We count what matters: careers started, certifications earned,
+                families showing up for each other.
               </p>
             </motion.div>
 

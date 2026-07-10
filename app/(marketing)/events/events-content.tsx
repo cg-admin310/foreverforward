@@ -320,7 +320,7 @@ export function EventsContent({
                   The Next Moment Is in the Works
                 </h2>
                 <p className="text-lg text-[#555555] mb-8 max-w-lg mx-auto leading-relaxed">
-                  Movie nights, robot races, night-sky watch parties — we&apos;re cooking
+                  Movie nights, robot races, night-sky watch parties: we&apos;re cooking
                   up the next one now. Be the first to know when it drops.
                 </p>
 
@@ -370,7 +370,7 @@ export function EventsContent({
             </div>
             <p className="text-[#555555] max-w-md">
               Dinner-and-a-movie nights, robot races, night-sky watch parties, and
-              festivals — moments built for fathers, kids, and the whole family.
+              festivals. Moments built for fathers, kids, and the whole family.
             </p>
           </motion.div>
 
@@ -631,7 +631,7 @@ export function EventsContent({
                 Moments We&apos;ve Made
               </h2>
               <p className="text-[#888888]">
-                A look back at recent gatherings — and the families who showed up
+                Proof it happens: recent gatherings, and the families who showed up
               </p>
             </motion.div>
 
@@ -738,10 +738,10 @@ export function EventsContent({
                     <CheckCircle className="h-10 w-10 text-[#5A7247]" />
                   </div>
                   <h3 className="text-2xl font-bold text-[#1A1A1A] mb-2">
-                    You&apos;re Registered!
+                    You&apos;re In
                   </h3>
                   <p className="text-[#555555] mb-6">
-                    Check your email for confirmation and event details.
+                    The details are in your email. Your only job now is to show up.
                   </p>
                   <Button onClick={handleCloseModal} size="lg">
                     Done
@@ -1006,7 +1006,7 @@ export function EventsContent({
                     <Input
                       value={formData.accessibilityNeeds}
                       onChange={(e) => setFormData({ ...formData, accessibilityNeeds: e.target.value })}
-                      placeholder="Let us know how we can accommodate you"
+                      placeholder="Tell us what you need and we'll make it work"
                     />
                   </div>
 

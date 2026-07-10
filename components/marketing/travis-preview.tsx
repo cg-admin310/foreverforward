@@ -27,7 +27,7 @@ const DEMO_CONVERSATIONS: Record<string, Message[]> = {
     },
     {
       role: "travis",
-      message: "I hear you, and that feeling is completely normal! Remember, you're not just learning IT — you're building a new future for yourself and your family. Let's break this down together.",
+      message: "I hear you, and that feeling is completely normal! Remember, you're not just learning IT. You're building a new future for yourself and your family. Let's break this down together.",
       delay: 5000,
     },
     {
@@ -49,7 +49,7 @@ const DEMO_CONVERSATIONS: Record<string, Message[]> = {
   career_guidance: [
     {
       role: "travis",
-      message: "Welcome back! I've been tracking your progress — you've completed 75% of the curriculum! That's incredible dedication. How are you feeling about the job search ahead?",
+      message: "Welcome back! I've been tracking your progress, and you've completed 75% of the curriculum! That's incredible dedication. How are you feeling about the job search ahead?",
       delay: 0,
     },
     {
@@ -59,7 +59,7 @@ const DEMO_CONVERSATIONS: Record<string, Message[]> = {
     },
     {
       role: "travis",
-      message: "That honesty takes courage. Here's what I see: You've passed every lab exercise, you've helped three other participants debug their projects, and you've never missed a session. That's not luck — that's you.",
+      message: "That honesty takes courage. Here's what I see: You've passed every lab exercise, you've helped three other participants debug their projects, and you've never missed a session. That's not luck. That's you.",
       delay: 5000,
     },
     {
@@ -397,7 +397,7 @@ export function TravisPreview() {
               {
                 icon: Heart,
                 title: "Emotional Support",
-                description: "More than tech help — real encouragement when you need it.",
+                description: "More than tech help: real encouragement when you need it.",
               },
             ].map((feature, idx) => (
               <motion.div

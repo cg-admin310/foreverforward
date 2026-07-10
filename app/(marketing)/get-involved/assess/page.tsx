@@ -385,9 +385,9 @@ export default function AssessPage() {
               </span>
             </h1>
             <p className="text-lg text-white/70 max-w-2xl mx-auto">
-              Answer a few questions about your situation and goals, and we&apos;ll
-              point you to the pathway or program built for your journey — no wrong
-              answers, no judgment, just forward.
+              A few honest questions, two minutes, and we&apos;ll point you to the
+              program built for you. You don&apos;t need to have it all figured
+              out. You just need to start here.
             </p>
           </motion.div>
         </div>
@@ -673,7 +673,7 @@ export default function AssessPage() {
                         Current Barriers (select all that apply)
                       </label>
                       <p className="text-sm text-[#888888] mb-3">
-                        We ask this to connect you with resources. Your answers are confidential.
+                        We ask so we can help, not judge. Your answers stay between us.
                       </p>
                       <div className="grid grid-cols-2 gap-2">
                         {BARRIER_OPTIONS.map((option) => (
@@ -876,7 +876,7 @@ export default function AssessPage() {
                       <textarea
                         value={formData.sixMonthVision}
                         onChange={(e) => updateField("sixMonthVision", e.target.value)}
-                        placeholder="Describe your ideal situation..."
+                        placeholder="Dream a little. Where do you want to be?"
                         rows={3}
                         className="w-full px-4 py-2.5 border border-[#DDDDDD] rounded-lg focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C] resize-none"
                       />
@@ -1073,10 +1073,10 @@ export default function AssessPage() {
                     <div className="text-center py-12">
                       <Loader2 className="w-12 h-12 text-[#C9A84C] animate-spin mx-auto mb-4" />
                       <h3 className="text-xl font-semibold text-[#1A1A1A] mb-2">
-                        Analyzing Your Assessment...
+                        Crunching Your Answers...
                       </h3>
                       <p className="text-[#888888]">
-                        Our AI is finding the best programs for you
+                        Give us a second, we&apos;re matching you to the right door
                       </p>
                     </div>
                   ) : error ? (
@@ -1097,10 +1097,10 @@ export default function AssessPage() {
                           <CheckCircle2 className="w-8 h-8 text-[#5A7247]" />
                         </div>
                         <h2 className="text-2xl font-semibold text-[#1A1A1A] mb-2">
-                          Your Recommended Programs
+                          Here&apos;s Your Path Forward
                         </h2>
                         <p className="text-[#888888]">
-                          Based on your assessment, here are the programs that best match your goals
+                          Based on your answers, these are the doors we&apos;d knock on first
                         </p>
                       </div>
 
@@ -1172,8 +1172,8 @@ export default function AssessPage() {
 
                       <div className="mt-8 p-4 bg-[#EFF4EB] rounded-lg">
                         <p className="text-sm text-[#5A7247]">
-                          <strong>Not sure which to choose?</strong> Our team will reach out within
-                          24 hours to discuss your options and answer any questions.
+                          <strong>Still torn?</strong> A real person will reach out within
+                          24 hours to talk it through. No pressure, no pitch. We&apos;ve got your back.
                         </p>
                       </div>
 

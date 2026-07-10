@@ -4,7 +4,7 @@ import { ProgramsContentPremium } from "./programs-content-premium";
 export const metadata: Metadata = {
   title: "Programs",
   description:
-    "Six programs. Three doors. One direction: forward. Career pathways for fathers, future tech in young hands, and family moments made on purpose — free across Greater Los Angeles.",
+    "Six programs. Three doors. One direction: forward. Career pathways for fathers, future tech in young hands, and family moments made on purpose, free across Greater Los Angeles.",
   keywords: [
     "father programs Los Angeles",
     "career pathways for fathers",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
         url: "/images/future/pillar-future-tech.jpg",
         width: 1200,
         height: 630,
-        alt: "Forever Forward Programs — young people building the future with real technology",
+        alt: "Forever Forward Programs: young people building the future with real technology",
       },
     ],
   },
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Programs | Forever Forward",
     description:
-      "Career pathways for fathers, future tech for youth, and family moments made on purpose — free for our community.",
+      "Career pathways for fathers, future tech for youth, and family moments made on purpose. Free for our community.",
     images: ["/images/future/pillar-future-tech.jpg"],
   },
   alternates: {

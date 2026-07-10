@@ -225,10 +225,10 @@ export function EnrollContent() {
               </span>
             </h1>
             <p className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto">
-              Fathers: pick your pathway — IT &amp; cybersecurity, skilled trades, or
+              Fathers: pick your pathway from IT &amp; cybersecurity, skilled trades, or
               auto &amp; EV. Kids and youth: robotics, filmmaking, 3D printing, and
               more. It costs nothing but the decision, and we&apos;re with you every
-              step.
+              step. (And yes, women&apos;s programs are coming soon.)
             </p>
           </motion.div>
         </div>
@@ -295,7 +295,7 @@ export function EnrollContent() {
               >
                 <SectionHeading
                   title="Choose Your Door"
-                  subtitle="Career training for fathers, future tech for kids and youth — pick the program that fits your goals."
+                  subtitle="Career training for fathers, future tech for kids and youth. Pick the one that fits. You can't get this wrong."
                   centered
                 />
 
@@ -742,7 +742,7 @@ export function EnrollContent() {
                           value={formData.goals}
                           onChange={(e) => updateField("goals", e.target.value)}
                           rows={3}
-                          placeholder="Tell us about your goals and what success looks like for you..."
+                          placeholder="What does forward look like for you? No wrong answers here."
                           className="w-full rounded-lg border border-[#DDDDDD] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
                           required
                         />
@@ -750,7 +750,7 @@ export function EnrollContent() {
 
                       <div>
                         <label className="block text-sm font-medium text-[#1A1A1A] mb-1">
-                          Are there any barriers we should know about?
+                          Anything that could get in the way?
                         </label>
                         <textarea
                           value={formData.barriers}
@@ -758,7 +758,7 @@ export function EnrollContent() {
                             updateField("barriers", e.target.value)
                           }
                           rows={2}
-                          placeholder="Transportation, childcare, work schedule, etc. We're here to help find solutions."
+                          placeholder="Transportation, childcare, work schedule: tell us and we'll figure it out together."
                           className="w-full rounded-lg border border-[#DDDDDD] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
                         />
                       </div>
@@ -832,13 +832,13 @@ export function EnrollContent() {
                 </div>
 
                 <h2 className="text-3xl font-bold text-[#1A1A1A] mb-4">
-                  Application Received!
+                  That Was the Hard Part
                 </h2>
 
                 <p className="text-[#555555] text-lg max-w-lg mx-auto mb-8">
-                  Thank you for applying to {selectedProgram?.name}. We&apos;re
-                  excited to review your application and will be in touch within
-                  3-5 business days.
+                  Your application to {selectedProgram?.name} is in. A real
+                  human will review it and reach out within 3-5 business days.
+                  We save the robots for the workshops.
                 </p>
 
                 <div className="bg-white rounded-xl p-6 border border-[#DDDDDD] text-left max-w-md mx-auto mb-8">
@@ -847,10 +847,10 @@ export function EnrollContent() {
                   </h3>
                   <ul className="space-y-3">
                     {[
-                      "You'll receive a confirmation email shortly",
-                      "Our team will review your application",
-                      "We'll schedule a brief phone or video interview",
-                      "You'll receive your acceptance and next steps",
+                      "A confirmation email lands in your inbox shortly",
+                      "Our team reads your application, every word",
+                      "We set up a quick call (more conversation than interview)",
+                      "You get your acceptance and next steps",
                     ].map((item, index) => (
                       <li
                         key={index}
@@ -884,7 +884,7 @@ export function EnrollContent() {
         <section className="py-12 bg-[#FBF6E9]">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <p className="text-[#555555]">
-              Have questions about enrollment?{" "}
+              Stuck on a question? Second thoughts? Happens to everybody.{" "}
               <Link
                 href="/contact"
                 className="text-[#C9A84C] font-semibold hover:underline"

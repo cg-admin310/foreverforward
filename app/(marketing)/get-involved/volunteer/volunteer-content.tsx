@@ -24,14 +24,14 @@ const volunteerRoles = [
     title: "Career Pathway Mentor",
     commitment: "2-4 hours/week",
     description:
-      "Walk beside a father on the IT, skilled trades, or auto/EV pathway — encouragement, real talk, resume and interview prep.",
+      "Walk beside a father on the IT, skilled trades, or auto/EV pathway: encouragement, real talk, resume and interview prep.",
   },
   {
     icon: Popcorn,
     title: "Event Crew",
     commitment: "Flexible",
     description:
-      "Help run Movies on the Menu, robot races, and festival pop-ups — setup, registration, and keeping the joy on schedule.",
+      "Help run Movies on the Menu, robot races, and festival pop-ups: setup, registration, and keeping the joy on schedule.",
   },
   {
     icon: Presentation,
@@ -140,15 +140,15 @@ export function VolunteerContent() {
               Join the Mission
             </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-              Give Your Time,{" "}
+              Got Skills?{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] via-[#E8D48B] to-[#C9A84C]">
-                Shape a Future
+                Got a Saturday?
               </span>
             </h1>
             <p className="text-lg sm:text-xl text-white/80">
-              Mentor a father into a new career. Cheer at a robot race. Teach a
-              skill. Build an app for the neighborhood. Whatever you bring,
-              there&apos;s a place for it here.
+              We&apos;ve got fathers chasing new careers and kids building robots
+              who&apos;d love to meet you. Mentor, cheer, teach, build. Whatever
+              you bring, there&apos;s a place for it here.
             </p>
           </motion.div>
         </div>
@@ -160,8 +160,8 @@ export function VolunteerContent() {
       <section className="py-16 lg:py-24 bg-[#FAFAF8]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            title="Volunteer Opportunities"
-            subtitle="Find the right fit for your skills and schedule."
+            title="Ways to Show Up"
+            subtitle="Pick what fits your skills and your calendar. No perfection required, just presence."
             centered
           />
 
@@ -210,10 +210,10 @@ export function VolunteerContent() {
               </h2>
               <ul className="space-y-4">
                 {[
-                  "Make a direct impact on fathers, youth, and families",
+                  "See your impact up close: fathers, kids, whole families",
                   "Be the proof that these careers and futures are real",
-                  "Connect with a community of like-minded people",
-                  "Flexible scheduling that works with your life",
+                  "Meet good people building the same thing you are",
+                  "Flexible scheduling that works with your actual life",
                   "Watch a kid's face when their robot crosses the finish line",
                 ].map((item) => (
                   <li
@@ -251,7 +251,7 @@ export function VolunteerContent() {
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Sign Up to Volunteer"
-            subtitle="Tell us about yourself and how you'd like to help."
+            subtitle="Tell us who you are. We'll find you a spot."
             centered
           />
 
@@ -265,11 +265,11 @@ export function VolunteerContent() {
                 <CheckCircle2 className="h-8 w-8 text-[#5A7247]" />
               </div>
               <h3 className="text-xl font-semibold text-[#1A1A1A] mb-2">
-                Thank You for Your Interest!
+                Good Looking Out
               </h3>
               <p className="text-[#555555]">
-                We&apos;ll review your application and reach out within a week to
-                discuss next steps.
+                We&apos;ll read your application and reach out within a week to
+                find where you fit best. In the meantime, guard that Saturday.
               </p>
             </motion.div>
           ) : (
@@ -375,7 +375,7 @@ export function VolunteerContent() {
                       setFormData({ ...formData, experience: e.target.value })
                     }
                     rows={4}
-                    placeholder="Tell us about your background and why you want to volunteer..."
+                    placeholder="What do you do, and what makes you want to do this with us?"
                     className="w-full rounded-lg border border-[#DDDDDD] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
                     required
                   />
@@ -399,14 +399,14 @@ export function VolunteerContent() {
       <section className="py-12 bg-[#FBF6E9]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-[#555555]">
-            Questions about volunteering?{" "}
+            Not sure where you&apos;d fit?{" "}
             <Link
               href="/contact"
               className="text-[#C9A84C] font-semibold hover:underline"
             >
-              Contact us
+              Talk to us
             </Link>{" "}
-            and we&apos;ll be happy to help.
+            and we&apos;ll figure it out together.
           </p>
         </div>
       </section>

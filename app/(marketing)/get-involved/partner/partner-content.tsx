@@ -23,7 +23,7 @@ const partnershipTypes = [
     icon: Heart,
     title: "Community Organizations",
     description:
-      "Fellow nonprofits joining forces — co-run programs, share tech know-how, and build community apps together.",
+      "Fellow nonprofits joining forces: co-run programs, share tech know-how, and build community apps together.",
     benefits: [
       "Community apps built together",
       "Shared AI & tech know-how",
@@ -47,7 +47,7 @@ const partnershipTypes = [
     icon: Building2,
     title: "Sponsors",
     description:
-      "Fund a cohort of fathers, a robotics workshop, or a family event — and see exactly where it lands.",
+      "Fund a cohort of fathers, a robotics workshop, or a family event, and see exactly where it lands.",
     benefits: [
       "Name a cohort or event",
       "Recognition at events",
@@ -59,7 +59,7 @@ const partnershipTypes = [
     icon: School,
     title: "Schools",
     description:
-      "Host Future Builders workshops — robotics, 3D printing, and satellite tracking on your campus.",
+      "Host Future Builders workshops: robotics, 3D printing, and satellite tracking on your campus.",
     benefits: [
       "Turnkey STEM workshops",
       "Robotics & 3D-printing gear provided",
@@ -178,7 +178,7 @@ export function PartnerContent() {
               </span>
             </h1>
             <p className="text-lg sm:text-xl text-white/80">
-              We don&apos;t do vendors and clients — we do allies. Community
+              We don&apos;t do vendors and clients. We do allies. Community
               organizations, employers, sponsors, and schools joining forces so the
               whole neighborhood levels up.
             </p>
@@ -193,7 +193,7 @@ export function PartnerContent() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Four Ways to Join Forces"
-            subtitle="Pick the lane that fits your organization — or invent a fifth. We're flexible like that."
+            subtitle="Pick the lane that fits your organization, or invent a fifth. We're flexible like that."
             centered
           />
 
@@ -247,7 +247,7 @@ export function PartnerContent() {
                 </span>
               </h2>
               <p className="text-[#555555] leading-relaxed mb-6">
-                We&apos;re never selling — we&apos;re pooling strengths. We bring technical
+                We&apos;re never selling. We&apos;re pooling strengths. We bring technical
                 muscle, training pipelines, and future-tech gear; you bring roots,
                 trust, and reach. When we combine them, fathers get careers, kids get
                 exposure, and the whole community-resource space levels up.
@@ -255,7 +255,7 @@ export function PartnerContent() {
               <ul className="space-y-4">
                 {[
                   "Measurable outcomes and transparent reporting",
-                  "Community apps and shared tech — built with you, never sold to you",
+                  "Community apps and shared tech, built with you, never sold to you",
                   "Tax-deductible contributions (501(c)(3))",
                   "Flexible partnership structures",
                   "A trained, motivated talent pool of program graduates",
@@ -309,7 +309,7 @@ export function PartnerContent() {
           >
             <Trophy className="h-12 w-12 text-[#C9A84C] mx-auto mb-4" />
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-8">
-              Organizations That Believe in Our Mission
+              The Company We Keep
             </h2>
           </motion.div>
 
@@ -344,7 +344,7 @@ export function PartnerContent() {
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Start a Conversation"
-            subtitle="Tell us about your organization and how you'd like to collaborate."
+            subtitle="Tell us what your organization does. We'll bring ideas, and probably snacks."
             centered
           />
 
@@ -358,11 +358,11 @@ export function PartnerContent() {
                 <CheckCircle2 className="h-8 w-8 text-[#5A7247]" />
               </div>
               <h3 className="text-xl font-semibold text-[#1A1A1A] mb-2">
-                Thank You for Your Interest!
+                Let&apos;s Build Something
               </h3>
               <p className="text-[#555555]">
-                We&apos;ll review your inquiry and reach out within a few business
-                days to discuss partnership opportunities.
+                We&apos;ll read your inquiry and reach out within a few business
+                days. Real people, real replies. That&apos;s the policy.
               </p>
             </motion.div>
           ) : (
@@ -489,14 +489,14 @@ export function PartnerContent() {
       <section className="py-12 bg-[#FBF6E9]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-[#555555]">
-            Prefer to talk directly?{" "}
+            Forms not your thing?{" "}
             <Link
               href="/contact"
               className="text-[#C9A84C] font-semibold hover:underline"
             >
               Contact us
             </Link>{" "}
-            to schedule a call.
+            and let&apos;s just talk.
           </p>
         </div>
       </section>

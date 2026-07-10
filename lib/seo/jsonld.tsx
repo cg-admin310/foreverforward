@@ -47,7 +47,7 @@ export function generateLocalBusinessSchema() {
     "@id": siteConfig.url,
     name: "Forever Forward Foundation",
     description:
-      "A 501(c)(3) nonprofit introducing underserved communities to future technology — career training for fathers, robotics and AI for youth, and community events for families across Greater Los Angeles.",
+      "A 501(c)(3) nonprofit introducing underserved communities to future technology: career training for fathers, robotics and AI for youth, and community events for families across Greater Los Angeles.",
     url: siteConfig.url,
     telephone: siteConfig.phone,
     email: siteConfig.email,

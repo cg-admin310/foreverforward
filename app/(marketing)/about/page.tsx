@@ -4,7 +4,7 @@ import { AboutContentPremium } from "./about-content-premium";
 export const metadata: Metadata = {
   title: "Our Mission",
   description:
-    "Forever Forward is a Los Angeles 501(c)(3) founded in 2023 by TJ Wilform — a Black father from Compton who built data centers for a living. We introduce underserved communities to AI, robotics, 3D printing, and satellites, and turn that spark into careers, confidence, and legacy.",
+    "Forever Forward is a Los Angeles 501(c)(3) founded in 2023 by TJ Wilform, a Black father from Compton who built data centers for a living. We introduce Black and brown communities to AI, robotics, 3D printing, and satellites, and turn that exposure into careers, confidence, and legacy.",
   keywords: [
     "Forever Forward about",
     "TJ Wilform",

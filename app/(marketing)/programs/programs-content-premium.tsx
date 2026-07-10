@@ -156,7 +156,7 @@ const DOORS = [
     number: "03",
     name: "Making Moments",
     kicker: "For Families",
-    line: "Joy, on purpose — events all year long.",
+    line: "Joy, on purpose. Events all year long.",
     href: "#making-moments",
     icon: Heart,
   },
@@ -255,7 +255,7 @@ function ProgramsHero() {
           transition={{ duration: 0.8, delay: 0.7, ease: EASE }}
         >
           Career pathways for fathers. Future tech in young hands. Family moments made
-          on purpose. Every program is a different door into the same house — pick
+          on purpose. Every program is a different door into the same house. Pick
           yours and step through.
         </motion.p>
 
@@ -344,7 +344,7 @@ function CareerForwardSection() {
               Flagship Program
             </span>
             <h3 className="mt-5 font-semibold text-[#1A1A1A] text-2xl sm:text-3xl lg:text-4xl leading-tight tracking-tight">
-              Father Forward —{" "}
+              Father Forward:{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
                 pick a path, build a legacy.
               </span>
@@ -480,8 +480,8 @@ function CareerForwardSection() {
             </div>
             <p className="mt-4 text-[#888888] text-sm flex items-center gap-2">
               <Compass className="h-4 w-4 text-[#A68A2E] shrink-0" />
-              Whichever path you pick, the leadership thread — goals, family, finances —
-              travels with you. So does Travis, your 24/7 AI mentor.
+              Whichever path you pick, the leadership thread of goals, family, and
+              finances travels with you. So does Travis, your 24/7 AI mentor.
             </p>
           </motion.div>
         </div>
@@ -574,8 +574,8 @@ function FutureBuildersSection() {
         </div>
 
         <p className="mt-6 max-w-2xl text-white/60 text-base sm:text-lg leading-relaxed">
-          The first time a kid sees the future — a robot answering their code, a story
-          printed into something they can hold, their film on a real screen —
+          A robot answering their code. A story printed into something they can hold.
+          Their film on a real screen. The first time a kid sees the future,
           everything changes. Four programs, four ways in.
         </p>
 
@@ -658,10 +658,10 @@ function MakingMomentsSection() {
           >
             <p className="text-white/70 text-lg sm:text-xl leading-relaxed max-w-2xl">
               {makingMoments?.description ??
-                "Community events that strengthen father-child bonds — dinner-and-a-movie nights, robot races, and festivals the whole family looks forward to."}
+                "Community events that strengthen father-child bonds: dinner-and-a-movie nights, robot races, and festivals the whole family looks forward to."}
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
-              <MetaChip light>Movies on the Menu — dinner included</MetaChip>
+              <MetaChip light>Movies on the Menu, dinner included</MetaChip>
               <MetaChip light>Robot races &amp; 3D-printing pop-ups</MetaChip>
               <MetaChip light>Night-sky &amp; satellite nights</MetaChip>
               <MetaChip light>Annual Forever Forward Festival</MetaChip>
@@ -706,7 +706,7 @@ function MakingMomentsSection() {
 const DNA_STRANDS = [
   {
     title: "Leadership, woven in",
-    text: "Goal setting, accountability, and showing up — every curriculum carries the same leadership thread, whether you're 6 or 46.",
+    text: "Goal setting, accountability, and showing up: every curriculum carries the same leadership thread, whether you're 6 or 46.",
   },
   {
     title: "Family at the center",
@@ -714,7 +714,7 @@ const DNA_STRANDS = [
   },
   {
     title: "Future tech in hand",
-    text: "AI, robotics, 3D printing, satellites overhead — real tools in real hands, because exposure is where every career begins.",
+    text: "AI, robotics, 3D printing, satellites overhead. Real tools in real hands, because exposure is where every career begins.",
   },
 ] as const;
 
@@ -734,7 +734,7 @@ function LeadershipThreadSection() {
             <div className="grain-overlay image-zoom relative aspect-[16/11] rounded-3xl overflow-hidden shadow-xl">
               <Image
                 src="/images/future/impact-hands.jpg"
-                alt="Hands holding a hard-earned certification — proof of a path forward"
+                alt="Hands holding a hard-earned certification, proof of a path forward"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
@@ -787,7 +787,7 @@ function LeadershipThreadSection() {
 
             <p className="mt-8 text-sm text-[#888888] flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-[#A68A2E] shrink-0" />
-              And in every cohort, Travis — our AI mentor — rides along, 24/7.
+              And in every cohort, Travis, our AI mentor, rides along, 24/7.
             </p>
           </motion.div>
         </div>
@@ -837,7 +837,7 @@ function ProgramsCTA() {
                 Ready Now
               </p>
               <h3 className="mt-4 font-bold text-[#1A1A1A] text-2xl sm:text-3xl leading-tight max-w-sm">
-                Enroll — it costs nothing but the decision.
+                Enroll. It costs nothing but the decision.
               </h3>
               <p className="mt-3 text-[#1A1A1A]/75 max-w-sm text-sm sm:text-base">
                 Every program is free for qualifying participants. Tell us who you
@@ -867,7 +867,7 @@ function ProgramsCTA() {
               </h3>
               <p className="mt-3 text-white/60 max-w-sm text-sm sm:text-base">
                 A few quick questions, and we&rsquo;ll point you at the door that fits
-                your family best. No wrong answers — just forward.
+                your family best. No wrong answers, just forward.
               </p>
             </Link>
           </motion.div>

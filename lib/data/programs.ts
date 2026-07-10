@@ -45,22 +45,23 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     name: "Father Forward",
     tagline: "Pick a Path. Build a Legacy.",
     audience: "fathers",
-    duration: "8 weeks",
+    duration: "12 weeks",
     format: "Hybrid",
     icon: "💼",
     heroImage: "/images/future/pillar-careers.jpg",
     heroDescription:
-      "Career training built for fathers. Choose your pathway — IT & cybersecurity, plumbing & skilled trades, or auto & EV mechanics — and walk out with real credentials, real confidence, and a community behind you.",
+      "Twelve weeks of career training built for dads, by a dad. Pick your lane: IT & cybersecurity, plumbing & skilled trades, or auto & EV mechanics. Then walk out with a real credential, real confidence, and a crew that's got your back.",
     overview: [
-      "Father Forward is our flagship program, built by a father for fathers. It answers one question: what would it take for a dad in an underserved community to land a career that supports his family and makes his kids proud? Not a gig. A career.",
-      "You choose one of three pathways. IT & Cybersecurity gets you ready for the Google IT Support Certificate and the networks that run everything. Plumbing & Skilled Trades gets you apprenticeship-ready in the work that keeps every city standing. Auto & EV Mechanics puts you under the hood of the electric future that every shop is racing to hire for.",
-      "Whichever path you pick, the leadership thread is the same: goal setting, financial literacy, showing up for your kids, and a Path Forward Plan you build with us. Travis, our AI mentor, is in your corner 24/7 — for study help at midnight or a word of encouragement before an interview. And you're never the only one on the journey; your cohort becomes your crew.",
+      "Let's be honest: nobody hands fathers a manual. Father Forward is the next best thing. It's our flagship program, built by a dad from Compton who figured out that the fastest way to change a family's future is to hand its father a career. Not a gig. Not a hustle. A career.",
+      "You pick one of three lanes. IT & Cybersecurity starts with CompTIA ITF+ certification and goes way past help desk. You'll get inside real data centers, learn how networks actually run the world, and see the road to network engineer and systems engineer laid out in front of you. Plumbing & Skilled Trades gets you apprenticeship-ready in the work that keeps every city standing. Auto & EV Mechanics puts you under the hood of the electric future every shop is scrambling to hire for.",
+      "Every week you'll hear from guest speakers who work in these industries right now, people who'll tell you the truth about what the work is like and how they got in. And whichever lane you pick, the leadership thread runs through all twelve weeks: goals, money, showing up for your kids, and a Path Forward Plan you build with us. Travis, our AI mentor, is on call 24/7 for the midnight study sessions and the pre-interview pep talks.",
+      "One more thing, because it matters: we're not looking for perfect. Show up, put in the reps, let your cohort hold you down. Progress over perfection, every single week.",
     ],
     atAGlance: {
-      duration: "8 weeks",
+      duration: "12 weeks",
       format: "Hybrid (in-person labs + online)",
-      schedule: "Evenings & Saturdays — built around work and kids",
-      certification: "Pathway credential (e.g., Google IT Support Certificate prep)",
+      schedule: "Evenings & Saturdays, built around work and kids",
+      certification: "CompTIA ITF+ prep (IT pathway) or trade credential prep",
       cost: "Free for qualifying participants",
     },
     curriculum: [
@@ -69,18 +70,18 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
         title: "Foundations & Your Path Forward Plan",
         topics: [
           "Orientation: three pathways, one brotherhood",
-          "Choose your track: IT, Trades, or Auto/EV",
+          "Pick your lane: IT, Trades, or Auto/EV",
           "Build your Path Forward Plan with your case worker",
-          "Meet Travis — your 24/7 AI mentor",
+          "Meet Travis, your 24/7 AI mentor",
         ],
       },
       {
         week: 2,
         title: "Core Skills I",
         topics: [
-          "IT track: hardware, operating systems, troubleshooting",
-          "Trades track: tools, materials, safety, and code basics",
-          "Auto/EV track: shop fundamentals and diagnostics",
+          "IT lane: hardware, operating systems, troubleshooting",
+          "Trades lane: tools, materials, safety, and code basics",
+          "Auto/EV lane: shop fundamentals and diagnostics",
           "Leadership thread: goals, habits, and accountability",
         ],
       },
@@ -88,58 +89,98 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
         week: 3,
         title: "Core Skills II",
         topics: [
-          "IT track: networking fundamentals",
-          "Trades track: plumbing systems and installation",
-          "Auto/EV track: engines, brakes, and electrical systems",
-          "Leadership thread: financial literacy for fathers",
+          "IT lane: networking fundamentals and how the internet actually works",
+          "Trades lane: plumbing systems and installation",
+          "Auto/EV lane: engines, brakes, and electrical systems",
+          "Leadership thread: money talk, financial literacy for fathers",
         ],
       },
       {
         week: 4,
-        title: "Hands-On Labs",
+        title: "Guest Speaker Series Begins",
         topics: [
-          "IT track: build and configure a real network",
-          "Trades track: supervised install projects",
-          "Auto/EV track: live vehicle diagnostics",
-          "Leadership thread: communication and conflict resolution",
+          "Industry guests: how they broke in, what they'd do differently",
+          "IT lane: servers and operating systems in the real world",
+          "Trades & Auto lanes: a day in the life, unfiltered",
+          "Leadership thread: asking questions like you belong (you do)",
         ],
       },
       {
         week: 5,
-        title: "The Future of Your Field",
+        title: "Hands-On Labs",
         topics: [
-          "IT track: security, cloud, and AI on the job",
-          "Trades track: smart-building and green plumbing tech",
-          "Auto/EV track: EV batteries, charging, and high-voltage safety",
-          "Leadership thread: being the example your kids study",
+          "IT lane: build and configure a real network",
+          "Trades lane: supervised install projects",
+          "Auto/EV lane: live vehicle diagnostics",
+          "Leadership thread: communication and conflict resolution",
         ],
       },
       {
         week: 6,
-        title: "Certification Prep",
+        title: "Inside the Industry",
         topics: [
-          "Pathway credential prep and practice exams",
-          "Portfolio: document what you can do",
+          "IT lane: data center field experience, where the internet lives",
+          "Trades lane: job-site walkthroughs with working pros",
+          "Auto/EV lane: shop visits and service-bay shadowing",
+          "Leadership thread: showing your kids what work looks like",
+        ],
+      },
+      {
+        week: 7,
+        title: "The Future of Your Field",
+        topics: [
+          "IT lane: security, cloud, and AI on the job",
+          "Trades lane: smart-building and green plumbing tech",
+          "Auto/EV lane: EV batteries, charging, and high-voltage safety",
+          "Leadership thread: being the example your kids study",
+        ],
+      },
+      {
+        week: 8,
+        title: "Beyond Entry Level",
+        topics: [
+          "IT lane: the road from help desk to network & systems engineer",
+          "Trades lane: from apprentice to journeyman to your own truck",
+          "Auto/EV lane: master tech, shop lead, shop owner",
+          "Leadership thread: thinking two moves ahead",
+        ],
+      },
+      {
+        week: 9,
+        title: "Certification Prep I",
+        topics: [
+          "IT lane: CompTIA ITF+ deep prep and practice exams",
+          "Trades & Auto lanes: credential prep and skills checks",
+          "Study crew sessions: nobody preps alone",
+          "Leadership thread: handling pressure without passing it down",
+        ],
+      },
+      {
+        week: 10,
+        title: "Certification Prep II & Portfolio",
+        topics: [
+          "Practice exams until they stop being scary",
+          "Portfolio: document what you can actually do",
           "Mock interviews with industry volunteers",
           "Leadership thread: telling your story with confidence",
         ],
       },
       {
-        week: 7,
+        week: 11,
         title: "Career Launch",
         topics: [
           "Resume and LinkedIn built with AI tools",
-          "Meet employers and apprenticeship programs",
-          "Negotiation: know your worth, ask for it",
+          "Meet employers and apprenticeship programs face to face",
+          "Negotiation: know your worth, then ask for it",
           "Leadership thread: legacy planning",
         ],
       },
       {
-        week: 8,
+        week: 12,
         title: "Graduation & Beyond",
         topics: [
           "Capstone presentations to family and community",
-          "Graduation ceremony — bring the kids",
+          "Graduation ceremony: bring the kids, they earned this too",
           "Alumni network and continued mentorship",
           "Your next milestone, on the calendar before you leave",
         ],
@@ -148,21 +189,21 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     deliverables: [
       {
         icon: "🎓",
-        title: "Career Credential",
+        title: "A Real Credential",
         description:
-          "Certification prep and exam support for your chosen pathway — IT, trades, or auto/EV.",
+          "CompTIA ITF+ prep and exam support on the IT lane, or trade credential prep on yours. Proof, on paper, that you put in the work.",
       },
       {
         icon: "🗺️",
         title: "Path Forward Plan",
         description:
-          "A personal roadmap covering career, family, and finances — built with your case worker, tracked with Travis.",
+          "A personal roadmap covering career, family, and finances, built with your case worker and tracked with Travis.",
       },
       {
         icon: "🤝",
         title: "A Crew for Life",
         description:
-          "Your cohort, our alumni network, and mentors who've walked the same road.",
+          "Your cohort, our alumni network, guest speakers who take your calls, and mentors who've walked the same road.",
       },
       {
         icon: "💼",
@@ -173,7 +214,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     ],
     testimonial: {
       quote:
-        "I came in thinking I was too old to start over. Eight weeks later my son watched me walk across a stage. Now he tells everybody his dad works on electric cars.",
+        "I came in thinking I was too old to start over. Twelve weeks later my son watched me walk across a stage. Now he tells everybody his dad works on electric cars.",
       name: "Marcus J.",
       role: "Father Forward Graduate, Auto & EV Pathway",
     },
@@ -189,11 +230,11 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     icon: "🤖",
     heroImage: "/images/future/pillar-future-tech.jpg",
     heroDescription:
-      "Robotics you build. AI you direct. Real hardware, real projects, and a capstone gaming tournament to put it all on the line.",
+      "Robots you build. AI you get to boss around. Real hardware, real projects, and a capstone gaming tournament to put it all on the line.",
     overview: [
-      "Tech-Ready Youth exists because talent is everywhere but exposure isn't. Most of our young people have never watched a robot respond to their own code, or seen a 3D printer turn their idea into something they can hold. One afternoon with those tools changes what a kid believes is possible for their life.",
+      "Tech-Ready Youth exists because talent is everywhere but exposure isn't. Most of our young people have never watched a robot respond to their own code, or seen a 3D printer turn their idea into something they can hold. One afternoon with those tools and the question flips from \"could I ever?\" to \"what's next?\"",
       "Over 8 weeks, youth 16 and up go hands-on with the technologies that will define their generation: building and programming robots, directing AI tools instead of just scrolling past them, printing their own designs, and tracing the satellites passing over their neighborhood every 90 minutes.",
-      "The program closes with a capstone gaming tournament — machines they helped configure, brackets they run, and a community cheering them on. Skills, confidence, and proof they can finish what they start.",
+      "The program closes with a capstone gaming tournament: machines they helped configure, brackets they run, and a community cheering them on. Skills, confidence, and proof they can finish what they start.",
     ],
     atAGlance: {
       duration: "8 weeks",
@@ -272,7 +313,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
         title: "Capstone Gaming Tournament",
         topics: [
           "Configure the rigs, run the network",
-          "Tournament day — community invited",
+          "Tournament day, community invited",
           "Graduation and what comes next",
         ],
       },
@@ -294,7 +335,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
         icon: "🏆",
         title: "Capstone Tournament",
         description:
-          "A community gaming event you help produce — and compete in.",
+          "A community gaming event you help produce, then compete in.",
       },
       {
         icon: "🧭",
@@ -321,17 +362,17 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     icon: "❤️",
     heroImage: "/images/future/pillar-moments.jpg",
     heroDescription:
-      "Dinner-and-a-movie nights, robot races in the park, festivals where dads and kids show up as a team. The memories that hold families together — made on purpose.",
+      "Dinner-and-a-movie nights, robot races in the park, festivals where dads and kids show up as a team. The memories that hold families together, made on purpose.",
     overview: [
-      "Programs build skills. Moments build families. Making Moments is our ongoing series of community experiences designed around one truth: a father and child who laugh together, build together, and celebrate together grow stronger together.",
-      "Our signature Movies on the Menu nights pair a family dinner with a film under the stars — no cost, no catch, just an evening designed so a dad can be fully present. Around it we run robot races, 3D-printing pop-ups, stargazing and satellite-spotting nights, and an annual festival that turns a neighborhood park into a glimpse of the future.",
+      "Programs build skills. Moments build families. Making Moments is our ongoing series of community experiences built on one truth: a father and child who laugh together, build together, and celebrate together grow stronger together. That's not a slogan. That's the whole strategy.",
+      "Our signature Movies on the Menu nights pair a family dinner with a film under the stars: no cost, no catch, just an evening designed so a dad can be fully present. Around it we run robot races, 3D-printing pop-ups, stargazing and satellite-spotting nights, and an annual festival that turns a neighborhood park into a glimpse of the future.",
       "Every event is a doorway. A family comes for the movie, and leaves knowing there's a career program for dad, a robotics lab for the kids, and a community that wants them both to win.",
     ],
     atAGlance: {
-      duration: "Ongoing — multiple events monthly",
+      duration: "Ongoing, multiple events monthly",
       format: "In-person, across Greater LA",
       schedule: "Evenings & weekends",
-      cost: "Free — dinner included",
+      cost: "Free, dinner included",
     },
     curriculum: [
       {
@@ -340,7 +381,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
         topics: [
           "Family dinner and a movie under the stars",
           "Father-focused: designed for presence, not programming",
-          "Community resource tables — no pressure, just doors",
+          "Community resource tables: no pressure, just doors",
         ],
       },
       {
@@ -382,7 +423,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
         icon: "🤖",
         title: "Tech the Kids Can Touch",
         description:
-          "Robots, printers, and telescopes at every event — curiosity included.",
+          "Robots, printers, and telescopes at every event. Curiosity included.",
       },
       {
         icon: "📸",
@@ -415,11 +456,11 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     icon: "🎬",
     heroImage: "/images/generated/program-script-to-screen.png",
     heroDescription:
-      "Students write it, AI and Unreal Engine help build it, and a real festival premieres it — filmmaking with Dawnn Lewis from first line to final cut.",
+      "Students write it, AI and Unreal Engine help build it, and a real festival premieres it. Filmmaking with Dawnn Lewis from first line to final cut.",
     overview: [
-      "Every neighborhood is full of stories the world never hears. From Script to Screen — created in partnership with actress and producer Dawnn Lewis and A New Day Foundation — hands students the most advanced storytelling tools on earth and says: tell yours.",
+      "Every neighborhood is full of stories the world never hears. From Script to Screen, created in partnership with actress and producer Dawnn Lewis and A New Day Foundation, hands students the most advanced storytelling tools on earth and says: tell yours.",
       "Students move through the full production pipeline: writing their script, storyboarding with AI image tools, building worlds in Unreal Engine, and directing scenes that would have needed a studio budget five years ago. Working artists and technologists mentor every phase.",
-      "It ends the way every film should — with a premiere. Our annual student film festival puts their work on a big screen in front of family, friends, and industry guests.",
+      "It ends the way every film should: with a premiere. Our annual student film festival puts their work on a big screen in front of family, friends, and industry guests.",
     ],
     atAGlance: {
       duration: "Multi-phase (semester)",
@@ -490,7 +531,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     ],
     testimonial: {
       quote:
-        "Seeing my film on that screen with my mom in the audience — I can't even describe it. I'm writing my next one already.",
+        "Seeing my film on that screen with my mom in the audience... I can't even describe it. I'm writing my next one already.",
       name: "Destiny R.",
       role: "From Script to Screen Filmmaker, 16",
     },
@@ -506,11 +547,11 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     icon: "✨",
     heroImage: "/images/future/program-3dprint-kids.jpg",
     heroDescription:
-      "Kids write the story of who they'll become, design it with AI, and 3D-print a piece of that future to take home.",
+      "Kids write the story of who they'll become, illustrate it with AI, publish it as a real book with their name on the cover, and 3D-print a piece of that future to take home.",
     overview: [
-      "Ask a kid what they want to be, and you get an answer. Ask them to hold it in their hands, and you get a believer. Stories from My Future is a workshop where kids write a story about their future self, bring it to life with AI illustration tools, and then 3D-print an object from that future on Bambu Lab printers.",
-      "A future firefighter prints her helmet. A future astronaut prints his rocket. A future engineer prints the robot she'll build one day. The object goes home; the belief goes with it.",
-      "Parents and dads are welcome in the room — because watching your child design their future is its own kind of program.",
+      "Ask a kid what they want to be, and you get an answer. Ask them to hold it in their hands, and you get a believer. Stories from My Future is a workshop where kids write a story about their future self, illustrate it with AI art tools, and publish it as a real book, author credit and all. Then they 3D-print an object straight out of that future on Bambu Lab printers.",
+      "A future firefighter prints her helmet. A future astronaut prints his rocket. A future engineer prints the robot she'll build one day. The book goes on the shelf, the object goes on the dresser, and the belief goes everywhere with them.",
+      "Parents and dads are welcome in the room. Honestly, half the magic is watching your kid become a published author before dinnertime.",
     ],
     atAGlance: {
       duration: "Single-day workshop",
@@ -548,8 +589,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     deliverables: [
       {
         icon: "📖",
-        title: "An Illustrated Story",
-        description: "Their future, written and illustrated with AI as the art department.",
+        title: "A Published Book",
+        description: "Their future, written and illustrated with AI as the art department, with their name on the cover.",
       },
       {
         icon: "🚀",
@@ -564,7 +605,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     ],
     testimonial: {
       quote:
-        "He printed a stethoscope. Six years old. Every night since, he tells me goodnight, Dad — Doctor Malik has patients in the morning.",
+        "He printed a stethoscope. Six years old. Every night since, he tells me goodnight, Dad. Doctor Malik has patients in the morning.",
       name: "James H.",
       role: "Father of a Stories from My Future Kid",
     },
@@ -580,15 +621,15 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     icon: "🎮",
     heroImage: "/images/generated/program-lula-learning.png",
     heroDescription:
-      "A gamified STEM platform with AI-powered tutoring — where leveling up in the game means leveling up in real life.",
+      "A gamified STEM platform with AI-powered tutoring, where leveling up in the game means leveling up in real life.",
     overview: [
-      "LULA — Level Up Learning Academy — is our answer to a simple observation: kids will grind for hours to level up a character, so we built a world where the character they're leveling up is themselves.",
-      "LULA wraps real STEM learning in game mechanics: quests, streaks, boss challenges, and unlockables. An AI tutor adapts to each learner, explaining concepts as many times and as many ways as it takes — with infinite patience.",
+      "LULA, short for Level Up Learning Academy, is our answer to a simple observation: kids will grind for hours to level up a character, so we built a world where the character they're leveling up is themselves.",
+      "LULA wraps real STEM learning in game mechanics: quests, streaks, boss challenges, and unlockables. An AI tutor adapts to each learner, explaining concepts as many times and as many ways as it takes, with infinite patience.",
       "Because it's online, LULA travels anywhere: a phone on the bus, a laptop at the library, a family computer at grandma's. Learning that meets kids exactly where they are.",
     ],
     atAGlance: {
       duration: "Ongoing, self-paced",
-      format: "Online — phone, tablet, or computer",
+      format: "Online: phone, tablet, or computer",
       schedule: "Anytime",
       ageRange: "Ages 8–16",
       cost: "Free for enrolled families",

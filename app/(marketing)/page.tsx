@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { HomeContentPremium } from "./home-content-premium";
 
 export const metadata: Metadata = {
-  title: "Forever Forward | The Future Belongs to Our Families",
+  title: { absolute: "Forever Forward | The Future Belongs to Our Families" },
   description:
-    "Forever Forward is a Los Angeles 501(c)(3) that introduces underserved communities to the technologies shaping tomorrow — AI, robotics, 3D printing, and satellites — trains fathers for real careers in IT, skilled trades, and auto mechanics, and brings families together through unforgettable events.",
+    "Forever Forward is a Los Angeles 501(c)(3) that introduces Black and brown communities to the technologies shaping tomorrow: AI, robotics, 3D printing, satellites, and more. We train fathers for real careers in IT, skilled trades, and auto mechanics, and bring families together through unforgettable events.",
   keywords: [
     "Forever Forward",
     "nonprofit Los Angeles",

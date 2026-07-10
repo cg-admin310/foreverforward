@@ -29,6 +29,8 @@ import {
   Heart,
   Popcorn,
   Rocket,
+  Blocks,
+  Zap,
 } from "lucide-react";
 import {
   MISSION,
@@ -245,6 +247,15 @@ function HeroOrbit() {
                 See the Mission
               </Link>
             </motion.div>
+
+            <motion.p
+              className="mt-6 text-white/40 text-sm tracking-wide"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 1.3 }}
+            >
+              Progress over perfection. Every single week.
+            </motion.p>
           </motion.div>
 
           {/* Image — a window to the future */}
@@ -323,10 +334,12 @@ function HeroOrbit() {
  * ------------------------------------------------------------------------- */
 
 const TICKER_ITEMS = [
-  "Artificial Intelligence",
+  "AI & Machine Learning",
   "Robotics",
   "3D Printing",
-  "Low Earth Orbit",
+  "Rockets & Low Earth Orbit",
+  "Blockchain",
+  "Renewable Energy",
   "EV Mechanics",
   "Cybersecurity",
   "Skilled Trades",
@@ -364,7 +377,7 @@ function Manifesto() {
       <div className="relative max-w-5xl mx-auto px-5 sm:px-6 lg:px-8">
         <Eyebrow>Why We Exist</Eyebrow>
         <h2 className="mt-6 font-semibold text-[#1A1A1A] text-3xl sm:text-5xl lg:text-[3.4rem] leading-[1.12] tracking-tight">
-          <RevealWords text="Talent is everywhere. Exposure isn't. We close that gap — one father, one kid, one" />{" "}
+          <RevealWords text="Talent is everywhere. Exposure isn't. We close that gap one father, one kid, one" />{" "}
           <RevealWords
             text="unforgettable moment at a time."
             className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]"
@@ -397,13 +410,16 @@ function Manifesto() {
           >
             <p className="text-lg sm:text-xl text-[#555555] leading-relaxed">
               &ldquo;{MISSION.founderNote}{" "}
-              I grew up in Compton and went on to build data centers. Every program
-              we run puts that same door in front of somebody else&rsquo;s
-              family.&rdquo;
+              Growing up, my dad and the other men in my life showed me that we all
+              see the world a little differently, and every one of those viewpoints
+              fills in another piece of the picture. The more you get exposed to, the
+              more you find out about yourself. Somebody in our neighborhood is a
+              satellite engineer who just never found out it was an option. That&rsquo;s
+              who we built this for.&rdquo;
             </p>
             <footer className="mt-4 text-sm font-semibold text-[#1A1A1A]">
               Thomas &ldquo;TJ&rdquo; Wilform
-              <span className="text-[#888888] font-normal"> — Founder &amp; CEO</span>
+              <span className="text-[#888888] font-normal">, Founder &amp; CEO</span>
             </footer>
           </motion.blockquote>
         </div>
@@ -439,7 +455,7 @@ function PillarCard({
       <Link
         href={pillar.href}
         className="relative block [direction:ltr]"
-        aria-label={`${pillar.name} — learn more`}
+        aria-label={`${pillar.name}: learn more`}
       >
         <div className="grain-overlay image-zoom relative aspect-[4/3] rounded-3xl overflow-hidden">
           <Image
@@ -521,7 +537,14 @@ function PillarsSection() {
  * 5. Future tech — what we put in their hands
  * ------------------------------------------------------------------------- */
 
-const TECH_ICONS = { ai: Cpu, robotics: Bot, printing: Printer, orbit: Satellite } as const;
+const TECH_ICONS = {
+  ai: Cpu,
+  robotics: Bot,
+  printing: Printer,
+  orbit: Satellite,
+  blockchain: Blocks,
+  energy: Zap,
+} as const;
 
 function FutureTechSection() {
   const [active, setActive] = useState<string>("orbit");
@@ -541,7 +564,7 @@ function FutureTechSection() {
               </span>
             </h2>
             <p className="mt-5 text-[#555555] text-base sm:text-lg leading-relaxed max-w-xl">
-              Every program puts real, working future-tech in real hands — because the
+              Every program puts real, working future-tech in real hands. Because the
               first time you direct an AI, race a robot you built, or watch a satellite
               you tracked pass overhead, &ldquo;someday&rdquo; becomes &ldquo;why not me?&rdquo;
             </p>
@@ -698,7 +721,7 @@ function MakingMomentsSection() {
             {
               icon: Rocket,
               title: "Night Sky Nights",
-              text: "Telescopes out, satellites tracked, the ISS passing over your own block — wonder, with your kids beside you.",
+              text: "Telescopes out, satellites tracked, the ISS passing over your own block. Wonder, with your kids beside you.",
             },
           ].map((card, i) => (
             <motion.div
@@ -782,8 +805,8 @@ function CommunityTechSection() {
             </p>
             <ul className="mt-7 space-y-3">
               {[
-                "Community apps built with and for local organizations",
-                "Shared tools, training, and AI know-how for fellow nonprofits",
+                "Modern platforms and nonprofit tech, set up right the first time",
+                "Small custom tools and AI that stretch limited resources further",
                 "One connected network of orgs serving the same neighborhoods",
               ].map((line) => (
                 <li key={line} className="flex items-start gap-3 text-[#1A1A1A]">
@@ -824,7 +847,7 @@ function ImpactAndCTA() {
         <div className="text-center max-w-2xl mx-auto">
           <Eyebrow light>Where We&rsquo;re Headed</Eyebrow>
           <h2 className="mt-5 font-semibold text-white text-3xl sm:text-4xl tracking-tight">
-            Goals we say out loud — so you can hold us to them.
+            Goals we say out loud, so you can hold us to them.
           </h2>
         </div>
         <div className="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-8">
@@ -861,7 +884,7 @@ function ImpactAndCTA() {
               </h3>
               <p className="mt-3 text-[#1A1A1A]/75 max-w-md">
                 Free career training, future tech for your kids, and a community that
-                shows up. Enroll — it costs nothing but the decision.
+                shows up. Enrolling costs nothing but the decision.
               </p>
             </Link>
           </motion.div>
@@ -886,7 +909,7 @@ function ImpactAndCTA() {
                 Fund the future you want to see.
               </h3>
               <p className="mt-3 text-white/60 max-w-md">
-                Every dollar puts real technology in real hands — and every graduate
+                Every dollar puts real technology in real hands, and every graduate
                 lifts a whole family. Donate, volunteer, or partner with the mission.
               </p>
             </Link>

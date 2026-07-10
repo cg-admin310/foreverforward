@@ -23,6 +23,8 @@ import {
   Globe2,
   DoorOpen,
   Compass,
+  Blocks,
+  Zap,
 } from "lucide-react";
 import {
   MISSION,
@@ -256,19 +258,23 @@ function AboutHero() {
 const FOUNDER_BEATS = [
   {
     kicker: "Where it started",
-    text: "Compton. A neighborhood full of talent the tech industry never bothered to visit.",
+    text: "Compton. Not the wild west the shows make it out to be, and not all rainbows either. A real neighborhood, full of real people, that mostly gets shown one version of itself.",
+  },
+  {
+    kicker: "What the men in his life gave him",
+    text: "TJ grew up with his dad and a whole crew of men who each saw the world their own way. The nerdy one, the cool one, the hustler, the craftsman. Every viewpoint filled in another piece of the picture, and being exposed to all of them taught him something bigger: the more you get to see, the more you find out about who you are.",
   },
   {
     kicker: "What he built",
-    text: "Data centers — the physical backbone of the internet — for a living. Racks, cables, uptime, the whole thing.",
+    text: "Data centers, the actual rooms the internet lives in. Racks, cables, uptime, the whole thing. A career he didn't know existed until somebody showed him.",
   },
   {
     kicker: "What he noticed",
-    text: "The rooms he worked in were shaping the future. The block he came from wasn't invited into them.",
+    text: "Somewhere in every neighborhood there's a kid who would love being a herpetologist, or a satellite engineer, or a robotics tech, and they'll never find out. Not because they can't do it. Because nobody ever showed them it was an option.",
   },
   {
     kicker: "What he did about it",
-    text: "Founded Forever Forward in 2023 to hold that door open — for fathers like him first, and for every kid coming up behind them.",
+    text: "Founded Forever Forward in 2023 to show people what's out there and give them something real to be hopeful for. No grand master plan. Just good friends, consistent growth, and progress over perfection.",
   },
 ];
 
@@ -349,9 +355,11 @@ function FounderSection() {
               transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
               className="mt-10 text-[#1A1A1A] text-lg sm:text-xl leading-relaxed font-medium max-w-xl"
             >
-              TJ doesn&rsquo;t serve the fathers in our programs from across a desk. He&rsquo;s
-              lived their story — which is why every program starts from respect, never
-              rescue.
+              TJ doesn&rsquo;t serve the fathers in our programs from across a desk.
+              He&rsquo;s lived their story, which is why every program starts from
+              respect, never rescue. We&rsquo;re the fun dads making sure fathers stay
+              relevant in a world that&rsquo;s changing fast. We don&rsquo;t have it all
+              figured out. That&rsquo;s kind of the point. We figure it out together.
             </motion.p>
           </div>
         </div>
@@ -451,7 +459,14 @@ function PillarsSection() {
  * 4. The tech we champion
  * ------------------------------------------------------------------------- */
 
-const TECH_ICONS = { ai: Cpu, robotics: Bot, printing: Printer, orbit: Satellite } as const;
+const TECH_ICONS = {
+  ai: Cpu,
+  robotics: Bot,
+  printing: Printer,
+  orbit: Satellite,
+  blockchain: Blocks,
+  energy: Zap,
+} as const;
 
 function TechStrip() {
   return (
@@ -461,14 +476,14 @@ function TechStrip() {
         <div className="max-w-3xl">
           <Eyebrow>The Tech We Champion</Eyebrow>
           <h2 className="mt-6 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl lg:text-[2.75rem] leading-[1.12] tracking-tight">
-            Not tech for tech&rsquo;s sake —{" "}
+            Not tech for tech&rsquo;s sake.{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
               tomorrow&rsquo;s tools, in today&rsquo;s hands.
             </span>
           </h2>
         </div>
 
-        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {FUTURE_TECH.map((tech, i) => {
             const Icon = TECH_ICONS[tech.id as keyof typeof TECH_ICONS] ?? Cpu;
             return (
@@ -538,7 +553,7 @@ function StrongerTogether() {
               {[
                 {
                   icon: Handshake,
-                  text: "We build community apps with fellow nonprofits — shoulder to shoulder, never as vendors.",
+                  text: "We build community apps with fellow nonprofits. Shoulder to shoulder, never as vendors.",
                 },
                 {
                   icon: Globe2,
@@ -546,7 +561,7 @@ function StrongerTogether() {
                 },
                 {
                   icon: Heart,
-                  text: "Partners like A New Day Foundation — founded by Dawnn Lewis — co-create events and put laptops in kids' hands.",
+                  text: "Partners like A New Day Foundation, founded by Dawnn Lewis, co-create events and put laptops in kids' hands.",
                 },
               ].map((item) => (
                 <li key={item.text} className="flex items-start gap-4">
@@ -603,22 +618,22 @@ const VALUES = [
   {
     icon: DoorOpen,
     title: "Open to everyone",
-    text: "Our programs are designed around Black fathers and youth — because that's who TJ is and where the gap is widest — and the door is open to every family, full stop.",
+    text: "Our programs are designed around Black and brown fathers and youth, because that's who TJ is and where the gap is widest. And the door is open to every family, full stop. Women's pathways are on the way, too.",
   },
   {
     icon: Compass,
-    title: "Lived experience leads",
-    text: "We don't guess what fathers need. Our founder is one. Programs are built from the inside out — respect first, never charity-pity.",
+    title: "Progress over perfection",
+    text: "We're not chasing flawless. We're chasing forward. Consistent growth, one week at a time, with people who won't let you quit on yourself.",
   },
   {
     icon: Satellite,
     title: "Future-focused, always",
-    text: "If a technology is shaping tomorrow, our community meets it today. Exposure first — then training, credentials, and careers.",
+    text: "If a technology is shaping tomorrow, our community meets it today. AI, robotics, blockchain, renewable energy, rockets. Exposure first, then training, credentials, and careers.",
   },
   {
     icon: Heart,
     title: "Joy counts as impact",
-    text: "A father and kid laughing at a movie night is an outcome, not a perk. Strong families are the mission — everything else is the method.",
+    text: "A father and kid laughing at a movie night is an outcome, not a perk. Strong families are the mission. Everything else is the method.",
   },
 ];
 
@@ -643,7 +658,7 @@ function ValuesSection() {
         <div className="mt-10 grid lg:grid-cols-12 gap-12 lg:gap-16">
           <div className="lg:col-span-7">
             <h2 className="font-semibold text-white text-3xl sm:text-4xl lg:text-[2.75rem] leading-[1.12] tracking-tight">
-              Rules we don&rsquo;t bend —{" "}
+              Rules we don&rsquo;t bend,{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] to-[#E8D48B]">
                 because somebody&rsquo;s family is counting on them.
               </span>
@@ -704,7 +719,7 @@ function ValuesSection() {
                   ))}
                 </div>
                 <p className="mt-4 text-white/60 text-sm leading-relaxed">
-                  Virtual programs available nationwide — the future doesn&rsquo;t check zip
+                  Virtual programs available nationwide. The future doesn&rsquo;t check zip
                   codes, and neither do we.
                 </p>
               </div>
@@ -729,12 +744,12 @@ const TIMELINE = [
   {
     year: "2023",
     title: "The first fathers walk through the door",
-    text: "The inaugural Father Forward cohort begins — career training, leadership coaching, and a community that shows up.",
+    text: "The inaugural Father Forward cohort begins: career training, leadership coaching, and a community that shows up.",
   },
   {
     year: "2024",
     title: "Making Moments takes off",
-    text: "Movies on the Menu dinner-and-a-movie nights bring fathers and kids together — joy, officially on the program.",
+    text: "Movies on the Menu dinner-and-a-movie nights bring fathers and kids together. Joy, officially on the program.",
   },
   {
     year: "2024",
@@ -744,7 +759,7 @@ const TIMELINE = [
   {
     year: "2025",
     title: "Future Builders expands",
-    text: "Robotics, 3D printing, AI, and satellite tracking land in young hands across Greater LA — and virtually, nationwide.",
+    text: "Robotics, 3D printing, AI, and satellite tracking land in young hands across Greater LA, and virtually, nationwide.",
   },
 ] as const;
 
@@ -756,7 +771,7 @@ function TimelineAndGoals() {
         <div className="flex items-end gap-5">
           <SectionNumber n="05" />
           <div className="pb-1.5">
-            <Eyebrow>The Road So Far — and Ahead</Eyebrow>
+            <Eyebrow>The Road So Far, and the Road Ahead</Eyebrow>
           </div>
         </div>
         <h2 className="mt-8 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl lg:text-[2.75rem] leading-[1.12] tracking-tight max-w-2xl">
@@ -813,7 +828,7 @@ function TimelineAndGoals() {
               <span className="text-[#A68A2E] font-bold text-lg sm:text-right">Next</span>
               <div className="sm:pl-9">
                 <h3 className="font-semibold text-[#1A1A1A] text-lg sm:text-xl">
-                  Goals we say out loud — so you can hold us to them.
+                  Goals we say out loud, so you can hold us to them.
                 </h3>
                 <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {IMPACT_GOALS.map((goal) => (
@@ -856,7 +871,7 @@ const CTA_DOORS = [
     href: "/get-involved/donate",
     kicker: "For Believers",
     title: "Donate",
-    text: "Every dollar puts real technology in real hands — and every graduate lifts a whole family.",
+    text: "Every dollar puts real technology in real hands, and every graduate lifts a whole family.",
     featured: false,
   },
   {

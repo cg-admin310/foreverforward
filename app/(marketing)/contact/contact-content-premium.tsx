@@ -179,8 +179,8 @@ export function ContactContentPremium() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="text-lg text-white/60 leading-relaxed mb-10"
               >
-                Questions about a career pathway, a robotics workshop, a family movie
-                night, or joining forces on the mission&mdash;we&apos;re here for all of it.
+                A question, an idea, or a kid who won&apos;t stop talking about
+                robots. Whatever brings you here, we&apos;re glad it did. Talk to us.
               </motion.p>
 
               {/* Contact Cards */}
@@ -232,9 +232,9 @@ export function ContactContentPremium() {
             >
               <div className="text-[#C9A84C] text-3xl font-serif mb-2">&ldquo;</div>
               <p className="text-[#1A1A1A] font-medium text-sm leading-relaxed">
-                Every message matters. We&apos;re here for you.
+                Every message gets read by a real person. Usually me.
               </p>
-              <p className="text-[#888888] text-xs mt-3">— TJ Wilform, Founder</p>
+              <p className="text-[#888888] text-xs mt-3">TJ Wilform, Founder</p>
             </motion.div>
           </div>
         </div>
@@ -280,9 +280,9 @@ export function ContactContentPremium() {
                   <div className="w-20 h-20 rounded-full bg-[#EFF4EB] flex items-center justify-center mx-auto mb-6">
                     <CheckCircle2 className="h-10 w-10 text-[#5A7247]" />
                   </div>
-                  <h3 className="text-2xl font-bold text-[#1A1A1A] mb-3">Message Sent!</h3>
+                  <h3 className="text-2xl font-bold text-[#1A1A1A] mb-3">Got It</h3>
                   <p className="text-[#555555] leading-relaxed">
-                    Thank you for reaching out. We&apos;ll get back to you within 24 hours.
+                    A real person will get back to you within 24 hours, probably sooner.
                   </p>
                 </motion.div>
               ) : (
@@ -396,7 +396,7 @@ export function ContactContentPremium() {
                           setFormData({ ...formData, message: e.target.value })
                         }
                         rows={5}
-                        placeholder="Tell us more about how we can help..."
+                        placeholder="Tell us what's on your mind..."
                         className="w-full rounded-lg border border-[#DDDDDD] bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-[#C9A84C] resize-none"
                         required
                       />
@@ -513,8 +513,8 @@ export function ContactContentPremium() {
               </span>
             </h2>
             <p className="text-lg text-white/60 mb-10 max-w-2xl mx-auto">
-              Whether you&apos;re starting a career pathway, bringing your family to an
-              event, or joining forces with the mission&mdash;we&apos;re excited to connect.
+              You don&apos;t need to have it all figured out. You just need to show
+              up. We&apos;ll take it from there.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button asChild size="lg" className="group px-8">
