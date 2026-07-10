@@ -4,7 +4,7 @@
 export const BLOG_CATEGORIES = [
   {
     id: "1",
-    name: "Fatherhood",
+    name: "Fatherhood & Leadership",
     slug: "fatherhood",
     description: "Stories, advice, and resources for fathers on their journey",
   },
@@ -12,23 +12,23 @@ export const BLOG_CATEGORIES = [
     id: "2",
     name: "Tech Careers",
     slug: "tech-careers",
-    description: "IT career tips, certifications, and industry insights",
+    description: "Career pathways, certifications, and skilled-trade insights for fathers",
   },
   {
     id: "3",
-    name: "Family",
+    name: "Family Activities",
     slug: "family",
     description: "Building stronger families and creating lasting memories",
   },
   {
     id: "4",
-    name: "IT for Nonprofits",
-    slug: "it-for-nonprofits",
-    description: "Technology solutions and best practices for nonprofit organizations",
+    name: "Future Tech",
+    slug: "future-tech",
+    description: "Robotics, 3D printing, satellites, and the technologies shaping tomorrow",
   },
   {
     id: "5",
-    name: "Community",
+    name: "Community Stories",
     slug: "community",
     description: "Community events, partnerships, and local impact stories",
   },
@@ -36,335 +36,243 @@ export const BLOG_CATEGORIES = [
     id: "6",
     name: "AI & Innovation",
     slug: "ai-innovation",
-    description: "Exploring AI, emerging tech, and digital transformation",
+    description: "Exploring AI, emerging tech, and what it means for our neighborhoods",
   },
 ];
 
 export const SAMPLE_POSTS = [
   {
     id: "1",
-    slug: "why-google-it-certification-matters",
-    title: "Why the Google IT Support Certificate Can Change Your Life",
+    slug: "when-kids-meet-robots-everything-changes",
+    title: "When a Kid Races a Robot They Built, Everything Changes",
     excerpt:
-      "For fathers looking to break into tech, the Google IT Support Professional Certificate offers a direct path to a new career. Here's why it's become the gold standard for career changers.",
+      "Talent is everywhere. Exposure isn't. Here's what happens the first time a young person in South LA builds a robot with their own hands — and why that moment matters more than any lecture about the future.",
     content: `
-# Why the Google IT Support Certificate Can Change Your Life
+# When a Kid Races a Robot They Built, Everything Changes
 
-For fathers looking to break into tech, the Google IT Support Professional Certificate offers a direct path to a new career. Here's why it's become the gold standard for career changers.
+There's a moment we watch for at every Future Builders workshop. A kid — sometimes nine years old, sometimes sixteen — presses a button, and a robot they wired, coded, and argued with for two hours finally rolls across the floor. Their whole face changes. That's the moment "someday" becomes "why not me?"
 
-## The Problem with Traditional Education
+## Exposure Is the Whole Ballgame
 
-Let's be honest: going back to school for a 4-year degree isn't realistic for most working fathers. Between family responsibilities, current jobs, and financial constraints, the traditional path to a tech career seems impossible.
+Most of the kids we work with are plenty smart. What they haven't had is proximity. Robotics kits, AI tools, 3D printers — these things live in schools and zip codes that aren't theirs. So the future feels like something that happens to other people, somewhere else.
 
-That's where industry certifications come in.
+We flip that. At Forever Forward, robotics isn't a video on a screen. It's a motor in your hand, a sensor that won't cooperate, a race at the end of the day where your build goes wheel-to-wheel with your best friend's. Losing the race and immediately asking "can I fix my code and go again?" — that's engineering. That's the whole discipline, learned in an afternoon.
 
-## What Makes Google IT Different
+## What Actually Changes
 
-The Google IT Support Professional Certificate was designed specifically for people with zero prior experience. You don't need a degree. You don't need previous IT work. You just need dedication and 3-6 months of consistent effort.
+It's not that every kid who races a robot becomes a robotics engineer. It's that the ceiling moves. After a workshop, kids talk differently. They say "when I build" instead of "if I could." They ask what jobs let you do this all day. Parents tell us their kid came home and took apart a remote control — which, yes, we apologize for.
 
-### What You'll Learn
+Research on career development backs this up: young people mostly aspire to careers they've *seen*. You can't want a job you don't know exists. Every robot race quietly expands the list of futures a kid considers theirs.
 
-- **Technical Support Fundamentals**: The basics of IT support that every tech professional needs
-- **Computer Networking**: How the internet works and how to troubleshoot network issues
-- **Operating Systems**: Windows and Linux administration
-- **System Administration**: Managing IT infrastructure
-- **IT Security**: Protecting systems from cyber threats
+## Dads in the Room
 
-## Real Results from Real Fathers
+Here's our favorite part: at our family events, the fathers don't sit on the sidelines. Dads end up elbow-deep in the build, debating gear ratios with their kids. A father and child solving a problem together as equals — that's a memory with a long shelf life, and it's exactly the kind of moment our [Making Moments](/programs/making-moments) events are built around.
 
-At Forever Forward, we've seen dozens of fathers complete this certification and launch new careers. The average starting salary for our graduates is $45,000-$55,000, with many advancing to $70,000+ within two years.
+## Put a Robot in Your Kid's Hands
 
-## How Forever Forward Helps
-
-Our Father Forward program doesn't just hand you a certificate—we provide:
-
-- **Structured cohort learning** with peers on the same journey
-- **Travis AI** support available 24/7 for questions and encouragement
-- **Case worker guidance** to help overcome barriers
-- **Job placement assistance** with our employer network
-- **Ongoing community** even after graduation
-
-## Take the First Step
-
-The hardest part is starting. But with the right support system, you can build a career that provides for your family and serves as an example for your children.
-
-[Enroll in Father Forward today](/get-involved/enroll) and join our next cohort.
+Our [Tech-Ready Youth](/programs/tech-ready-youth) program and Future Builders workshops run across Greater LA, and no experience is required — curiosity is the only prerequisite. [Enroll your young builder today](/get-involved/enroll), or [come to a robot race](/events) and watch the moment happen yourself.
     `,
-    category: BLOG_CATEGORIES[1],
+    category: BLOG_CATEGORIES[3],
     author_name: "TJ Wilform",
-    published_at: "2026-03-15T10:00:00Z",
+    published_at: "2026-06-18T10:00:00Z",
     read_time_minutes: 5,
-    featured_image_url: "/images/generated/blog-google-it-cert.png",
-    tags: ["google-it", "certification", "career-change", "father-forward"],
+    featured_image_url: "/images/future/pillar-future-tech.jpg",
+    tags: ["robotics", "future-builders", "youth", "exposure"],
     status: "published",
   },
   {
     id: "2",
-    slug: "movies-on-the-menu-bringing-families-together",
-    title: "Movies on the Menu: Where Dinner Meets Cinema Magic",
+    slug: "three-career-pathways-for-fathers",
+    title: "Three Career Pathways for Fathers: IT, Skilled Trades, and Auto/EV",
     excerpt:
-      "Our signature family event combines gourmet food, great films, and meaningful connections. Discover what makes Movies on the Menu special and why families keep coming back.",
+      "Career Forward isn't one-size-fits-all. Whether you're drawn to servers, pipe wrenches, or electric vehicles, there's a pathway built for you — and all three lead to real wages and real pride.",
     content: `
-# Movies on the Menu: Where Dinner Meets Cinema Magic
+# Three Career Pathways for Fathers: IT, Skilled Trades, and Auto/EV
 
-There's something magical about watching a movie with your family. Add a delicious meal and a community of people who share your values, and you've got something truly special.
+Let's be honest: going back to school for a four-year degree isn't realistic for most working fathers. Between family responsibilities, current jobs, and bills that don't pause for anybody, the traditional path can feel closed. That's why Career Forward offers three doors instead of one — each built around skills employers are hiring for right now.
 
-## More Than Just Dinner and a Movie
+## Pathway One: IT & Cybersecurity
 
-Movies on the Menu started with a simple idea: what if we could create an experience that brings families closer together while celebrating the joy of food and film?
+The IT pathway starts from zero — no degree, no prior tech job required. Over eight weeks you build toward the Google IT Support Certificate: networks, operating systems, troubleshooting, and security fundamentals. Help desk and IT support roles are the front door to a whole industry, and cybersecurity sits right behind it, with demand that keeps outrunning supply. If you like solving puzzles and you're the person your family already calls when the Wi-Fi acts up, this one's for you.
 
-Every event features:
+## Pathway Two: Plumbing & Skilled Trades
 
-- **Curated Film Selection**: Family-friendly movies that spark conversation
-- **Themed Dinner**: Food inspired by or paired with the film
-- **Community Atmosphere**: Meet other families building stronger bonds
-- **Father-Focused**: Celebrating the role of fathers in family life
+Here's a fact that doesn't get enough airtime: the trades are facing a generational shortage. Every building in Los Angeles has pipes, and somebody trustworthy has to keep them working. Our trades pathway teaches apprenticeship-ready fundamentals — tools, codes, safety, and the professionalism that gets you hired onto a crew. Trades pay real wages, can't be outsourced to another continent, and put you on a path toward running your own business someday. Legacy, with a pipe wrench.
 
-## Why It Works
+## Pathway Three: Auto & EV Mechanics
 
-In a world of streaming and fast food, we're losing the art of shared experiences. Movies on the Menu brings back that togetherness—sitting together, eating together, laughing together.
+Cars are turning into computers on wheels, and the shops that service them need people trained on both. This pathway covers diagnostics and repair on today's vehicles plus the electric-vehicle skills the next generation of garages is actively hiring for. California is going electric fast — the fathers who train on EV systems now will be the senior techs everyone calls in five years.
 
-## Upcoming Events
+## Which Door Is Yours?
 
-Check our [events page](/events) for the next Movies on the Menu. Tickets sell out fast!
+There's no wrong answer, and you don't have to decide alone. Every [Father Forward](/programs/father-forward) cohort includes leadership coaching, a community of fathers walking the same road, and support for the real-life barriers — childcare, transportation, schedules — that derail good intentions.
+
+Pick a path. Build a legacy. [Enroll today](/get-involved/enroll) — the next cohort has a seat with your name on it.
     `,
-    category: BLOG_CATEGORIES[2],
+    category: BLOG_CATEGORIES[1],
     author_name: "TJ Wilform",
-    published_at: "2026-03-10T14:00:00Z",
-    read_time_minutes: 3,
-    featured_image_url: "/images/generated/blog-movies-dinner.png",
-    tags: ["movies-on-the-menu", "family", "events", "community"],
+    published_at: "2026-06-05T09:00:00Z",
+    read_time_minutes: 6,
+    featured_image_url: "/images/future/program-trades-pathway.jpg",
+    tags: ["career-forward", "father-forward", "trades", "ev-mechanics", "it-careers"],
     status: "published",
   },
   {
     id: "3",
-    slug: "managed-it-for-nonprofits-guide",
-    title: "The Complete Guide to Managed IT for Nonprofits",
+    slug: "movies-on-the-menu-bringing-families-together",
+    title: "Movies on the Menu: Where Dinner Meets Cinema Magic",
     excerpt:
-      "Nonprofits face unique technology challenges with limited budgets. Learn how managed IT services can provide enterprise-level support at nonprofit-friendly prices.",
+      "Our signature family night combines a real dinner, a great film, and a community that shows up for each other. Here's why families keep coming back — and why joy is part of our strategy.",
     content: `
-# The Complete Guide to Managed IT for Nonprofits
+# Movies on the Menu: Where Dinner Meets Cinema Magic
 
-Running a nonprofit is hard enough without worrying about your technology. Yet IT issues can derail your mission faster than almost anything else.
+There's something magical about watching a movie with your family. Add a hot dinner you didn't have to cook, a crowd of neighbors who share your values, and zero pressure to be anywhere else — and you've got something truly special.
 
-## The Nonprofit IT Challenge
+## More Than Dinner and a Movie
 
-Most nonprofits face a difficult choice:
+Movies on the Menu started with a simple idea: what if a father could just *be present* for one evening? No logistics, no cost, no stress. We handle the food, the film, and the setup. Dad handles the popcorn negotiations.
 
-1. **DIY IT**: Staff members handle tech issues, taking time away from their actual jobs
-2. **Break-Fix Support**: Call someone when things break, pay by the hour
-3. **Full-Time IT Staff**: Expensive and often underutilized
+Every event features a family-friendly movie chosen to spark conversation, a dinner themed to the film, and a room full of families building the same thing you are. It's father-focused by design — because we believe a dad laughing with his kids in public is one of the most underrated sights in any neighborhood.
 
-There's a better way.
+## Why Joy Is a Strategy
 
-## What is Managed IT?
+At Forever Forward we say it plainly: joy is a strategy. Strong families aren't built in classrooms alone — they're built in moments. The father grinding through a [Career Forward](/programs/father-forward) certification needs a night where the only assignment is being there. The kid who raced a robot at our last workshop needs to see that celebration is part of the culture, not a reward you have to earn.
 
-Managed IT services provide ongoing technology support for a predictable monthly fee. Think of it as having a full IT department without the full-time cost.
+In a world of streaming alone in separate rooms, we're bringing back the shared experience: eating together, laughing together, groaning at the same dad joke together.
 
-### What's Included
+## What to Expect
 
-- **24/7 Monitoring**: We catch problems before they affect your work
-- **Help Desk Support**: Staff can get help when they need it
-- **Security Management**: Protection against cyber threats
-- **Strategic Planning**: Technology roadmapping for your organization
-- **Vendor Management**: We handle your tech vendors so you don't have to
+Doors open, dinner's served, the movie rolls, and nobody checks a watch. Kids are welcome, seconds are encouraged, and yes — there's usually a 3D-printing corner or a robot demo nearby, because we can't help ourselves.
 
-## Why Forever Forward?
+## Pull Up a Chair
 
-We're not just another IT company. As a nonprofit ourselves, we understand your world:
-
-- **Nonprofit Pricing**: Designed for limited budgets
-- **Mission-Aligned**: Your success is our success
-- **Community Reinvestment**: Our profits fund workforce development programs
-
-## Get Started
-
-Request a [free IT assessment](/services/managed-it) and discover how we can help your organization thrive.
+Movies on the Menu events fill up fast. Check the [events page](/events) for the next one, and if your family's never been — this is your invitation. Come hungry.
     `,
-    category: BLOG_CATEGORIES[3],
+    category: BLOG_CATEGORIES[2],
     author_name: "TJ Wilform",
-    published_at: "2026-03-05T09:00:00Z",
-    read_time_minutes: 6,
-    featured_image_url: "/images/generated/blog-nonprofit-it.png",
-    tags: ["managed-it", "nonprofits", "technology", "IT-services"],
+    published_at: "2026-05-20T14:00:00Z",
+    read_time_minutes: 4,
+    featured_image_url: "/images/generated/blog-movies-dinner.png",
+    tags: ["movies-on-the-menu", "family", "events", "making-moments"],
     status: "published",
   },
   {
     id: "4",
-    slug: "ai-in-workforce-development",
-    title: "How AI is Transforming Workforce Development",
+    slug: "tracking-satellites-from-south-la",
+    title: "Tracking Satellites from a South LA Rooftop: A Low Earth Orbit Primer",
     excerpt:
-      "From personalized learning paths to 24/7 support, artificial intelligence is changing how we prepare people for careers. Meet Travis, our AI case manager.",
+      "Thousands of satellites pass over Los Angeles every single day — and with a free app and a clear evening, your family can watch them go by. Here's the science, and the spark.",
     content: `
-# How AI is Transforming Workforce Development
+# Tracking Satellites from a South LA Rooftop: A Low Earth Orbit Primer
 
-The future of workforce development isn't just about teaching skills—it's about providing personalized, always-available support that meets people where they are.
+Here's a secret hiding in plain sight: the space age flies over your house every night. Thousands of satellites in low Earth orbit — including the International Space Station — pass above Los Angeles daily, visible to the naked eye if you know when to look up. No telescope required. No permission needed.
 
-## The Challenge of Traditional Programs
+## What Is Low Earth Orbit, Anyway?
 
-Traditional workforce programs have limitations:
+Low Earth orbit (LEO) is the band of space from roughly 100 to 1,200 miles up. It's where the ISS lives, where most imaging and internet satellites operate, and where objects move so fast they circle the entire planet in about 90 minutes. That means the astronauts overhead see a sunrise every hour and a half — and it means a satellite that passes over Compton tonight will pass over again before bedtime.
 
-- **Fixed schedules** that don't work for everyone
-- **One-size-fits-all** curriculum
-- **Limited support hours** when case workers go home
-- **Resource constraints** that limit individual attention
+When you spot one, you're not seeing lights on the spacecraft. You're seeing sunlight glinting off its panels while you stand in the dark. A mirror, 250 miles up, moving at 17,500 miles per hour.
 
-## Enter Travis: AI That Cares
+## The Rooftop Setup
 
-Travis is Forever Forward's AI case manager. Available 24/7, Travis provides:
+At our Night Sky Nights, the gear list is short: a free satellite-tracking app, a clear patch of sky, and patience measured in minutes, not hours. The app tells you exactly when the ISS will rise, which direction to face, and how bright it'll be. Then the countdown starts — and when that steady golden dot slides across the sky right on schedule, on a path a kid predicted from a phone in their hand, something clicks.
 
-### Personalized Support
-- Answers questions about the program
-- Helps troubleshoot technical challenges
-- Provides encouragement during tough moments
+Because that's the real lesson: this is *predictable*. It's math. And the kid who just predicted it did the same fundamental thing aerospace engineers do in El Segundo, twenty minutes from here, for a living.
 
-### Smart Escalation
-- Knows when to bring in human help
-- Flags concerns for case workers
-- Never tries to replace human connection
+## From Looking Up to Building Up
 
-### Resource Connection
-- Searches our partner database
-- Connects participants with relevant services
-- Helps overcome barriers to success
+The space economy is hiring — engineers, technicians, coders, machinists — and much of it is headquartered right here in Southern California. Our [Future Builders programs](/programs/tech-ready-youth) use satellite tracking as a doorway into orbital mechanics, radio, and data skills, and our [Making Moments](/programs/making-moments) events turn it into family ritual.
 
-## The Human-AI Partnership
-
-Travis doesn't replace our case workers—it extends their reach. When a father has a question at 2 AM, Travis is there. When he needs human support, Travis ensures the case worker knows.
-
-## Experience It Yourself
-
-Enroll in any of our programs to experience how AI can support your journey. [Get started today](/get-involved/enroll).
+Come look up with us. Check [upcoming events](/events) for the next Night Sky Night — the ISS will be right on time.
     `,
-    category: BLOG_CATEGORIES[5],
+    category: BLOG_CATEGORIES[3],
     author_name: "TJ Wilform",
-    published_at: "2026-02-28T11:00:00Z",
-    read_time_minutes: 4,
-    featured_image_url: "/images/generated/blog-ai-workforce.png",
-    tags: ["ai", "travis", "workforce-development", "innovation"],
+    published_at: "2026-04-28T11:00:00Z",
+    read_time_minutes: 5,
+    featured_image_url: "/images/future/program-satellite-kids.jpg",
+    tags: ["low-earth-orbit", "satellites", "night-sky", "stem"],
     status: "published",
   },
   {
     id: "5",
-    slug: "being-present-as-a-working-father",
-    title: "Being Present: A Working Father's Guide to Quality Time",
+    slug: "a-fathers-journey-from-enrollment-to-certification",
+    title: "From 'I'm Not a Tech Guy' to Certified: A Father's Journey",
     excerpt:
-      "Balancing work and family is the eternal struggle. Here are practical strategies from fathers who've learned to be fully present—even with limited time.",
+      "Eight weeks ago he almost didn't fill out the form. This is what the road from enrollment to certification actually looks like for a father in Career Forward — doubts, breakthroughs, and all.",
     content: `
-# Being Present: A Working Father's Guide to Quality Time
+# From "I'm Not a Tech Guy" to Certified: A Father's Journey
 
-Every working father knows the guilt. You're at work thinking about your kids. You're with your kids thinking about work. You're never fully anywhere.
+Every cohort starts the same way: a room full of fathers quietly wondering if they belong there. This is the story of what happens next — told through the journey we watch fathers make every eight weeks, from the night they almost don't submit the enrollment form to the day a certificate prints with their name on it.
 
-It doesn't have to be this way.
+## Week Zero: The Form
 
-## Quality Over Quantity
+The hardest click is the first one. Most of the fathers who join [Career Forward](/programs/father-forward) tell us some version of the same thing: "I'm not a tech guy." They're working a job that doesn't quite cover the bills, or between jobs, or watching their kids grow up faster than their paycheck. The enrollment form asks about goals and barriers — childcare, transportation, schedule — not because we're screening people out, but because we plan around real life, not an idealized version of it.
 
-Research consistently shows that the quality of time matters more than quantity. Ten minutes of fully engaged play beats an hour of distracted presence.
+## Weeks One Through Three: The Wall
 
-### What "Present" Really Means
+The early weeks are humbling. New vocabulary, new tools, a brain that hasn't sat in a classroom in fifteen years. This is where the cohort matters most. When one father cracks a networking concept, he explains it to the guy next to him in language no textbook uses. Fathers push each other through the wall the same way they'd spot each other in a gym.
 
-- **Put the phone away**: Not on silent. Away.
-- **Make eye contact**: Get on their level
-- **Follow their lead**: Let them direct the play
-- **Listen actively**: Repeat back what they say
+## Weeks Four Through Seven: The Shift
 
-## Practical Strategies
+Somewhere in the middle, the identity changes before the certificate does. He starts fixing things at home — the router, a neighbor's laptop — narrating what he's doing to his kids while they watch. His daughter starts saying "my dad works in computers." He doesn't correct her anymore.
 
-### 1. Create Rituals
-- Morning breakfast together
-- Bedtime stories (no exceptions)
-- Weekend adventure time
+## Week Eight: The Name on the Certificate
 
-### 2. Leverage Technology Wisely
-- Video calls when traveling
-- Shared photo albums
-- Voice messages throughout the day
+Exam day is quiet. Then it isn't. Passing an industry certification as a grown man with kids watching is a different kind of victory — it's proof, printable and frameable, that forward is a direction available to anyone. Graduates leave with a credential, a network of brothers from the cohort, and a story their kids will retell.
 
-### 3. Involve Kids in Your World
-- Bring them to work occasionally
-- Explain what you do
-- Share appropriate challenges and victories
+## Your Week Zero Is Now
 
-## The Forever Forward Approach
-
-Our programs don't just teach technical skills—we help fathers become better fathers. Through mentorship, community, and intentional programming, we address the whole person.
-
-## Join Our Community
-
-Connect with other fathers committed to being present. [Learn about Making Moments](/programs/making-moments) and our family events.
+Whether your door is IT, the skilled trades, or auto and EV mechanics, the road looks like this — hard, supported, and worth it. [Enroll in Career Forward](/get-involved/enroll). The form takes ten minutes. The identity shift takes eight weeks.
     `,
     category: BLOG_CATEGORIES[0],
     author_name: "TJ Wilform",
-    published_at: "2026-02-20T08:00:00Z",
-    read_time_minutes: 5,
-    featured_image_url: "/images/generated/blog-present-father.png",
-    tags: ["fatherhood", "work-life-balance", "parenting", "presence"],
+    published_at: "2026-04-10T08:00:00Z",
+    read_time_minutes: 6,
+    featured_image_url: "/images/future/program-it-pathway.jpg",
+    tags: ["fatherhood", "career-forward", "certification", "transformation"],
     status: "published",
   },
   {
     id: "6",
-    slug: "south-la-tech-revolution",
-    title: "The Tech Revolution Starting in South LA",
+    slug: "nonprofits-joining-forces-on-technology",
+    title: "Stronger Together: How Nonprofits Can Join Forces on Technology",
     excerpt:
-      "Forget Silicon Valley—the next wave of tech talent is being trained right here in South Los Angeles. Here's how our community is building a different kind of tech pipeline.",
+      "We build apps and share tech know-how with fellow nonprofits — not as a vendor, but as a neighbor. Here's why collaboration beats going it alone, and how your organization can plug in.",
     content: `
-# The Tech Revolution Starting in South LA
+# Stronger Together: How Nonprofits Can Join Forces on Technology
 
-When people think of tech, they think of San Francisco, Seattle, Austin. They don't think of Compton, Inglewood, or South LA.
+Every nonprofit leader we know is doing three jobs with the budget for one. And somewhere on the to-do list — below payroll and above "someday" — sits technology: the intake form that's still on paper, the resource list living in someone's head, the website from 2017.
 
-It's time to change that.
+Here's what we believe at Forever Forward: no community organization should have to solve that alone, and nobody should have to hire their way out of it.
 
-## The Untapped Potential
+## Collaboration, Not Contracts
 
-South LA has everything needed for a tech revolution:
+Forever Forward builds apps and shares technology *with* fellow nonprofits — emphasis on with. We're not selling services; we're pooling strengths. We happen to have technical muscle in-house and a founder who spent years building data centers. Your organization has deep roots, trust, and expertise we don't. When we join forces, both missions get bigger.
 
-- **Hungry talent** ready to learn and work hard
-- **Community bonds** that support success
-- **Real-world experience** that brings unique perspectives
-- **Proximity to major employers** throughout Los Angeles
+We've seen what happens when the community-resource space levels up together: the housing org's intake connects to the mentoring org's referrals, the food program's calendar reaches the families the youth program serves. One connected network of organizations serving the same neighborhoods — instead of a dozen islands.
 
-What's been missing is the pipeline—the infrastructure to identify, train, and connect talent with opportunity.
+## What Joining Forces Looks Like
 
-## Building the Pipeline
+**Community apps, built together.** We co-design and build tools around your actual workflow — intake, referrals, scheduling — with your staff at the table from day one.
 
-Forever Forward is building that pipeline through:
+**Shared know-how.** Workshops and honest advice on AI, automation, and security for partner organizations. The same technologies we teach our fathers and youth, translated for nonprofit operations.
 
-### Training Programs
-- Father Forward for adult career changers
-- Tech-Ready Youth for the next generation
-- LULA for ongoing learning
+**Shared programming.** Co-hosted events, cross-referrals, and workshops that bring our [Future Builders](/programs/tech-ready-youth) and [Making Moments](/programs/making-moments) energy to the families you serve.
 
-### Industry Partnerships
-- Direct relationships with employers
-- Apprenticeship opportunities
-- Job placement support
+## The Multiplier Effect
 
-### Community Reinvestment
-- Our IT services revenue funds programs
-- Graduates join our workforce pool
-- Success feeds more success
+When one organization levels up, everyone it serves levels up with it. A caseworker who saves five hours a week on paperwork spends those five hours with families. That's the math we care about.
 
-## The Vision
+## Let's Talk
 
-Imagine a South LA where:
-
-- Tech careers are normal, not exceptional
-- Local businesses have access to affordable IT support
-- Fathers are building generational wealth through skilled careers
-- Youth see themselves in technology
-
-That's what we're building.
-
-## Be Part of It
-
-Whether you're looking to learn, hire, or support, there's a place for you. [Contact us](/contact) to get involved.
+If you lead a nonprofit, school, or community organization in Greater LA — or anywhere, honestly — we'd love to compare notes. [Join forces with us](/get-involved/partner) or [reach out directly](/contact). The whole neighborhood rises together.
     `,
     category: BLOG_CATEGORIES[4],
     author_name: "TJ Wilform",
-    published_at: "2026-02-15T10:00:00Z",
-    read_time_minutes: 4,
-    featured_image_url: "/images/generated/blog-south-la-tech.png",
-    tags: ["south-la", "community", "tech", "workforce"],
+    published_at: "2026-03-22T10:00:00Z",
+    read_time_minutes: 5,
+    featured_image_url: "/images/future/community-builders.jpg",
+    tags: ["community", "partnerships", "nonprofit-tech", "collaboration"],
     status: "published",
   },
 ];

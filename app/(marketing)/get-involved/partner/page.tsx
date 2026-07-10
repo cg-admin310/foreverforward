@@ -2,31 +2,31 @@ import type { Metadata } from "next";
 import { PartnerContent } from "./partner-content";
 
 export const metadata: Metadata = {
-  title: "Partner With Us | Corporate & Community Partnerships",
+  title: "Partner With Us | Join Forces on the Mission",
   description:
-    "Partner with Forever Forward through corporate sponsorships, training partnerships, or community collaboration. Connect your organization with workforce development and IT services for nonprofits.",
+    "Join forces with Forever Forward: community organizations co-running programs and sharing tech, employers hiring graduates and hosting apprenticeships, sponsors funding cohorts and events, and schools hosting future-tech workshops.",
   keywords: [
     "nonprofit partnership",
-    "corporate sponsorship",
-    "workforce development partner",
-    "community partnership",
-    "IT training partnership",
-    "nonprofit collaboration",
-    "CSR partnership",
+    "community collaboration",
+    "hire workforce program graduates",
+    "apprenticeship partner",
+    "sponsor a cohort",
+    "nonprofit technology collaboration",
+    "school STEM workshops",
     "social impact partnership",
   ],
   openGraph: {
-    title: "Partner with Forever Forward",
+    title: "Join Forces with Forever Forward",
     description:
-      "Corporate sponsorships, training partnerships, and community collaboration opportunities.",
+      "Community organizations, employers, sponsors, and schools — joining forces so the whole neighborhood levels up.",
     type: "website",
     url: "/get-involved/partner",
   },
   twitter: {
     card: "summary",
-    title: "Partner with Forever Forward",
+    title: "Join Forces with Forever Forward",
     description:
-      "Explore corporate and community partnership opportunities.",
+      "Partnerships for community orgs, employers, sponsors, and schools.",
   },
   alternates: {
     canonical: "/get-involved/partner",

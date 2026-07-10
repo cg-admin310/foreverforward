@@ -2,34 +2,35 @@ import type { Metadata } from "next";
 import { ProgramsContentPremium } from "./programs-content-premium";
 
 export const metadata: Metadata = {
-  title: "Programs | Father Forward, Tech-Ready Youth & More",
+  title: "Programs",
   description:
-    "Explore Forever Forward's transformative programs: Father Forward workforce development, Tech-Ready Youth certifications, Making Moments family events, From Script to Screen filmmaking, Stories from My Future, and LULA learning academy.",
+    "Six programs. Three doors. One direction: forward. Career pathways for fathers, future tech in young hands, and family moments made on purpose — free across Greater Los Angeles.",
   keywords: [
     "father programs Los Angeles",
-    "workforce development fathers",
-    "youth tech training",
-    "Google IT certification program",
+    "career pathways for fathers",
+    "youth robotics program",
+    "AI programs for kids",
+    "3D printing workshops kids",
+    "skilled trades training fathers",
+    "EV mechanic training",
     "Black father programs",
-    "family enrichment programs",
+    "family STEM events Los Angeles",
     "youth filmmaking program",
-    "STEM programs kids",
-    "tech training nonprofit",
     "Father Forward program",
     "Tech-Ready Youth",
   ],
   openGraph: {
     title: "Programs | Forever Forward",
     description:
-      "From workforce development to family enrichment—programs designed to uplift fathers, youth, and families.",
+      "Six programs. Three doors. One direction: forward. Career pathways for fathers, future tech for youth, and family moments made on purpose.",
     type: "website",
     url: "/programs",
     images: [
       {
-        url: "/images/authentic/fathers/father-teaching-daughter.jpg",
+        url: "/images/future/pillar-future-tech.jpg",
         width: 1200,
         height: 630,
-        alt: "Forever Forward Programs - Father teaching technology skills",
+        alt: "Forever Forward Programs — young people building the future with real technology",
       },
     ],
   },
@@ -37,8 +38,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Programs | Forever Forward",
     description:
-      "Workforce development, youth training, and family programs designed to uplift our community.",
-    images: ["/images/authentic/fathers/father-teaching-daughter.jpg"],
+      "Career pathways for fathers, future tech for youth, and family moments made on purpose — free for our community.",
+    images: ["/images/future/pillar-future-tech.jpg"],
   },
   alternates: {
     canonical: "/programs",

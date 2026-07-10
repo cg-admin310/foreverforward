@@ -25,8 +25,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `${program.name} | Programs`,
     description: program.heroDescription,
     openGraph: {
-      title: `${program.name} - ${program.tagline}`,
+      title: `${program.name} — ${program.tagline}`,
       description: program.heroDescription,
+      type: "website",
+      url: `/programs/${program.slug}`,
+      images: [
+        {
+          url: program.heroImage,
+          width: 1200,
+          height: 630,
+          alt: `${program.name} — ${program.tagline}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${program.name} — ${program.tagline}`,
+      description: program.heroDescription,
+      images: [program.heroImage],
+    },
+    alternates: {
+      canonical: `/programs/${program.slug}`,
     },
   };
 }

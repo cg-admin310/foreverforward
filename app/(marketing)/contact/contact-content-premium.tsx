@@ -14,7 +14,7 @@ import {
   MessageSquare,
   ArrowRight,
   GraduationCap,
-  Server,
+  Handshake,
   Heart,
   Calendar,
 } from "lucide-react";
@@ -50,9 +50,9 @@ const contactInfo = [
 const inquiryTypes = [
   { value: "general", label: "General Inquiry" },
   { value: "programs", label: "Programs & Enrollment" },
-  { value: "services", label: "IT Services" },
+  { value: "events", label: "Events & Making Moments" },
   { value: "volunteer", label: "Volunteering" },
-  { value: "partnership", label: "Partnership" },
+  { value: "partnership", label: "Partner With Us" },
   { value: "donation", label: "Donations" },
   { value: "media", label: "Media & Press" },
 ];
@@ -60,16 +60,16 @@ const inquiryTypes = [
 const quickLinks = [
   {
     title: "Enroll in a Program",
-    description: "Father Forward, Tech-Ready Youth, and more",
+    description: "Career Forward, Future Builders, and more",
     href: "/get-involved/enroll",
     icon: GraduationCap,
     color: "gold",
   },
   {
-    title: "Get IT Services",
-    description: "Free assessment for nonprofits",
-    href: "/services",
-    icon: Server,
+    title: "Join Forces With Us",
+    description: "Partnerships for orgs, employers & schools",
+    href: "/get-involved/partner",
+    icon: Handshake,
     color: "olive",
   },
   {
@@ -135,7 +135,12 @@ export function ContactContentPremium() {
   return (
     <>
       {/* Hero Section - Split Screen */}
-      <section className="relative min-h-[70vh] bg-[#1A1A1A] overflow-hidden">
+      <section className="relative min-h-[70vh] bg-[#141413] overflow-hidden">
+        <div className="absolute inset-0 bg-starfield bg-starfield-twinkle" aria-hidden />
+        <div
+          className="aurora-blob absolute -top-40 -left-40 w-[32rem] h-[32rem] rounded-full bg-[#C9A84C]/12"
+          aria-hidden
+        />
         <div className="absolute inset-0 grid lg:grid-cols-2">
           {/* Left - Content */}
           <div className="relative z-10 flex items-center px-6 sm:px-12 lg:px-16 xl:px-24 pt-32 pb-16 lg:py-0">
@@ -147,8 +152,9 @@ export function ContactContentPremium() {
                 transition={{ duration: 0.6 }}
                 className="mb-8"
               >
-                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-sm text-white/80">
-                  <MessageSquare className="h-4 w-4 text-[#C9A84C]" />
+                <span className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-[0.28em] uppercase text-[#C9A84C]">
+                  <span className="inline-block h-px w-8 bg-current opacity-60" />
+                  <MessageSquare className="h-4 w-4" />
                   Get in Touch
                 </span>
               </motion.div>
@@ -173,8 +179,8 @@ export function ContactContentPremium() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="text-lg text-white/60 leading-relaxed mb-10"
               >
-                Whether you have questions about our programs, need IT services, or want to get
-                involved—we&apos;re here to help.
+                Questions about a career pathway, a robotics workshop, a family movie
+                night, or joining forces on the mission&mdash;we&apos;re here for all of it.
               </motion.p>
 
               {/* Contact Cards */}
@@ -206,16 +212,16 @@ export function ContactContentPremium() {
           </div>
 
           {/* Right - Image */}
-          <div className="relative hidden lg:block">
+          <div className="relative hidden lg:block grain-overlay">
             <Image
-              src="/images/authentic/family/family-outdoor-portrait.jpg"
-              alt="Forever Forward community"
+              src="/images/future/about-legacy.jpg"
+              alt="A father and child looking toward the future together"
               fill
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#1A1A1A] via-[#1A1A1A]/60 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/40 via-transparent to-[#1A1A1A]/20" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#141413] via-[#141413]/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#141413]/40 via-transparent to-[#141413]/20" />
 
             {/* Floating card */}
             <motion.div
@@ -236,13 +242,13 @@ export function ContactContentPremium() {
         {/* Mobile hero overlay */}
         <div className="absolute inset-0 lg:hidden">
           <Image
-            src="/images/authentic/family/family-outdoor-portrait.jpg"
-            alt="Forever Forward community"
+            src="/images/future/about-legacy.jpg"
+            alt="A father and child looking toward the future together"
             fill
             className="object-cover opacity-20"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1A1A1A]/80 to-[#1A1A1A]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#141413]/80 to-[#141413]" />
         </div>
       </section>
 
@@ -492,19 +498,23 @@ export function ContactContentPremium() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 lg:py-24 bg-[#1A1A1A]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="relative py-20 lg:py-24 bg-[#141413] overflow-hidden">
+        <div className="absolute inset-0 bg-starfield opacity-70" aria-hidden />
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-              Ready to Get Started?
+              Ready to Move{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] to-[#E8D48B]">
+                Forward?
+              </span>
             </h2>
             <p className="text-lg text-white/60 mb-10 max-w-2xl mx-auto">
-              Whether you&apos;re looking to transform your career, support our mission, or partner
-              with us—we&apos;re excited to connect.
+              Whether you&apos;re starting a career pathway, bringing your family to an
+              event, or joining forces with the mission&mdash;we&apos;re excited to connect.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button asChild size="lg" className="group px-8">
@@ -519,7 +529,7 @@ export function ContactContentPremium() {
                 size="lg"
                 className="px-8 border-white/20 text-white hover:bg-white/10"
               >
-                <Link href="/services">Explore IT Services</Link>
+                <Link href="/events">See Upcoming Events</Link>
               </Button>
             </div>
           </motion.div>

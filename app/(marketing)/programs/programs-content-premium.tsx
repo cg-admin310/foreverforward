@@ -1,775 +1,895 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+/**
+ * Forever Forward — Programs Hub
+ * Design language: "Afro-futurist observatory" — six programs organized as
+ * three doors (pillars): Career Forward, Future Builders, Making Moments.
+ */
+
+import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence, useInView, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  AnimatePresence,
+} from "framer-motion";
 import {
   ArrowRight,
-  GraduationCap,
+  ArrowUpRight,
+  ArrowDown,
+  Clock,
+  MapPin,
+  Sparkles,
+  Compass,
   Users,
   Heart,
-  Sparkles,
-  Zap,
-  Target,
-  Trophy,
-  BookOpen,
-  Clock,
-  CheckCircle2,
-  Calendar,
+  Cpu,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { PROGRAMS } from "@/lib/constants";
+import { PROGRAMS, CAREER_PATHWAYS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-type AudienceFilter = "all" | "fathers" | "youth" | "families" | "kids" | "students";
+const EASE = [0.16, 1, 0.3, 1] as const;
 
-const audienceFilters: { id: AudienceFilter; label: string; icon: typeof Users }[] = [
-  { id: "all", label: "All Programs", icon: Sparkles },
-  { id: "fathers", label: "Fathers", icon: Users },
-  { id: "youth", label: "Youth", icon: GraduationCap },
-  { id: "families", label: "Families", icon: Heart },
-  { id: "kids", label: "Kids", icon: Sparkles },
-  { id: "students", label: "Students", icon: BookOpen },
+type Program = (typeof PROGRAMS)[number];
+type PathwayId = (typeof CAREER_PATHWAYS)[number]["id"];
+
+const programsBySlug = new Map(PROGRAMS.map((p) => [p.slug, p]));
+
+function getPrograms(slugs: string[]): Program[] {
+  return slugs
+    .map((slug) => programsBySlug.get(slug))
+    .filter((p): p is Program => Boolean(p));
+}
+
+const FUTURE_BUILDER_SLUGS = [
+  "tech-ready-youth",
+  "stories-from-my-future",
+  "from-script-to-screen",
+  "lula",
 ];
 
-// Leadership skills
-const leadershipSkills = [
-  { name: "Communication", description: "Express ideas clearly and listen actively" },
-  { name: "Problem Solving", description: "Analyze challenges and find solutions" },
-  { name: "Teamwork", description: "Collaborate effectively with others" },
-  { name: "Responsibility", description: "Own your actions and commitments" },
-  { name: "Critical Thinking", description: "Evaluate information and make decisions" },
-  { name: "Empathy", description: "Understand and connect with others" },
-];
-
-// Program images mapping (using authentic images)
-const programImages: Record<string, string> = {
-  "father-forward": "/images/authentic/fathers/father-teaching-daughter.jpg",
-  "tech-ready-youth": "/images/authentic/tech/it-professional-server-room.jpg",
-  "making-moments": "/images/authentic/family/family-outdoor-portrait.jpg",
-  "from-script-to-screen": "/images/authentic/family/father-daughter-creativity.jpg",
-  "stories-from-my-future": "/images/authentic/fathers/father-focused-professional.jpg",
-  "lula": "/images/authentic/fathers/father-son-outdoor-portrait.jpg",
+const PROGRAM_IMAGES: Record<string, { src: string; alt: string }> = {
+  "tech-ready-youth": {
+    src: "/images/future/pillar-future-tech.jpg",
+    alt: "Youth building and programming robots in a Forever Forward lab",
+  },
+  "stories-from-my-future": {
+    src: "/images/future/program-3dprint-kids.jpg",
+    alt: "A girl and her father watching her design come to life on a 3D printer",
+  },
+  "from-script-to-screen": {
+    src: "/images/generated/program-script-to-screen.png",
+    alt: "Students producing their own film with virtual production tools",
+  },
+  lula: {
+    src: "/images/generated/program-lula-learning.png",
+    alt: "A young learner leveling up through LULA's gamified STEM quests",
+  },
 };
 
-// Get color for audience type
-const audienceColors: Record<string, { bg: string; text: string; border: string }> = {
-  fathers: { bg: "bg-[#C9A84C]/10", text: "text-[#C9A84C]", border: "border-[#C9A84C]/30" },
-  youth: { bg: "bg-[#5A7247]/10", text: "text-[#5A7247]", border: "border-[#5A7247]/30" },
-  families: { bg: "bg-rose-500/10", text: "text-rose-600", border: "border-rose-500/30" },
-  kids: { bg: "bg-sky-500/10", text: "text-sky-600", border: "border-sky-500/30" },
-  students: { bg: "bg-violet-500/10", text: "text-violet-600", border: "border-violet-500/30" },
+const PATHWAY_IMAGES: Record<PathwayId, { src: string; alt: string }> = {
+  it: {
+    src: "/images/future/program-it-pathway.jpg",
+    alt: "A father in IT training, hands-on with networks and hardware",
+  },
+  trades: {
+    src: "/images/future/program-trades-pathway.jpg",
+    alt: "A father learning EV and skilled-trade work in a modern shop",
+  },
+  auto: {
+    src: "/images/future/pillar-careers.jpg",
+    alt: "A father stepping into a hands-on career pathway",
+  },
 };
 
-export function ProgramsContentPremium() {
-  const [activeFilter, setActiveFilter] = useState<AudienceFilter>("all");
-  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
-  const filterRefs = useRef<(HTMLButtonElement | null)[]>([]);
+const AUDIENCE_LABELS: Record<Program["audience"], string> = {
+  fathers: "For Fathers",
+  youth: "For Youth",
+  families: "For Families",
+  kids: "For Kids",
+  students: "For Students",
+};
 
-  const heroRef = useRef<HTMLElement>(null);
-  const leadershipRef = useRef<HTMLElement>(null);
-  const isLeadershipInView = useInView(leadershipRef, { once: true, margin: "-100px" });
+/* ----------------------------------------------------------------------------
+ * Shared bits
+ * ------------------------------------------------------------------------- */
 
+function Eyebrow({
+  children,
+  light = false,
+}: {
+  children: React.ReactNode;
+  light?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-[0.28em] uppercase",
+        light ? "text-[#C9A84C]" : "text-[#A68A2E]"
+      )}
+    >
+      <span className="inline-block h-px w-8 bg-current opacity-60" />
+      {children}
+    </div>
+  );
+}
+
+function MetaChip({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold tracking-wide",
+        light
+          ? "border border-white/15 bg-white/[0.05] text-white/70"
+          : "border border-[#DDDDDD] bg-white/70 text-[#555555]"
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * 1. Hero — three doors under one sky
+ * ------------------------------------------------------------------------- */
+
+const DOORS = [
+  {
+    number: "01",
+    name: "Career Forward",
+    kicker: "For Fathers",
+    line: "Three career pathways. One flagship program.",
+    href: "#career-forward",
+    icon: Users,
+  },
+  {
+    number: "02",
+    name: "Future Builders",
+    kicker: "For Kids & Youth",
+    line: "Robotics, AI, film, and 3D-printed futures.",
+    href: "#future-builders",
+    icon: Cpu,
+  },
+  {
+    number: "03",
+    name: "Making Moments",
+    kicker: "For Families",
+    line: "Joy, on purpose — events all year long.",
+    href: "#making-moments",
+    icon: Heart,
+  },
+] as const;
+
+function ProgramsHero() {
+  const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
-    target: heroRef,
+    target: sectionRef,
     offset: ["start start", "end start"],
   });
-  const heroImageY = useTransform(scrollYProgress, [0, 1], [0, 100]);
-  const heroContentY = useTransform(scrollYProgress, [0, 1], [0, 50]);
-
-  // Update filter indicator position
-  useEffect(() => {
-    const activeIndex = audienceFilters.findIndex((f) => f.id === activeFilter);
-    const activeRef = filterRefs.current[activeIndex];
-    if (activeRef) {
-      setIndicatorStyle({
-        left: activeRef.offsetLeft,
-        width: activeRef.offsetWidth,
-      });
-    }
-  }, [activeFilter]);
-
-  const filteredPrograms = PROGRAMS.filter((program) => {
-    if (activeFilter === "all") return true;
-    return program.audience === activeFilter;
-  });
-
-  // Featured program is always Father Forward
-  const featuredProgram = PROGRAMS.find((p) => p.slug === "father-forward");
-  const otherPrograms = filteredPrograms.filter((p) => p.slug !== "father-forward");
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const fade = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   return (
-    <>
-      {/* Hero Section - Split Screen */}
-      <section ref={heroRef} className="relative min-h-[90vh] bg-[#1A1A1A] overflow-hidden">
-        <div className="absolute inset-0 grid lg:grid-cols-2">
-          {/* Left side - Content */}
-          <motion.div
-            style={{ y: heroContentY }}
-            className="relative z-10 flex items-center px-6 sm:px-12 lg:px-16 xl:px-24 pt-32 pb-20 lg:py-0"
-          >
-            <div className="max-w-xl">
-              {/* Badge */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="mb-8"
-              >
-                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-sm text-white/80">
-                  <Sparkles className="h-4 w-4 text-[#C9A84C]" />
-                  6 Transformative Programs
-                </span>
-              </motion.div>
+    <section
+      ref={sectionRef}
+      className="relative min-h-[92svh] bg-[#141413] overflow-hidden flex items-center"
+    >
+      <div className="absolute inset-0 bg-starfield bg-starfield-twinkle" aria-hidden />
+      <div className="absolute inset-0 bg-blueprint opacity-40" aria-hidden />
+      <div
+        className="aurora-blob absolute -top-48 right-[-10%] w-[38rem] h-[38rem] rounded-full bg-[#C9A84C]/15"
+        aria-hidden
+      />
+      <div
+        className="aurora-blob absolute -bottom-56 -left-40 w-[30rem] h-[30rem] rounded-full bg-[#5A7247]/20"
+        style={{ animationDelay: "-8s" }}
+        aria-hidden
+      />
 
-              {/* Headline */}
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.1 }}
-                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.1] mb-6"
-              >
-                Programs That
-                <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] via-[#E8D48B] to-[#C9A84C]">
-                  Transform Lives
-                </span>
-              </motion.h1>
-
-              {/* Subtitle */}
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="text-lg sm:text-xl text-white/60 leading-relaxed mb-10"
-              >
-                From IT certifications for fathers to creative workshops for kids,
-                our programs are designed to empower every member of the family
-                with real skills and lasting confidence.
-              </motion.p>
-
-              {/* Stats row */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="flex flex-wrap gap-8 mb-10"
-              >
-                {[
-                  { value: "500+", label: "Graduates" },
-                  { value: "92%", label: "Completion" },
-                  { value: "100%", label: "Free" },
-                ].map((stat, i) => (
-                  <div key={stat.label} className="text-center">
-                    <div className="text-3xl sm:text-4xl font-bold text-white mb-1">
-                      {stat.value}
-                    </div>
-                    <div className="text-sm text-white/50">{stat.label}</div>
-                  </div>
-                ))}
-              </motion.div>
-
-              {/* CTAs */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.7 }}
-                className="flex flex-wrap gap-4"
-              >
-                <Button asChild size="lg" className="group">
-                  <Link href="/get-involved/enroll">
-                    Apply Now
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-white/20 text-white hover:bg-white/10"
-                  onClick={() => {
-                    document.getElementById("programs-grid")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                >
-                  Explore Programs
-                </Button>
-              </motion.div>
-            </div>
-          </motion.div>
-
-          {/* Right side - Image */}
-          <motion.div
-            style={{ y: heroImageY }}
-            className="relative hidden lg:block"
-          >
-            <div className="absolute inset-0">
-              <Image
-                src="/images/authentic/fathers/father-teaching-daughter.jpg"
-                alt="Father teaching daughter technology skills"
-                fill
-                className="object-cover"
-                priority
-              />
-              {/* Gradient overlays */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#1A1A1A] via-[#1A1A1A]/60 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/40 via-transparent to-[#1A1A1A]/20" />
-            </div>
-
-            {/* Floating stat cards */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.6 }}
-              className="absolute bottom-24 left-8 bg-white rounded-2xl p-5 shadow-2xl"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#C9A84C] to-[#E8D48B] flex items-center justify-center">
-                  <GraduationCap className="h-6 w-6 text-[#1A1A1A]" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-[#1A1A1A]">50+</p>
-                  <p className="text-sm text-[#888888]">Graduates in 2025</p>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 0.6 }}
-              className="absolute top-32 right-8 bg-[#5A7247] rounded-xl px-5 py-3 shadow-lg"
-            >
-              <p className="text-white font-semibold">100% Free</p>
-            </motion.div>
-          </motion.div>
-        </div>
-
-        {/* Mobile hero image overlay */}
-        <div className="absolute inset-0 lg:hidden">
-          <Image
-            src="/images/authentic/fathers/father-teaching-daughter.jpg"
-            alt="Father teaching daughter technology skills"
-            fill
-            className="object-cover opacity-20"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1A1A1A]/80 to-[#1A1A1A]" />
-        </div>
-      </section>
-
-      {/* Filter Tabs - Sticky */}
-      <section
-        id="programs-grid"
-        className="py-6 bg-white border-b border-[#DDDDDD] sticky top-16 lg:top-20 z-40"
+      {/* Orbit rings drifting behind the headline */}
+      <div
+        className="absolute -right-56 -top-56 w-[44rem] h-[44rem] hidden lg:block"
+        aria-hidden
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative flex items-center gap-1 overflow-x-auto pb-2 -mb-2 scrollbar-hide">
-            {/* Sliding indicator */}
-            <motion.div
-              className="absolute top-0 h-10 bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] rounded-lg -z-10"
-              animate={{
-                left: indicatorStyle.left,
-                width: indicatorStyle.width,
-              }}
-              transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            />
-
-            {audienceFilters.map((filter, i) => (
-              <button
-                key={filter.id}
-                ref={(el) => {
-                  filterRefs.current[i] = el;
-                }}
-                onClick={() => setActiveFilter(filter.id)}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all duration-300",
-                  activeFilter === filter.id
-                    ? "text-[#1A1A1A]"
-                    : "text-[#555555] hover:text-[#1A1A1A] hover:bg-[#F5F3EF]"
-                )}
-              >
-                <filter.icon className="h-4 w-4" />
-                {filter.label}
-              </button>
-            ))}
-          </div>
+        <div className="absolute inset-0 orbit-ring opacity-50" />
+        <div className="absolute inset-20 orbit-ring opacity-30" />
+        <div className="absolute inset-0 orbit-carrier">
+          <span className="orbit-satellite absolute -bottom-1 left-1/2 w-2.5 h-2.5" />
         </div>
-      </section>
-
-      {/* Programs Grid - Featured + Masonry */}
-      <section className="py-16 lg:py-24 bg-[#FAFAF8]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Results count */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-[#888888] mb-8"
-          >
-            {activeFilter === "all"
-              ? "Showing all 6 programs"
-              : `Showing ${filteredPrograms.length} program${filteredPrograms.length !== 1 ? "s" : ""} for ${activeFilter}`}
-          </motion.p>
-
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeFilter}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4 }}
-            >
-              {filteredPrograms.length > 0 ? (
-                <div className="space-y-8">
-                  {/* Featured Program - Father Forward */}
-                  {(activeFilter === "all" || activeFilter === "fathers") && featuredProgram && (
-                    <Link href={`/programs/${featuredProgram.slug}`} className="group block">
-                      <div className="relative rounded-3xl overflow-hidden bg-[#1A1A1A]">
-                        <div className="grid lg:grid-cols-2">
-                          {/* Image side */}
-                          <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[400px]">
-                            <Image
-                              src={programImages[featuredProgram.slug]}
-                              alt={featuredProgram.name}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-700"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#1A1A1A] hidden lg:block" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A] to-transparent lg:hidden" />
-                          </div>
-
-                          {/* Content side */}
-                          <div className="relative p-8 lg:p-12 flex flex-col justify-center">
-                            {/* Featured badge */}
-                            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C9A84C]/20 text-[#C9A84C] text-xs font-semibold w-fit mb-6">
-                              <Trophy className="h-3 w-3" />
-                              FLAGSHIP PROGRAM
-                            </span>
-
-                            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4 group-hover:text-[#C9A84C] transition-colors">
-                              {featuredProgram.name}
-                            </h2>
-
-                            <p className="text-lg text-white/60 mb-6 leading-relaxed">
-                              {featuredProgram.description}
-                            </p>
-
-                            {/* Program details */}
-                            <div className="flex flex-wrap gap-4 mb-8">
-                              <div className="flex items-center gap-2 text-white/50 text-sm">
-                                <Clock className="h-4 w-4" />
-                                8 Weeks
-                              </div>
-                              <div className="flex items-center gap-2 text-white/50 text-sm">
-                                <Users className="h-4 w-4" />
-                                Fathers
-                              </div>
-                              <div className="flex items-center gap-2 text-white/50 text-sm">
-                                <CheckCircle2 className="h-4 w-4 text-[#5A7247]" />
-                                Google IT Cert Prep
-                              </div>
-                            </div>
-
-                            <div className="flex items-center text-[#C9A84C] font-semibold group-hover:gap-3 gap-2 transition-all">
-                              Learn More
-                              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  )}
-
-                  {/* Other Programs - Masonry Grid */}
-                  {otherPrograms.length > 0 && (
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {otherPrograms.map((program, index) => {
-                        const colors = audienceColors[program.audience] || audienceColors.fathers;
-                        return (
-                          <motion.div
-                            key={program.slug}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                          >
-                            <Link href={`/programs/${program.slug}`} className="group block h-full">
-                              <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-[#DDDDDD] hover:border-[#C9A84C]/30 transition-all duration-300 h-full flex flex-col">
-                                {/* Image */}
-                                <div className="relative aspect-[16/10] overflow-hidden">
-                                  <Image
-                                    src={programImages[program.slug] || "/images/authentic/fathers/father-teaching-daughter.jpg"}
-                                    alt={program.name}
-                                    fill
-                                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                  />
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-
-                                  {/* Audience badge */}
-                                  <span
-                                    className={cn(
-                                      "absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm",
-                                      colors.bg,
-                                      colors.text,
-                                      "border",
-                                      colors.border
-                                    )}
-                                  >
-                                    {program.audience.charAt(0).toUpperCase() + program.audience.slice(1)}
-                                  </span>
-                                </div>
-
-                                {/* Content */}
-                                <div className="p-6 flex flex-col flex-grow">
-                                  <h3 className="text-xl font-bold text-[#1A1A1A] mb-2 group-hover:text-[#C9A84C] transition-colors">
-                                    {program.name}
-                                  </h3>
-
-                                  <p className="text-[#555555] text-sm leading-relaxed mb-4 flex-grow">
-                                    {program.tagline}
-                                  </p>
-
-                                  <div className="flex items-center justify-between pt-4 border-t border-[#DDDDDD]">
-                                    <span className="text-xs text-[#888888]">
-                                      {program.audience === "families" ? "Ongoing Events" : "8 Weeks"}
-                                    </span>
-                                    <span className="flex items-center text-sm font-semibold text-[#C9A84C] group-hover:gap-2 gap-1 transition-all">
-                                      Details
-                                      <ArrowRight className="h-3 w-3" />
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </Link>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                /* Empty state */
-                <div className="text-center py-20">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#F5F3EF] flex items-center justify-center">
-                    <Sparkles className="h-10 w-10 text-[#888888]" />
-                  </div>
-                  <p className="text-[#888888] text-xl mb-4">No programs match this filter.</p>
-                  <button
-                    onClick={() => setActiveFilter("all")}
-                    className="text-[#C9A84C] font-semibold hover:underline"
-                  >
-                    View all programs
-                  </button>
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
+        <div className="absolute inset-20 orbit-carrier-reverse">
+          <span className="orbit-satellite absolute top-1/3 -left-1 w-1.5 h-1.5" />
         </div>
-      </section>
+      </div>
 
-      {/* Leadership Thread Section */}
-      <section ref={leadershipRef} className="py-24 lg:py-32 bg-[#1A1A1A] relative overflow-hidden">
-        {/* Background texture */}
-        <div
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 1px)`,
-            backgroundSize: "40px 40px",
-          }}
-        />
+      <motion.div
+        style={{ y: textY, opacity: fade }}
+        className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 w-full pt-28 pb-16 lg:py-32"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.1, ease: EASE }}
+        >
+          <Eyebrow light>Programs · Free for Families · Greater LA + Virtual</Eyebrow>
+        </motion.div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Image side */}
-            <motion.div
-              initial={{ opacity: 0, x: -40 }}
-              animate={isLeadershipInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="relative"
+        <h1 className="mt-6 font-bold leading-[0.95] tracking-tight">
+          <span className="block overflow-hidden">
+            <motion.span
+              className="block text-outline-gold text-[12vw] sm:text-6xl lg:text-[5.6rem]"
+              initial={{ y: "105%" }}
+              animate={{ y: 0 }}
+              transition={{ duration: 0.9, delay: 0.2, ease: EASE }}
             >
-              <div className="relative rounded-3xl overflow-hidden">
-                <Image
-                  src="/images/authentic/fathers/father-focused-professional.jpg"
-                  alt="Father in professional setting"
-                  width={600}
-                  height={500}
-                  className="object-cover w-full"
-                />
-                {/* Gold accent frame */}
-                <div className="absolute inset-0 border-2 border-[#C9A84C]/30 rounded-3xl" />
-              </div>
-
-              {/* Floating quote card */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={isLeadershipInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: 0.4, duration: 0.6 }}
-                className="absolute -bottom-8 -right-8 lg:-right-12 max-w-[280px]"
-              >
-                <div className="bg-white rounded-2xl p-6 shadow-2xl">
-                  <div className="text-[#C9A84C] text-4xl font-serif mb-2">&ldquo;</div>
-                  <p className="text-[#1A1A1A] font-medium text-sm leading-relaxed">
-                    Leadership isn&apos;t a title—it&apos;s a choice you make every day.
-                  </p>
-                  <p className="text-[#888888] text-xs mt-3">— TJ Wilform, Founder</p>
-                </div>
-              </motion.div>
-            </motion.div>
-
-            {/* Content side */}
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              animate={isLeadershipInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              SIX PROGRAMS.
+            </motion.span>
+          </span>
+          <span className="block overflow-hidden">
+            <motion.span
+              className="block text-white text-[12vw] sm:text-6xl lg:text-[5.6rem]"
+              initial={{ y: "105%" }}
+              animate={{ y: 0 }}
+              transition={{ duration: 0.9, delay: 0.33, ease: EASE }}
             >
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#C9A84C]/10 text-[#C9A84C] text-sm font-semibold mb-6">
-                <Target className="h-4 w-4" />
-                The Leadership Thread
-              </span>
+              THREE DOORS.
+            </motion.span>
+          </span>
+          <span className="block overflow-hidden pb-2">
+            <motion.span
+              className="block text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] via-[#E8D48B] to-[#C9A84C] animate-gradient text-[12vw] sm:text-6xl lg:text-[5.6rem]"
+              initial={{ y: "105%" }}
+              animate={{ y: 0 }}
+              transition={{ duration: 0.9, delay: 0.46, ease: EASE }}
+            >
+              ONE DIRECTION: FORWARD.
+            </motion.span>
+          </span>
+        </h1>
 
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
-                Every Program
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] to-[#E8D48B]">
-                  {" "}
-                  Builds Leaders
+        <motion.p
+          className="mt-6 max-w-2xl text-base sm:text-lg text-white/70 leading-relaxed"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.7, ease: EASE }}
+        >
+          Career pathways for fathers. Future tech in young hands. Family moments made
+          on purpose. Every program is a different door into the same house — pick
+          yours and step through.
+        </motion.p>
+
+        {/* Door index */}
+        <motion.div
+          className="mt-10 grid sm:grid-cols-3 gap-3 max-w-4xl"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.85, ease: EASE }}
+        >
+          {DOORS.map((door) => (
+            <a
+              key={door.number}
+              href={door.href}
+              className="group glass-dark rounded-2xl p-4 sm:p-5 border border-white/10 hover:border-[#C9A84C]/50 transition-colors"
+            >
+              <div className="flex items-start justify-between">
+                <span className="text-outline-gold font-bold text-3xl leading-none select-none">
+                  {door.number}
                 </span>
-              </h2>
-
-              <p className="text-white/60 text-lg leading-relaxed mb-10">
-                Whether it&apos;s a father learning IT skills or a child creating their first story,
-                every Forever Forward program weaves in leadership development. We believe everyone
-                has the potential to lead—in their families, workplaces, and communities.
+                <ArrowDown className="h-4 w-4 text-white/30 group-hover:text-[#C9A84C] group-hover:translate-y-0.5 transition-all" />
+              </div>
+              <p className="mt-3 text-[#E8D48B] text-[10px] font-semibold tracking-[0.25em] uppercase">
+                {door.kicker}
               </p>
+              <p className="mt-1 text-white font-semibold">{door.name}</p>
+              <p className="mt-1 text-white/50 text-xs leading-relaxed">{door.line}</p>
+            </a>
+          ))}
+        </motion.div>
+      </motion.div>
+    </section>
+  );
+}
 
-              {/* Skills grid */}
-              <div className="grid grid-cols-2 gap-4">
-                {leadershipSkills.map((skill, i) => (
-                  <motion.div
-                    key={skill.name}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={isLeadershipInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ delay: 0.4 + i * 0.1 }}
-                    className="bg-white/5 rounded-xl p-4 border border-white/10 hover:border-[#C9A84C]/30 hover:bg-white/10 transition-all cursor-default"
-                  >
-                    <h4 className="text-white font-semibold mb-1">{skill.name}</h4>
-                    <p className="text-white/40 text-xs leading-relaxed">{skill.description}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+/* ----------------------------------------------------------------------------
+ * 2. Door 01 — Career Forward / Father Forward (flagship)
+ * ------------------------------------------------------------------------- */
 
-      {/* Travis AI Section */}
-      <section className="py-24 lg:py-32 bg-gradient-to-br from-[#EFF4EB] via-[#FAFAF8] to-[#FBF6E9] relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Content */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#5A7247]/10 text-[#5A7247] text-sm font-semibold mb-6">
-                <Zap className="h-4 w-4" />
-                AI-Powered Support
-              </span>
+function CareerForwardSection() {
+  const [activePathway, setActivePathway] = useState<PathwayId>("it");
+  const fatherForward = programsBySlug.get("father-forward");
+  const activeImage = PATHWAY_IMAGES[activePathway];
+  const activeDetail =
+    CAREER_PATHWAYS.find((p) => p.id === activePathway) ?? CAREER_PATHWAYS[0];
 
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1A1A1A] leading-tight mb-6">
-                Meet Travis,
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5A7247] to-[#7A9A63]">
-                  {" "}
-                  Your 24/7 Mentor
-                </span>
-              </h2>
+  if (!fatherForward) return null;
 
-              <p className="text-[#555555] text-lg leading-relaxed mb-8">
-                Every workforce program participant gets access to Travis—an AI assistant that
-                provides study help, answers questions, connects you with resources, and offers
-                encouragement whenever you need it.
-              </p>
-
-              <div className="space-y-4 mb-10">
-                {[
-                  "Personalized study recommendations",
-                  "Practice exams and instant feedback",
-                  "Resource connection for life challenges",
-                  "Progress tracking and encouragement",
-                ].map((feature, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-[#5A7247]/10 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle2 className="h-4 w-4 text-[#5A7247]" />
-                    </div>
-                    <span className="text-[#555555]">{feature}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap gap-4">
-                <Button asChild size="lg" className="group">
-                  <Link href="/about/travis">
-                    Learn About Travis
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="lg">
-                  <Link href="/get-involved/enroll">Enroll Now</Link>
-                </Button>
-              </div>
-            </motion.div>
-
-            {/* Travis Preview */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative"
-            >
-              <div className="bg-white rounded-3xl shadow-2xl border border-[#DDDDDD] overflow-hidden">
-                {/* Header */}
-                <div className="flex items-center gap-3 px-6 py-4 border-b border-[#DDDDDD] bg-gradient-to-r from-[#1A1A1A] to-[#2D2D2D]">
-                  <motion.div
-                    className="w-12 h-12 rounded-full bg-gradient-to-br from-[#C9A84C] to-[#E8D48B] flex items-center justify-center"
-                    animate={{ scale: [1, 1.05, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <span className="text-[#1A1A1A] font-bold text-lg">T</span>
-                  </motion.div>
-                  <div>
-                    <p className="font-semibold text-white">Travis</p>
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                      <p className="text-xs text-white/60">AI Case Manager • Online</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Chat */}
-                <div className="p-6 space-y-4">
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.4 }}
-                    className="bg-[#F5F3EF] rounded-2xl rounded-tl-none px-5 py-4 max-w-[85%]"
-                  >
-                    <p className="text-[#555555] text-sm leading-relaxed">
-                      Great progress on your subnetting practice! You&apos;ve completed{" "}
-                      <span className="font-semibold text-[#5A7247]">80%</span> of this week&apos;s labs.
-                    </p>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.6 }}
-                    className="flex justify-end"
-                  >
-                    <div className="bg-[#1A1A1A] rounded-2xl rounded-tr-none px-5 py-4 max-w-[85%]">
-                      <p className="text-white/90 text-sm">I want to ace this certification!</p>
-                    </div>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.8 }}
-                    className="bg-[#F5F3EF] rounded-2xl rounded-tl-none px-5 py-4 max-w-[85%]"
-                  >
-                    <p className="text-[#555555] text-sm leading-relaxed">
-                      That&apos;s the spirit! I&apos;ve got{" "}
-                      <span className="font-semibold text-[#C9A84C]">50 practice questions</span>{" "}
-                      ready. You&apos;ve got this, King! 👑
-                    </p>
-                  </motion.div>
-                </div>
-
-                {/* Input */}
-                <div className="px-6 pb-6">
-                  <div className="flex items-center gap-3 px-4 py-3 bg-[#F5F3EF] rounded-xl">
-                    <input
-                      type="text"
-                      placeholder="Ask Travis anything..."
-                      className="flex-1 bg-transparent text-sm text-[#555555] placeholder:text-[#888888] outline-none"
-                      disabled
-                    />
-                    <button className="p-2 rounded-lg bg-[#C9A84C] text-[#1A1A1A]">
-                      <ArrowRight className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating badge */}
-              <motion.div
-                className="absolute -top-4 -right-4"
-                animate={{ y: [-5, 5] }}
-                transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-              >
-                <div className="px-4 py-2 rounded-full bg-[#C9A84C] text-[#1A1A1A] text-sm font-semibold shadow-lg">
-                  24/7 Available
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 lg:py-32 bg-[#1A1A1A] relative overflow-hidden">
-        {/* Background elements */}
-        <div className="absolute inset-0">
-          <div
-            className="absolute inset-0 opacity-5"
+  return (
+    <section
+      id="career-forward"
+      className="relative bg-[#FAFAF8] py-24 sm:py-32 overflow-hidden scroll-mt-20"
+    >
+      <div className="absolute inset-0 bg-blueprint opacity-60" aria-hidden />
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+        <div className="flex items-baseline gap-5 flex-wrap">
+          <span
+            className="font-bold text-7xl sm:text-8xl leading-none select-none"
             style={{
-              backgroundImage: `radial-gradient(circle at 1px 1px, #C9A84C 1px, transparent 1px)`,
-              backgroundSize: "60px 60px",
+              WebkitTextStroke: "1.5px rgba(166,138,46,0.5)",
+              WebkitTextFillColor: "transparent",
             }}
-          />
+            aria-hidden
+          >
+            01
+          </span>
+          <div>
+            <Eyebrow>Door One · For Fathers</Eyebrow>
+            <h2 className="mt-2 font-semibold text-[#1A1A1A] text-3xl sm:text-5xl tracking-tight">
+              Career Forward
+            </h2>
+          </div>
         </div>
 
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="mt-12 sm:mt-16 grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+          {/* Copy + pathway selector */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 32 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: "-12%" }}
+            transition={{ duration: 0.9, ease: EASE }}
+            className="lg:col-span-5"
           >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
-              Ready to Transform
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] to-[#E8D48B]">
-                {" "}
-                Your Future?
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1A1A1A] text-[#E8D48B] text-[11px] font-semibold tracking-[0.2em] uppercase">
+              <Sparkles className="h-3.5 w-3.5" />
+              Flagship Program
+            </span>
+            <h3 className="mt-5 font-semibold text-[#1A1A1A] text-2xl sm:text-3xl lg:text-4xl leading-tight tracking-tight">
+              Father Forward —{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
+                pick a path, build a legacy.
+              </span>
+            </h3>
+            <p className="mt-5 text-[#555555] text-base sm:text-lg leading-relaxed">
+              {fatherForward.description}
+            </p>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <MetaChip>
+                <Clock className="h-3.5 w-3.5 text-[#A68A2E]" />
+                {fatherForward.duration}
+              </MetaChip>
+              <MetaChip>
+                <MapPin className="h-3.5 w-3.5 text-[#A68A2E]" />
+                {fatherForward.format} · evenings &amp; Saturdays
+              </MetaChip>
+              <MetaChip>
+                <Heart className="h-3.5 w-3.5 text-[#A68A2E]" />
+                Free for qualifying fathers
+              </MetaChip>
+            </div>
+
+            {/* Pathway selector */}
+            <p className="mt-8 text-xs font-semibold tracking-[0.25em] uppercase text-[#888888]">
+              Choose your pathway
+            </p>
+            <div className="mt-3 space-y-2.5">
+              {CAREER_PATHWAYS.map((pathway, i) => {
+                const isActive = pathway.id === activePathway;
+                return (
+                  <button
+                    key={pathway.id}
+                    type="button"
+                    onClick={() => setActivePathway(pathway.id)}
+                    onMouseEnter={() => setActivePathway(pathway.id)}
+                    onFocus={() => setActivePathway(pathway.id)}
+                    className={cn(
+                      "w-full text-left rounded-2xl border p-4 sm:p-5 transition-all duration-300",
+                      isActive
+                        ? "border-[#C9A84C] bg-[#FBF6E9] shadow-[0_8px_30px_rgba(201,168,76,0.18)]"
+                        : "border-[#DDDDDD] bg-white/70 hover:border-[#C9A84C]/50"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={cn(
+                          "font-bold text-lg tabular-nums transition-colors",
+                          isActive ? "text-[#A68A2E]" : "text-[#DDDDDD]"
+                        )}
+                      >
+                        0{i + 1}
+                      </span>
+                      <span className="font-semibold text-[#1A1A1A] text-sm sm:text-base">
+                        {pathway.name}
+                      </span>
+                    </div>
+                    <AnimatePresence initial={false}>
+                      {isActive && (
+                        <motion.p
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3, ease: EASE }}
+                          className="text-[#555555] text-xs sm:text-sm mt-2 pl-8 overflow-hidden"
+                        >
+                          {pathway.detail}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </button>
+                );
+              })}
+            </div>
+
+            <Link
+              href="/programs/father-forward"
+              className="mt-8 group inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] text-[#1A1A1A] font-semibold shadow-[0_0_30px_rgba(201,168,76,0.2)] hover:shadow-[0_0_50px_rgba(201,168,76,0.4)] transition-shadow"
+            >
+              Explore Father Forward
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </motion.div>
+
+          {/* Image — swaps with pathway */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-12%" }}
+            transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
+            className="lg:col-span-7 lg:sticky lg:top-28"
+          >
+            <div className="grain-overlay relative aspect-[3/2] rounded-3xl overflow-hidden border border-[#DDDDDD] shadow-xl">
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.div
+                  key={activePathway}
+                  initial={{ opacity: 0, scale: 1.04 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.6, ease: EASE }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={activeImage.src}
+                    alt={activeImage.alt}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 58vw"
+                    className="object-cover"
+                  />
+                </motion.div>
+              </AnimatePresence>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#141413]/75 via-transparent to-transparent" />
+              <div className="absolute inset-x-0 top-0 h-1/3 pointer-events-none overflow-hidden opacity-30">
+                <div className="holo-sweep absolute inset-x-0 h-20 bg-gradient-to-b from-transparent via-[#E8D48B]/25 to-transparent" />
+              </div>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activePathway}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.35, ease: EASE }}
+                  className="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7 sm:right-7"
+                >
+                  <p className="text-[#E8D48B] text-xs font-semibold tracking-[0.25em] uppercase">
+                    {activeDetail.name}
+                  </p>
+                  <p className="text-white text-lg sm:text-2xl font-semibold mt-1 max-w-lg">
+                    {activeDetail.detail}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            <p className="mt-4 text-[#888888] text-sm flex items-center gap-2">
+              <Compass className="h-4 w-4 text-[#A68A2E] shrink-0" />
+              Whichever path you pick, the leadership thread — goals, family, finances —
+              travels with you. So does Travis, your 24/7 AI mentor.
+            </p>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * 3. Door 02 — Future Builders (youth & kids programs)
+ * ------------------------------------------------------------------------- */
+
+function FutureBuilderCard({ program, index }: { program: Program; index: number }) {
+  const image = PROGRAM_IMAGES[program.slug] ?? PROGRAM_IMAGES["tech-ready-youth"];
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-10%" }}
+      transition={{ duration: 0.8, delay: (index % 2) * 0.12, ease: EASE }}
+      className={cn("group", index % 2 === 1 && "lg:translate-y-14")}
+    >
+      <Link href={`/programs/${program.slug}`} className="block">
+        <div className="grain-overlay image-zoom relative aspect-[3/2] rounded-3xl overflow-hidden border border-white/10">
+          <Image
+            src={image.src}
+            alt={image.alt}
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#141413]/70 via-transparent to-transparent" />
+          <span className="absolute top-5 left-5 text-[10px] font-semibold tracking-[0.25em] uppercase text-white bg-[#1A1A1A]/60 backdrop-blur px-3 py-1.5 rounded-full border border-white/15">
+            {AUDIENCE_LABELS[program.audience]} · {program.duration}
+          </span>
+          <div className="absolute top-5 right-5 w-10 h-10 rounded-full bg-[#C9A84C] text-[#1A1A1A] flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+            <ArrowUpRight className="h-5 w-5" />
+          </div>
+        </div>
+        <div className="mt-5 flex items-start gap-4">
+          <span className="text-outline-gold font-bold text-3xl sm:text-4xl leading-none select-none pt-0.5">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <div>
+            <h3 className="text-white font-semibold text-xl sm:text-2xl tracking-tight group-hover:text-[#E8D48B] transition-colors">
+              {program.name}
+            </h3>
+            <p className="text-[#C9A84C] text-sm font-semibold mt-0.5">
+              {program.tagline}
+            </p>
+            <p className="mt-2 text-white/55 text-sm sm:text-base leading-relaxed max-w-md">
+              {program.description}
+            </p>
+          </div>
+        </div>
+      </Link>
+    </motion.article>
+  );
+}
+
+function FutureBuildersSection() {
+  const futureBuilders = getPrograms(FUTURE_BUILDER_SLUGS);
+  return (
+    <section
+      id="future-builders"
+      className="relative bg-[#141413] py-24 sm:py-32 overflow-hidden scroll-mt-20"
+    >
+      <div className="absolute inset-0 bg-starfield opacity-70" aria-hidden />
+      <div
+        className="aurora-blob absolute top-1/4 -right-40 w-[32rem] h-[32rem] rounded-full bg-[#C9A84C]/12"
+        aria-hidden
+      />
+      <div
+        className="aurora-blob absolute -bottom-40 -left-32 w-[26rem] h-[26rem] rounded-full bg-[#5A7247]/15"
+        style={{ animationDelay: "-11s" }}
+        aria-hidden
+      />
+
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+        <div className="flex items-baseline gap-5 flex-wrap">
+          <span className="text-outline-gold font-bold text-7xl sm:text-8xl leading-none select-none" aria-hidden>
+            02
+          </span>
+          <div>
+            <Eyebrow light>Door Two · For Kids &amp; Youth</Eyebrow>
+            <h2 className="mt-2 font-semibold text-white text-3xl sm:text-5xl tracking-tight">
+              Future Builders
+            </h2>
+          </div>
+        </div>
+
+        <p className="mt-6 max-w-2xl text-white/60 text-base sm:text-lg leading-relaxed">
+          The first time a kid sees the future — a robot answering their code, a story
+          printed into something they can hold, their film on a real screen —
+          everything changes. Four programs, four ways in.
+        </p>
+
+        <div className="mt-14 sm:mt-16 grid lg:grid-cols-2 gap-x-10 gap-y-14 lg:gap-y-10 lg:pb-14">
+          {futureBuilders.map((program, i) => (
+            <FutureBuilderCard key={program.slug} program={program} index={i} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * 4. Door 03 — Making Moments (families)
+ * ------------------------------------------------------------------------- */
+
+function MakingMomentsSection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const imgY = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
+  const makingMoments = programsBySlug.get("making-moments");
+
+  return (
+    <section
+      id="making-moments"
+      ref={sectionRef}
+      className="relative bg-[#141413] overflow-hidden scroll-mt-20"
+    >
+      <div className="relative h-[68svh] sm:h-[76svh] overflow-hidden">
+        <motion.div style={{ y: imgY }} className="absolute -inset-y-[10%] inset-x-0">
+          <Image
+            src="/images/future/events-scene.jpg"
+            alt="Families at a Forever Forward festival at golden hour, kids racing robots while fathers cheer"
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
+        </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#141413] via-[#141413]/25 to-[#141413]/45" />
+
+        <div className="absolute inset-0 flex items-end">
+          <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 w-full pb-12 sm:pb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.9, ease: EASE }}
+            >
+              <div className="flex items-baseline gap-5 flex-wrap">
+                <span className="text-outline-white font-bold text-6xl sm:text-8xl leading-none select-none" aria-hidden>
+                  03
+                </span>
+                <div>
+                  <Eyebrow light>Door Three · For Families</Eyebrow>
+                  <h2 className="mt-2 font-bold text-white text-4xl sm:text-6xl lg:text-7xl tracking-tight leading-[0.98]">
+                    Making{" "}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] to-[#E8D48B]">
+                      Moments
+                    </span>
+                  </h2>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-24 sm:pb-28 pt-8">
+        <div className="grid lg:grid-cols-12 gap-10 items-start">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 0.8, ease: EASE }}
+            className="lg:col-span-7"
+          >
+            <p className="text-white/70 text-lg sm:text-xl leading-relaxed max-w-2xl">
+              {makingMoments?.description ??
+                "Community events that strengthen father-child bonds — dinner-and-a-movie nights, robot races, and festivals the whole family looks forward to."}
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <MetaChip light>Movies on the Menu — dinner included</MetaChip>
+              <MetaChip light>Robot races &amp; 3D-printing pop-ups</MetaChip>
+              <MetaChip light>Night-sky &amp; satellite nights</MetaChip>
+              <MetaChip light>Annual Forever Forward Festival</MetaChip>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 0.8, delay: 0.12, ease: EASE }}
+            className="lg:col-span-5 flex flex-col gap-3"
+          >
+            <Link
+              href="/programs/making-moments"
+              className="group flex items-center justify-between rounded-2xl bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] px-6 py-5 text-[#1A1A1A]"
+            >
+              <span className="font-semibold">Explore Making Moments</span>
+              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="/events"
+              className="group flex items-center justify-between rounded-2xl border border-white/15 bg-white/[0.04] px-6 py-5 text-white hover:border-[#C9A84C]/50 transition-colors"
+            >
+              <span className="font-semibold">See upcoming events</span>
+              <ArrowUpRight className="h-5 w-5 text-[#C9A84C] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </Link>
+            <p className="text-white/40 text-sm px-1">
+              Free for families · Across Greater Los Angeles
+            </p>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * 5. The leadership thread — one DNA across all six
+ * ------------------------------------------------------------------------- */
+
+const DNA_STRANDS = [
+  {
+    title: "Leadership, woven in",
+    text: "Goal setting, accountability, and showing up — every curriculum carries the same leadership thread, whether you're 6 or 46.",
+  },
+  {
+    title: "Family at the center",
+    text: "Fathers and kids grow side by side. Graduations happen in public, out loud, with the whole family in the room.",
+  },
+  {
+    title: "Future tech in hand",
+    text: "AI, robotics, 3D printing, satellites overhead — real tools in real hands, because exposure is where every career begins.",
+  },
+] as const;
+
+function LeadershipThreadSection() {
+  return (
+    <section className="relative bg-[#F5F3EF] py-24 sm:py-32 overflow-hidden">
+      <div className="absolute top-0 inset-x-0 h-24 bg-chevron-band opacity-60" aria-hidden />
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -32 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 0.9, ease: EASE }}
+            className="order-2 lg:order-1"
+          >
+            <div className="grain-overlay image-zoom relative aspect-[16/11] rounded-3xl overflow-hidden shadow-xl">
+              <Image
+                src="/images/future/impact-hands.jpg"
+                alt="Hands holding a hard-earned certification — proof of a path forward"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+              />
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 0.9, ease: EASE }}
+            className="order-1 lg:order-2"
+          >
+            <Eyebrow>The Leadership Thread</Eyebrow>
+            <h2 className="mt-6 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl lg:text-[2.75rem] leading-[1.12] tracking-tight">
+              Six different programs.{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
+                One shared DNA.
               </span>
             </h2>
 
-            <p className="text-lg text-white/60 max-w-2xl mx-auto mb-10">
-              Take the first step. All programs are{" "}
-              <span className="font-semibold text-[#5A7247]">100% free</span> for participants.
-              Applications are open now.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="group px-8">
-                <Link href="/get-involved/enroll">
-                  Apply Now
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="px-8 border-white/20 text-white hover:bg-white/10"
-              >
-                <Link href="/contact">Have Questions? Contact Us</Link>
-              </Button>
+            <div className="mt-8 relative space-y-7 pl-8">
+              <span
+                className="absolute left-[5px] top-2 bottom-2 w-px bg-gradient-to-b from-[#C9A84C] via-[#C9A84C]/50 to-transparent"
+                aria-hidden
+              />
+              {DNA_STRANDS.map((strand, i) => (
+                <motion.div
+                  key={strand.title}
+                  initial={{ opacity: 0, x: 16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-10%" }}
+                  transition={{ duration: 0.7, delay: 0.15 + i * 0.12, ease: EASE }}
+                  className="relative"
+                >
+                  <span
+                    className="absolute -left-8 top-1.5 h-3 w-3 rounded-full bg-[#C9A84C] shadow-[0_0_12px_2px_rgba(201,168,76,0.5)]"
+                    aria-hidden
+                  />
+                  <h3 className="font-semibold text-[#1A1A1A] text-lg sm:text-xl">
+                    {strand.title}
+                  </h3>
+                  <p className="mt-1.5 text-[#555555] text-sm sm:text-base leading-relaxed">
+                    {strand.text}
+                  </p>
+                </motion.div>
+              ))}
             </div>
+
+            <p className="mt-8 text-sm text-[#888888] flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-[#A68A2E] shrink-0" />
+              And in every cohort, Travis — our AI mentor — rides along, 24/7.
+            </p>
           </motion.div>
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * 6. CTA — which door is yours?
+ * ------------------------------------------------------------------------- */
+
+function ProgramsCTA() {
+  return (
+    <section className="relative bg-[#141413] py-24 sm:py-32 overflow-hidden">
+      <div className="absolute inset-0 bg-starfield" aria-hidden />
+      <div
+        className="aurora-blob absolute -top-32 left-1/4 w-[34rem] h-[34rem] rounded-full bg-[#C9A84C]/12"
+        aria-hidden
+      />
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto">
+          <Eyebrow light>Your Move</Eyebrow>
+          <h2 className="mt-5 font-semibold text-white text-3xl sm:text-5xl tracking-tight leading-[1.08]">
+            Not sure which door is yours?{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] to-[#E8D48B]">
+              Knock on both.
+            </span>
+          </h2>
+        </div>
+
+        <div className="mt-14 grid lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 0.8, ease: EASE }}
+          >
+            <Link
+              href="/get-involved/enroll"
+              className="group relative block h-full rounded-3xl overflow-hidden border border-[#C9A84C]/30 bg-gradient-to-br from-[#C9A84C] to-[#A68A2E] p-8 sm:p-10 min-h-[15rem] hover:shadow-[0_0_80px_rgba(201,168,76,0.35)] transition-shadow"
+            >
+              <div className="absolute top-6 right-6 w-11 h-11 rounded-full bg-[#1A1A1A]/15 flex items-center justify-center text-[#1A1A1A] group-hover:bg-[#1A1A1A] group-hover:text-[#C9A84C] transition-colors">
+                <ArrowUpRight className="h-5 w-5" />
+              </div>
+              <p className="text-[#1A1A1A]/70 text-xs font-semibold tracking-[0.3em] uppercase">
+                Ready Now
+              </p>
+              <h3 className="mt-4 font-bold text-[#1A1A1A] text-2xl sm:text-3xl leading-tight max-w-sm">
+                Enroll — it costs nothing but the decision.
+              </h3>
+              <p className="mt-3 text-[#1A1A1A]/75 max-w-sm text-sm sm:text-base">
+                Every program is free for qualifying participants. Tell us who you
+                are and we&rsquo;ll take it from there.
+              </p>
+            </Link>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 0.8, delay: 0.12, ease: EASE }}
+          >
+            <Link
+              href="/get-involved/assess"
+              className="group relative block h-full rounded-3xl overflow-hidden border border-white/15 bg-white/[0.04] backdrop-blur p-8 sm:p-10 min-h-[15rem] hover:border-[#C9A84C]/50 transition-colors"
+            >
+              <div className="absolute top-6 right-6 w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white group-hover:bg-[#C9A84C] group-hover:text-[#1A1A1A] transition-colors">
+                <Compass className="h-5 w-5" />
+              </div>
+              <p className="text-[#C9A84C] text-xs font-semibold tracking-[0.3em] uppercase">
+                Still Deciding
+              </p>
+              <h3 className="mt-4 font-bold text-white text-2xl sm:text-3xl leading-tight max-w-sm">
+                Take the two-minute program-fit quiz.
+              </h3>
+              <p className="mt-3 text-white/60 max-w-sm text-sm sm:text-base">
+                A few quick questions, and we&rsquo;ll point you at the door that fits
+                your family best. No wrong answers — just forward.
+              </p>
+            </Link>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * Page
+ * ------------------------------------------------------------------------- */
+
+export function ProgramsContentPremium() {
+  return (
+    <>
+      <ProgramsHero />
+      <CareerForwardSection />
+      <FutureBuildersSection />
+      <MakingMomentsSection />
+      <LeadershipThreadSection />
+      <ProgramsCTA />
     </>
   );
 }

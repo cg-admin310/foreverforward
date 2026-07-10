@@ -55,7 +55,7 @@ export default function PrivacyPage() {
               </p>
               <ul className="list-disc pl-6 text-[#555555] space-y-2">
                 <li>Register for our programs (Father Forward, Tech-Ready Youth, etc.)</li>
-                <li>Request IT services or a free assessment</li>
+                <li>Take our program-fit assessment</li>
                 <li>Make a donation</li>
                 <li>Sign up for our newsletter</li>
                 <li>Contact us through forms or email</li>
@@ -90,7 +90,7 @@ export default function PrivacyPage() {
               </p>
               <ul className="list-disc pl-6 text-[#555555] space-y-2">
                 <li>Process program applications and enrollments</li>
-                <li>Provide and manage IT services</li>
+                <li>Coordinate events, workshops, and partnerships</li>
                 <li>Process donations and send tax receipts</li>
                 <li>Send newsletters and program updates</li>
                 <li>Respond to your inquiries and provide support</li>

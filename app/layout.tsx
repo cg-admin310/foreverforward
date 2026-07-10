@@ -17,26 +17,26 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Forever Forward | Empowering Fathers, Strengthening Families",
+    default: "Forever Forward | The Future Belongs to Our Families",
     template: "%s | Forever Forward",
   },
   description:
-    "Forever Forward is a 501(c)(3) nonprofit empowering fathers, strengthening families, and inspiring youth through transformative education, leadership training, and community-centered programs. We provide IT services to nonprofits and schools across Los Angeles and the Inland Empire.",
+    "Forever Forward is a 501(c)(3) nonprofit introducing underserved communities to the technologies shaping tomorrow — AI, robotics, 3D printing, and satellites — while training fathers for real careers in IT, skilled trades, and auto mechanics, and bringing families together through unforgettable community events.",
   keywords: [
     "Forever Forward",
     "nonprofit",
     "father empowerment",
     "workforce development",
-    "IT training",
+    "career training",
     "Black fathers",
     "youth programs",
     "Los Angeles",
-    "Inland Empire",
-    "Riverside",
-    "San Bernardino",
-    "tech careers",
-    "managed IT services",
-    "nonprofit IT",
+    "Compton",
+    "South LA",
+    "robotics for kids",
+    "AI education",
+    "3D printing",
+    "skilled trades training",
     "Google IT certification",
   ],
   authors: [{ name: "Thomas TJ Wilform" }],
@@ -54,9 +54,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: "Forever Forward",
-    title: "Forever Forward | Empowering Fathers, Strengthening Families",
+    title: "Forever Forward | The Future Belongs to Our Families",
     description:
-      "Transformative education, leadership training, and IT services serving Los Angeles and the Inland Empire.",
+      "Career training for fathers, future tech for kids, and unforgettable moments for families across Greater Los Angeles.",
     images: [
       {
         url: "/images/brand/ff-social-og-image.svg",
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Forever Forward",
     description:
-      "Empowering fathers, strengthening families, and inspiring youth across LA and the Inland Empire.",
+      "Career training for fathers, future tech for kids, and unforgettable moments for families across Greater LA.",
     images: ["/images/brand/ff-social-og-image.svg"],
   },
   robots: {

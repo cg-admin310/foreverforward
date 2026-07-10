@@ -7,12 +7,11 @@ import { motion } from "framer-motion";
 import {
   Users,
   GraduationCap,
-  Film,
-  Server,
+  Popcorn,
+  Presentation,
+  Code,
   Clock,
-  Calendar,
   CheckCircle2,
-  Heart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,31 +21,31 @@ import { routeFormSubmission } from "@/lib/actions/lead-routing";
 const volunteerRoles = [
   {
     icon: GraduationCap,
-    title: "Program Mentor",
-    commitment: "4 hours/week",
-    description:
-      "Guide Father Forward or Tech-Ready Youth participants through their journey with encouragement and advice.",
-  },
-  {
-    icon: Server,
-    title: "IT Instructor",
+    title: "Career Pathway Mentor",
     commitment: "2-4 hours/week",
     description:
-      "Teach hands-on IT skills to program cohorts. Ideal for IT professionals who want to give back.",
+      "Walk beside a father on the IT, skilled trades, or auto/EV pathway — encouragement, real talk, resume and interview prep.",
   },
   {
-    icon: Film,
-    title: "Event Volunteer",
+    icon: Popcorn,
+    title: "Event Crew",
     commitment: "Flexible",
     description:
-      "Help run Movies on the Menu and other community events—setup, registration, and cleanup.",
+      "Help run Movies on the Menu, robot races, and festival pop-ups — setup, registration, and keeping the joy on schedule.",
   },
   {
-    icon: Users,
-    title: "Career Coach",
-    commitment: "2 hours/week",
+    icon: Presentation,
+    title: "Instructor / Guest Speaker",
+    commitment: "By session",
     description:
-      "Help participants with resume writing, interview prep, and job search strategies.",
+      "Teach a hands-on session or tell your career story. Tradespeople, technicians, engineers, and creators all welcome.",
+  },
+  {
+    icon: Code,
+    title: "Tech Volunteer",
+    commitment: "Project-based",
+    description:
+      "Put your dev, design, or data skills into community apps we build with fellow nonprofits across Greater LA.",
   },
 ];
 
@@ -114,9 +113,9 @@ export function VolunteerContent() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative min-h-[60vh] lg:min-h-[70vh] bg-[#1A1A1A] overflow-hidden">
+      <section className="relative min-h-[60vh] lg:min-h-[70vh] bg-[#141413] overflow-hidden">
         {/* Background Image */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 grain-overlay">
           <Image
             src="/images/generated/volunteer-community.png"
             alt="Community volunteers at Forever Forward event"
@@ -124,8 +123,9 @@ export function VolunteerContent() {
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#1A1A1A] via-[#1A1A1A]/80 to-[#1A1A1A]/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#141413] via-[#141413]/80 to-[#141413]/40" />
         </div>
+        <div className="absolute inset-0 bg-starfield opacity-50" aria-hidden />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center py-20 lg:py-32">
           <motion.div
@@ -134,18 +134,21 @@ export function VolunteerContent() {
             transition={{ duration: 0.6 }}
             className="max-w-2xl"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444] text-sm text-white/80 mb-6">
-              <Users className="h-4 w-4 text-[#C9A84C]" />
-              Join Our Team
+            <span className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-[0.28em] uppercase text-[#C9A84C] mb-6">
+              <span className="inline-block h-px w-8 bg-current opacity-60" />
+              <Users className="h-4 w-4" />
+              Join the Mission
             </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
               Give Your Time,{" "}
-              <span className="text-[#C9A84C]">Change Lives</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] via-[#E8D48B] to-[#C9A84C]">
+                Shape a Future
+              </span>
             </h1>
             <p className="text-lg sm:text-xl text-white/80">
-              Whether you have a few hours a month or want to commit weekly,
-              there&apos;s a place for you at Forever Forward. Your skills and
-              experience can transform someone&apos;s future.
+              Mentor a father into a new career. Cheer at a robot race. Teach a
+              skill. Build an app for the neighborhood. Whatever you bring,
+              there&apos;s a place for it here.
             </p>
           </motion.div>
         </div>
@@ -208,10 +211,10 @@ export function VolunteerContent() {
               <ul className="space-y-4">
                 {[
                   "Make a direct impact on fathers, youth, and families",
-                  "Gain teaching and mentorship experience",
+                  "Be the proof that these careers and futures are real",
                   "Connect with a community of like-minded people",
                   "Flexible scheduling that works with your life",
-                  "See the real results of your contribution",
+                  "Watch a kid's face when their robot crosses the finish line",
                 ].map((item) => (
                   <li
                     key={item}

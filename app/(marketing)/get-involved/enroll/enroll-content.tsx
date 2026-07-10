@@ -199,8 +199,12 @@ export function EnrollContent() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 bg-[#1A1A1A] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A1A] via-[#1A1A1A] to-[#2D2D2D]" />
+      <section className="relative py-20 lg:py-32 bg-[#141413] overflow-hidden">
+        <div className="absolute inset-0 bg-starfield bg-starfield-twinkle" aria-hidden />
+        <div
+          className="aurora-blob absolute -top-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-[#C9A84C]/12"
+          aria-hidden
+        />
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
@@ -208,18 +212,23 @@ export function EnrollContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444] text-sm text-white/80 mb-6">
-              <GraduationCap className="h-4 w-4 text-[#C9A84C]" />
+            <span className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-[0.28em] uppercase text-[#C9A84C] mb-6">
+              <span className="inline-block h-px w-8 bg-current opacity-60" />
+              <GraduationCap className="h-4 w-4" />
               Program Enrollment
+              <span className="inline-block h-px w-8 bg-current opacity-60" />
             </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-              Start Your{" "}
-              <span className="text-[#C9A84C]">Journey Forward</span>
+              Your Path Forward{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] via-[#E8D48B] to-[#C9A84C]">
+                Starts Here
+              </span>
             </h1>
             <p className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto">
-              Take the first step toward building new skills, earning
-              certifications, and unlocking new opportunities. We&apos;re here
-              to support you every step of the way.
+              Fathers: pick your pathway — IT &amp; cybersecurity, skilled trades, or
+              auto &amp; EV. Kids and youth: robotics, filmmaking, 3D printing, and
+              more. It costs nothing but the decision, and we&apos;re with you every
+              step.
             </p>
           </motion.div>
         </div>
@@ -285,8 +294,8 @@ export function EnrollContent() {
                 exit={{ opacity: 0, x: -20 }}
               >
                 <SectionHeading
-                  title="Choose Your Program"
-                  subtitle="Select the program that best fits your goals and situation."
+                  title="Choose Your Door"
+                  subtitle="Career training for fathers, future tech for kids and youth — pick the program that fits your goals."
                   centered
                 />
 

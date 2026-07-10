@@ -4,21 +4,21 @@ import { VolunteerContent } from "./volunteer-content";
 export const metadata: Metadata = {
   title: "Volunteer | Share Your Skills & Time",
   description:
-    "Volunteer with Forever Forward as a mentor, IT instructor, career coach, or event helper. Help fathers and youth in Los Angeles build tech careers and stronger families.",
+    "Volunteer with Forever Forward as a career pathway mentor, event crew for Movies on the Menu and robot races, instructor or guest speaker, or tech volunteer building community apps.",
   keywords: [
     "volunteer Los Angeles",
     "nonprofit volunteering",
     "mentor fathers",
-    "IT instructor volunteer",
+    "career mentor volunteer",
     "community service LA",
-    "career coaching volunteer",
-    "event volunteer",
+    "STEM event volunteer",
+    "guest speaker volunteer",
     "youth mentorship",
   ],
   openGraph: {
     title: "Volunteer with Forever Forward",
     description:
-      "Share your skills as a mentor, instructor, or event volunteer. Help fathers and youth build tech careers.",
+      "Mentor a father into a new career, crew a family event, teach a skill, or build community tech.",
     type: "website",
     url: "/get-involved/volunteer",
   },
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Volunteer with Forever Forward",
     description:
-      "Share your skills to help fathers and youth in Los Angeles.",
+      "Share your skills to help fathers, kids, and families in Los Angeles move forward.",
   },
   alternates: {
     canonical: "/get-involved/volunteer",

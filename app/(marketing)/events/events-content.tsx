@@ -317,11 +317,11 @@ export function EventsContent({
                 </motion.div>
 
                 <h2 className="text-3xl lg:text-4xl font-bold text-[#1A1A1A] mb-4">
-                  Events Coming Soon
+                  The Next Moment Is in the Works
                 </h2>
                 <p className="text-lg text-[#555555] mb-8 max-w-lg mx-auto leading-relaxed">
-                  We&apos;re cooking up something special! Sign up to be the first to know
-                  when our next community gathering is announced.
+                  Movie nights, robot races, night-sky watch parties — we&apos;re cooking
+                  up the next one now. Be the first to know when it drops.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -356,16 +356,21 @@ export function EventsContent({
             className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12"
           >
             <div>
-              <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#C9A84C] uppercase tracking-wider mb-2">
+              <span className="inline-flex items-center gap-2 text-xs font-semibold text-[#C9A84C] uppercase tracking-[0.28em] mb-2">
+                <span className="inline-block h-px w-8 bg-current opacity-60" />
                 <Calendar className="h-4 w-4" />
-                Upcoming Events
+                Making Moments
               </span>
               <h2 className="text-3xl lg:text-4xl font-bold text-[#1A1A1A]">
-                Don&apos;t Miss Out
+                Joy Is a{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
+                  Strategy
+                </span>
               </h2>
             </div>
             <p className="text-[#555555] max-w-md">
-              Join us for workshops, family events, and community gatherings that bring people together.
+              Dinner-and-a-movie nights, robot races, night-sky watch parties, and
+              festivals — moments built for fathers, kids, and the whole family.
             </p>
           </motion.div>
 
@@ -623,10 +628,10 @@ export function EventsContent({
               className="text-center mb-12"
             >
               <h2 className="text-2xl lg:text-3xl font-bold text-[#1A1A1A] mb-2">
-                Past Events
+                Moments We&apos;ve Made
               </h2>
               <p className="text-[#888888]">
-                A look back at our recent community gatherings
+                A look back at recent gatherings — and the families who showed up
               </p>
             </motion.div>
 

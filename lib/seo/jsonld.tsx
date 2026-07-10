@@ -39,16 +39,16 @@ export function generateOrganizationSchema() {
   };
 }
 
-// Local Business Schema for IT Services
+// Local Business Schema for the organization's community presence
 export function generateLocalBusinessSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "@id": `${siteConfig.url}/services`,
-    name: "Forever Forward IT Services",
+    "@id": siteConfig.url,
+    name: "Forever Forward Foundation",
     description:
-      "Enterprise-grade managed IT services for nonprofits and schools in Los Angeles. Staffed by our workforce development program graduates.",
-    url: `${siteConfig.url}/services`,
+      "A 501(c)(3) nonprofit introducing underserved communities to future technology — career training for fathers, robotics and AI for youth, and community events for families across Greater Los Angeles.",
+    url: siteConfig.url,
     telephone: siteConfig.phone,
     email: siteConfig.email,
     address: {
@@ -218,37 +218,6 @@ export function generateArticleSchema({
       "@type": "WebPage",
       "@id": `${siteConfig.url}/blog/${slug}`,
     },
-  };
-}
-
-// Service Schema
-export function generateServiceSchema({
-  name,
-  description,
-  slug,
-  priceRange,
-}: {
-  name: string;
-  description: string;
-  slug: string;
-  priceRange: string;
-}) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    name,
-    description,
-    url: `${siteConfig.url}/services/${slug}`,
-    provider: {
-      "@type": "LocalBusiness",
-      name: "Forever Forward IT Services",
-      url: siteConfig.url,
-    },
-    areaServed: {
-      "@type": "State",
-      name: "California",
-    },
-    priceRange,
   };
 }
 

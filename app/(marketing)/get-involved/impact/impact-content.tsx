@@ -71,12 +71,12 @@ export function ImpactContent({ metrics, allocation, tierStats }: ImpactContentP
     return Target;
   };
 
-  // Sample impact stats if no metrics in DB
+  // Goal stats shown until real metrics land in the DB
   const defaultStats = [
-    { name: "Program Graduates", value: "150+", icon: GraduationCap, description: "Fathers and youth who completed our programs" },
-    { name: "Families Served", value: "500+", icon: Users, description: "Families reached through events and programs" },
-    { name: "Employment Rate", value: "85%", icon: Briefcase, description: "Graduates who secured IT positions" },
-    { name: "Community Events", value: "25+", icon: Calendar, description: "Movies on the Menu and workshops hosted" },
+    { name: "Fathers to Train", value: "500+", icon: GraduationCap, description: "Career pathways in IT, skilled trades, and auto/EV" },
+    { name: "Youth to Reach", value: "5,000+", icon: Users, description: "Robotics, AI, 3D printing, and satellite workshops" },
+    { name: "Events Every Year", value: "50+", icon: Calendar, description: "Movies on the Menu, robot races, and festivals" },
+    { name: "Partner Organizations", value: "25+", icon: Building2, description: "Nonprofits, employers, and schools joining forces" },
   ];
 
   const hasRealMetrics = metrics.length > 0;
@@ -93,11 +93,14 @@ export function ImpactContent({ metrics, allocation, tierStats }: ImpactContentP
             className="text-center mb-12"
           >
             <h2 className="text-3xl lg:text-4xl font-bold text-[#1A1A1A] mb-4">
-              Impact at a Glance
+              Goals We Say{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
+                Out Loud
+              </span>
             </h2>
             <p className="text-[#555555] max-w-2xl mx-auto">
-              Real numbers, real lives changed. These metrics represent the tangible
-              outcomes of your generous support.
+              These are the numbers we&apos;re building toward — so you can hold us to
+              them. Every donation, volunteer hour, and partnership moves the count.
             </p>
           </motion.div>
 

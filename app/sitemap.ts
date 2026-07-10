@@ -10,7 +10,6 @@ const staticRoutes = [
   "/about",
   "/about/travis",
   "/programs",
-  "/services",
   "/events",
   "/blog",
   "/contact",
@@ -31,17 +30,14 @@ const programSlugs = [
   "lula",
 ];
 
-// Service slugs
-const serviceSlugs = ["managed-it", "software-ai", "low-voltage"];
-
 // Blog categories
 const blogCategories = [
   "fatherhood",
   "tech-careers",
   "family",
-  "it-for-nonprofits",
+  "future-tech",
   "community",
-  "ai",
+  "ai-innovation",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -52,20 +48,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${baseUrl}${route}`,
     lastModified: now,
     changeFrequency: (route === "" ? "weekly" : "monthly") as ChangeFrequency,
-    priority: route === "" ? 1.0 : route === "/about" || route === "/programs" || route === "/services" ? 0.9 : 0.7,
+    priority: route === "" ? 1.0 : route === "/about" || route === "/programs" ? 0.9 : 0.7,
   }));
 
   // Program pages
   const programPages: MetadataRoute.Sitemap = programSlugs.map((slug) => ({
     url: `${baseUrl}/programs/${slug}`,
-    lastModified: now,
-    changeFrequency: "monthly" as ChangeFrequency,
-    priority: 0.8,
-  }));
-
-  // Service pages
-  const servicePages: MetadataRoute.Sitemap = serviceSlugs.map((slug) => ({
-    url: `${baseUrl}/services/${slug}`,
     lastModified: now,
     changeFrequency: "monthly" as ChangeFrequency,
     priority: 0.8,
@@ -82,12 +70,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // TODO: In production, fetch blog posts from Supabase
   // For now, including sample blog post URLs
   const blogPostSlugs = [
-    "why-google-it-certification-matters",
+    "when-kids-meet-robots-everything-changes",
+    "three-career-pathways-for-fathers",
     "movies-on-the-menu-bringing-families-together",
-    "managed-it-for-nonprofits-guide",
-    "from-incarceration-to-it-career",
-    "tech-ready-youth-success-stories",
-    "ai-tools-for-small-nonprofits",
+    "tracking-satellites-from-south-la",
+    "a-fathers-journey-from-enrollment-to-certification",
+    "nonprofits-joining-forces-on-technology",
   ];
 
   const blogPostPages: MetadataRoute.Sitemap = blogPostSlugs.map((slug) => ({
@@ -100,7 +88,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticPages,
     ...programPages,
-    ...servicePages,
     ...categoryPages,
     ...blogPostPages,
   ];

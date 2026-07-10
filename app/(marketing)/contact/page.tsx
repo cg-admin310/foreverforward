@@ -4,12 +4,12 @@ import { ContactContentPremium } from "./contact-content-premium";
 export const metadata: Metadata = {
   title: "Contact Us | Get in Touch",
   description:
-    "Contact Forever Forward for program enrollment, IT services, volunteering, partnerships, or general inquiries. Located in Los Angeles, serving LA County and the Inland Empire.",
+    "Contact Forever Forward about career pathways for fathers, robotics and future-tech programs for kids, family events, volunteering, or partnerships. Based in Los Angeles, serving Greater LA.",
   keywords: [
     "contact Forever Forward",
     "nonprofit contact",
     "Los Angeles nonprofit",
-    "IT services inquiry",
+    "career training for fathers",
     "program enrollment",
     "volunteer opportunities",
     "partnership inquiry",
@@ -18,12 +18,12 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Contact Forever Forward | Get in Touch",
     description:
-      "Questions about programs, IT services, or how to get involved? We'd love to hear from you.",
+      "Questions about programs, family events, or how to join the mission? We'd love to hear from you.",
     type: "website",
     url: "/contact",
     images: [
       {
-        url: "/images/authentic/family/family-outdoor-portrait.jpg",
+        url: "/images/future/hero-father-future.jpg",
         width: 1200,
         height: 630,
         alt: "Contact Forever Forward",
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Contact Forever Forward",
     description:
-      "Questions about programs, IT services, or how to get involved? We'd love to hear from you.",
-    images: ["/images/authentic/family/family-outdoor-portrait.jpg"],
+      "Questions about programs, family events, or how to join the mission? We'd love to hear from you.",
+    images: ["/images/future/hero-father-future.jpg"],
   },
   alternates: {
     canonical: "/contact",

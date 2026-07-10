@@ -1,5 +1,5 @@
 import { Navbar } from "@/components/marketing/navbar";
-import { Footer } from "@/components/marketing/footer";
+import { FooterPremium } from "@/components/marketing/footer-premium";
 
 export default function BlogLayout({
   children,
@@ -10,7 +10,7 @@ export default function BlogLayout({
     <>
       <Navbar />
       <main className="min-h-screen">{children}</main>
-      <Footer />
+      <FooterPremium />
     </>
   );
 }

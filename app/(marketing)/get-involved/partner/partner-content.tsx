@@ -7,12 +7,11 @@ import { motion } from "framer-motion";
 import {
   Handshake,
   Building2,
-  GraduationCap,
-  Users,
+  Briefcase,
   Heart,
+  School,
   Trophy,
   CheckCircle2,
-  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,39 +20,51 @@ import { routeFormSubmission } from "@/lib/actions/lead-routing";
 
 const partnershipTypes = [
   {
-    icon: Building2,
-    title: "Corporate Sponsor",
+    icon: Heart,
+    title: "Community Organizations",
     description:
-      "Sponsor programs, events, or scholarships with your company's support.",
+      "Fellow nonprofits joining forces — co-run programs, share tech know-how, and build community apps together.",
     benefits: [
-      "Logo on program materials",
-      "Recognition at events",
-      "Employee volunteer opportunities",
-      "Impact reporting",
+      "Community apps built together",
+      "Shared AI & tech know-how",
+      "Co-hosted programs and events",
+      "Cross-referrals for families",
     ],
   },
   {
-    icon: GraduationCap,
-    title: "Training Partner",
+    icon: Briefcase,
+    title: "Employers & Trade Programs",
     description:
-      "Provide internships, apprenticeships, or job placements for graduates.",
+      "Hire Career Forward graduates or host apprenticeships in IT, skilled trades, and auto/EV.",
     benefits: [
-      "Access to trained talent pool",
-      "Customized training pipelines",
+      "Access to trained, motivated talent",
+      "Apprenticeship pipelines",
       "Reduced hiring costs",
       "Community goodwill",
     ],
   },
   {
-    icon: Heart,
-    title: "Community Partner",
+    icon: Building2,
+    title: "Sponsors",
     description:
-      "Collaborate on events, share resources, or cross-refer participants.",
+      "Fund a cohort of fathers, a robotics workshop, or a family event — and see exactly where it lands.",
     benefits: [
-      "Network expansion",
-      "Shared event opportunities",
-      "Resource exchange",
-      "Aligned missions",
+      "Name a cohort or event",
+      "Recognition at events",
+      "Employee volunteer days",
+      "Transparent impact reporting",
+    ],
+  },
+  {
+    icon: School,
+    title: "Schools",
+    description:
+      "Host Future Builders workshops — robotics, 3D printing, and satellite tracking on your campus.",
+    benefits: [
+      "Turnkey STEM workshops",
+      "Robotics & 3D-printing gear provided",
+      "Family engagement nights",
+      "Pathways for graduating students",
     ],
   },
 ];
@@ -134,18 +145,19 @@ export function PartnerContent() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative min-h-[60vh] lg:min-h-[70vh] bg-[#1A1A1A] overflow-hidden">
+      <section className="relative min-h-[60vh] lg:min-h-[70vh] bg-[#141413] overflow-hidden">
         {/* Background Image */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 grain-overlay">
           <Image
-            src="/images/generated/partner-handshake.png"
-            alt="Business partnership handshake"
+            src="/images/future/community-builders.jpg"
+            alt="Nonprofit leaders collaborating around a touchscreen reviewing a community app"
             fill
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#1A1A1A] via-[#1A1A1A]/80 to-[#1A1A1A]/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#141413] via-[#141413]/80 to-[#141413]/40" />
         </div>
+        <div className="absolute inset-0 bg-starfield opacity-50" aria-hidden />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center py-20 lg:py-32">
           <motion.div
@@ -154,18 +166,21 @@ export function PartnerContent() {
             transition={{ duration: 0.6 }}
             className="max-w-2xl"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444] text-sm text-white/80 mb-6">
-              <Handshake className="h-4 w-4 text-[#C9A84C]" />
-              Partnership Opportunities
+            <span className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-[0.28em] uppercase text-[#C9A84C] mb-6">
+              <span className="inline-block h-px w-8 bg-current opacity-60" />
+              <Handshake className="h-4 w-4" />
+              Join Forces
             </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-              Let&apos;s Build{" "}
-              <span className="text-[#C9A84C]">Together</span>
+              Stronger{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] via-[#E8D48B] to-[#C9A84C]">
+                Together
+              </span>
             </h1>
             <p className="text-lg sm:text-xl text-white/80">
-              Partner with Forever Forward to create meaningful impact. Whether
-              you&apos;re a corporation, nonprofit, or community organization, there&apos;s
-              a way to collaborate.
+              We don&apos;t do vendors and clients — we do allies. Community
+              organizations, employers, sponsors, and schools joining forces so the
+              whole neighborhood levels up.
             </p>
           </motion.div>
         </div>
@@ -177,12 +192,12 @@ export function PartnerContent() {
       <section className="py-16 lg:py-24 bg-[#FAFAF8]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            title="Partnership Opportunities"
-            subtitle="Multiple ways to collaborate and create impact together."
+            title="Four Ways to Join Forces"
+            subtitle="Pick the lane that fits your organization — or invent a fifth. We're flexible like that."
             centered
           />
 
-          <div className="grid md:grid-cols-3 gap-6 mt-12">
+          <div className="grid md:grid-cols-2 gap-6 mt-12">
             {partnershipTypes.map((type, index) => (
               <motion.div
                 key={type.title}
@@ -226,21 +241,24 @@ export function PartnerContent() {
               viewport={{ once: true }}
             >
               <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A1A] mb-6">
-                Why Partner With Forever Forward?
+                Why Join Forces With{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
+                  Forever Forward?
+                </span>
               </h2>
               <p className="text-[#555555] leading-relaxed mb-6">
-                When you partner with us, you&apos;re not just writing a check—you&apos;re
-                investing in a sustainable model that transforms lives and
-                communities. Our dual-engine approach means your support creates
-                lasting impact.
+                We&apos;re never selling — we&apos;re pooling strengths. We bring technical
+                muscle, training pipelines, and future-tech gear; you bring roots,
+                trust, and reach. When we combine them, fathers get careers, kids get
+                exposure, and the whole community-resource space levels up.
               </p>
               <ul className="space-y-4">
                 {[
                   "Measurable outcomes and transparent reporting",
-                  "Direct connection to the communities you serve",
+                  "Community apps and shared tech — built with you, never sold to you",
                   "Tax-deductible contributions (501(c)(3))",
                   "Flexible partnership structures",
-                  "Alignment with DEI and workforce development goals",
+                  "A trained, motivated talent pool of program graduates",
                 ].map((item) => (
                   <li
                     key={item}
@@ -260,10 +278,10 @@ export function PartnerContent() {
               className="grid grid-cols-2 gap-4"
             >
               {[
-                { value: "500+", label: "Lives to Change" },
-                { value: "25+", label: "Partner Goal" },
-                { value: "100%", label: "Transparency" },
-                { value: "$0", label: "Wasted Impact" },
+                { value: "500+", label: "Fathers to Train" },
+                { value: "5,000+", label: "Youth to Reach" },
+                { value: "50+", label: "Events Every Year" },
+                { value: "25+", label: "Partner Orgs Strong" },
               ].map((stat) => (
                 <div
                   key={stat.label}
@@ -281,8 +299,9 @@ export function PartnerContent() {
       </section>
 
       {/* Current Partners */}
-      <section className="py-16 lg:py-24 bg-[#1A1A1A]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="relative py-16 lg:py-24 bg-[#141413] overflow-hidden">
+        <div className="absolute inset-0 bg-starfield opacity-70" aria-hidden />
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -428,9 +447,10 @@ export function PartnerContent() {
                     required
                   >
                     <option value="">Select a partnership type</option>
-                    <option value="corporate">Corporate Sponsor</option>
-                    <option value="training">Training Partner</option>
-                    <option value="community">Community Partner</option>
+                    <option value="community_org">Community Organization</option>
+                    <option value="employer">Employer / Trade Program</option>
+                    <option value="sponsor">Sponsor</option>
+                    <option value="school">School</option>
                     <option value="other">Other / Not Sure</option>
                   </select>
                 </div>

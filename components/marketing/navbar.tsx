@@ -17,11 +17,11 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PROGRAMS, SERVICES } from "@/lib/constants";
+import { PROGRAMS } from "@/lib/constants";
 import { timing } from "@/lib/animations";
 
 const navLinks = [
-  { href: "/about", label: "About" },
+  { href: "/about", label: "Our Mission" },
   {
     label: "Programs",
     dropdown: PROGRAMS.map((p) => ({
@@ -31,17 +31,8 @@ const navLinks = [
     })),
     viewAllHref: "/programs",
   },
-  {
-    label: "Services",
-    dropdown: SERVICES.map((s) => ({
-      href: `/services/${s.slug}`,
-      label: s.name,
-      description: s.tagline,
-    })),
-    viewAllHref: "/services",
-  },
   { href: "/events", label: "Events" },
-  { href: "/blog", label: "Blog" },
+  { href: "/blog", label: "Stories" },
 ];
 
 const getInvolvedLinks = [

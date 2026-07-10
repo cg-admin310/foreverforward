@@ -81,12 +81,12 @@ export default function NotFound() {
             <p className="text-sm text-white/60">Find your path forward</p>
           </Link>
           <Link
-            href="/services"
+            href="/events"
             className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group"
           >
             <BookOpen className="h-6 w-6 text-[#5A7247] mx-auto mb-2" />
-            <p className="text-white font-medium">IT Services</p>
-            <p className="text-sm text-white/60">For nonprofits & schools</p>
+            <p className="text-white font-medium">Events</p>
+            <p className="text-sm text-white/60">Making Moments together</p>
           </Link>
           <Link
             href="/contact"

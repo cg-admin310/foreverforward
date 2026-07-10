@@ -140,6 +140,7 @@ const TECH_INTEREST_OPTIONS = [
   { value: "cybersecurity", label: "Cybersecurity" },
   { value: "cloud", label: "Cloud Computing" },
   { value: "ai_automation", label: "AI & Automation" },
+  { value: "robotics", label: "Robotics" },
   { value: "filmmaking", label: "Filmmaking & Media" },
   { value: "3d_printing", label: "3D Printing & Design" },
   { value: "digital_literacy", label: "General Digital Skills" },
@@ -378,11 +379,15 @@ export default function AssessPage() {
             </span>
 
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
-              Program Fit Assessment
+              Find Your{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] via-[#E8D48B] to-[#C9A84C]">
+                Path Forward
+              </span>
             </h1>
             <p className="text-lg text-white/70 max-w-2xl mx-auto">
-              Answer a few questions to help us understand your situation and goals.
-              We'll recommend the best programs for your unique journey.
+              Answer a few questions about your situation and goals, and we&apos;ll
+              point you to the pathway or program built for your journey — no wrong
+              answers, no judgment, just forward.
             </p>
           </motion.div>
         </div>
@@ -566,7 +571,7 @@ export default function AssessPage() {
 
                         <div>
                           <label className="block text-sm font-medium text-[#555555] mb-2">
-                            Children's ages (select all that apply)
+                            Children&apos;s ages (select all that apply)
                           </label>
                           <div className="flex flex-wrap gap-2">
                             {CHILDREN_AGE_OPTIONS.map((age) => (
@@ -657,9 +662,9 @@ export default function AssessPage() {
                         <option value="less_than_high_school">Less than High School</option>
                         <option value="high_school_ged">High School / GED</option>
                         <option value="some_college">Some College</option>
-                        <option value="associates">Associate's Degree</option>
-                        <option value="bachelors">Bachelor's Degree</option>
-                        <option value="masters_plus">Master's or Higher</option>
+                        <option value="associates">Associate&apos;s Degree</option>
+                        <option value="bachelors">Bachelor&apos;s Degree</option>
+                        <option value="masters_plus">Master&apos;s or Higher</option>
                       </select>
                     </div>
 
@@ -835,12 +840,12 @@ export default function AssessPage() {
                   <div className="space-y-6">
                     <div>
                       <label className="block text-sm font-medium text-[#555555] mb-3">
-                        What's your primary goal? *
+                        What&apos;s your primary goal? *
                       </label>
                       <div className="grid grid-cols-2 gap-3">
                         {[
-                          { value: "career_change", label: "Career Change to Tech", icon: "💼" },
-                          { value: "certification", label: "Earn IT Certification", icon: "📜" },
+                          { value: "career_change", label: "Start a New Career", icon: "💼" },
+                          { value: "certification", label: "Earn a Certification", icon: "📜" },
                           { value: "skills_upgrade", label: "Upgrade My Skills", icon: "📈" },
                           { value: "employment", label: "Find Employment", icon: "🎯" },
                           { value: "personal_growth", label: "Personal Growth", icon: "🌱" },
@@ -984,7 +989,7 @@ export default function AssessPage() {
                   </h2>
 
                   <p className="text-sm text-[#888888] mb-6">
-                    Since you are under 18, we need your parent or guardian's contact information.
+                    Since you are under 18, we need your parent or guardian&apos;s contact information.
                   </p>
 
                   <div className="space-y-6">

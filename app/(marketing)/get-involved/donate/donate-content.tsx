@@ -24,43 +24,43 @@ import { cn } from "@/lib/utils";
 const impactTiers = [
   {
     amount: 50,
-    title: "Champion",
-    impact: "Provides learning materials for one participant for a month",
-    icon: "📚",
+    title: "Spark",
+    impact: "Puts a robotics kit in a kid's hands at a Future Builders workshop",
+    icon: "🤖",
   },
   {
     amount: 200,
     title: "Builder",
-    impact: "Sponsors a father's Google IT certification exam",
+    impact: "Covers a father's certification exam on his career pathway",
     icon: "🎓",
     popular: true,
   },
   {
     amount: 500,
     title: "Transformer",
-    impact: "Funds one full scholarship to Father Forward",
-    icon: "🚀",
+    impact: "Funds a family movie night or a full 3D-printing workshop for kids",
+    icon: "🍿",
   },
 ];
 
 const impactAreas = [
   {
     icon: GraduationCap,
-    title: "Workforce Development",
+    title: "Career Forward",
     description:
-      "Your gift helps fathers and youth earn IT certifications and launch tech careers.",
+      "Your gift trains fathers in IT & cybersecurity, plumbing & skilled trades, and auto & EV mechanics.",
   },
   {
     icon: Users,
-    title: "Family Events",
+    title: "Future Builders",
     description:
-      "Support Movies on the Menu and other events that strengthen family bonds.",
+      "Fund robotics, AI, 3D printing, and satellite-tracking workshops that show kids the future is theirs.",
   },
   {
     icon: Heart,
-    title: "Travis AI Support",
+    title: "Making Moments",
     description:
-      "Keep our 24/7 AI case manager running, providing guidance to participants anytime.",
+      "Support Movies on the Menu, robot races, and festivals that strengthen father-child bonds.",
   },
 ];
 
@@ -140,18 +140,19 @@ export function DonateContent() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative min-h-[60vh] lg:min-h-[70vh] bg-[#1A1A1A] overflow-hidden">
+      <section className="relative min-h-[60vh] lg:min-h-[70vh] bg-[#141413] overflow-hidden">
         {/* Background Image */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 grain-overlay">
           <Image
-            src="/images/generated/donate-impact.png"
-            alt="Father and son learning together"
+            src="/images/future/impact-hands.jpg"
+            alt="Hands joined together over future technology"
             fill
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#1A1A1A] via-[#1A1A1A]/80 to-[#1A1A1A]/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#141413] via-[#141413]/80 to-[#141413]/40" />
         </div>
+        <div className="absolute inset-0 bg-starfield opacity-50" aria-hidden />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center py-20 lg:py-32">
           <motion.div
@@ -160,17 +161,21 @@ export function DonateContent() {
             transition={{ duration: 0.6 }}
             className="max-w-2xl"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2D2D2D] border border-[#444444] text-sm text-white/80 mb-6">
-              <Heart className="h-4 w-4 text-[#C9A84C]" />
-              Support Our Mission
+            <span className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-[0.28em] uppercase text-[#C9A84C] mb-6">
+              <span className="inline-block h-px w-8 bg-current opacity-60" />
+              <Heart className="h-4 w-4" />
+              Fund the Mission
             </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-              Your Gift Creates{" "}
-              <span className="text-[#C9A84C]">Lasting Change</span>
+              Fund the Future You{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] via-[#E8D48B] to-[#C9A84C]">
+                Want to See
+              </span>
             </h1>
             <p className="text-lg sm:text-xl text-white/80">
-              Every dollar you give goes directly to empowering fathers, training
-              youth, and strengthening families in our community.
+              Every dollar puts real technology in real hands — a father&apos;s
+              certification, a kid&apos;s first robot, a family&apos;s movie night
+              under the stars.
             </p>
           </motion.div>
         </div>
@@ -287,7 +292,7 @@ export function DonateContent() {
                 <p className="text-[#5A7247] text-center">
                   <span className="font-semibold">Your ${currentAmount}</span>{" "}
                   {donationType === "monthly" ? "monthly " : ""}gift will help
-                  us {currentAmount >= 500 ? "fully sponsor a Father Forward participant" : currentAmount >= 200 ? "cover certification exam costs" : "provide learning materials"}.
+                  us {currentAmount >= 500 ? "host a family movie night or a full 3D-printing workshop" : currentAmount >= 200 ? "cover a father's certification exam" : "put a robotics kit in a kid's hands"}.
                 </p>
               </motion.div>
             )}
@@ -393,8 +398,9 @@ export function DonateContent() {
       </section>
 
       {/* Where Your Money Goes */}
-      <section className="py-16 lg:py-24 bg-[#1A1A1A]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-16 lg:py-24 bg-[#141413] overflow-hidden">
+        <div className="absolute inset-0 bg-starfield opacity-70" aria-hidden />
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -462,7 +468,7 @@ export function DonateContent() {
               {
                 title: "In-Kind Donations",
                 description:
-                  "Donate laptops, equipment, or professional services.",
+                  "Donate laptops, robotics kits, 3D printers, tools, or professional services.",
               },
             ].map((item, index) => (
               <motion.div

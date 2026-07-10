@@ -30,7 +30,7 @@ const capabilities = [
     icon: BookOpen,
     title: "Study Assistance",
     description:
-      "Get help with coursework, exam prep, and understanding complex IT concepts in plain language.",
+      "Get help with coursework, exam prep, and understanding tough concepts in plain language — whatever pathway you're on.",
   },
   {
     icon: Brain,
@@ -456,7 +456,7 @@ export default function TravisPage() {
             </h2>
             <p className="text-[#555555] mb-8">
               Enroll in Father Forward or Tech-Ready Youth to get instant access
-              to Travis and start your journey toward a tech career.
+              to Travis and start your path forward.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button asChild size="lg">

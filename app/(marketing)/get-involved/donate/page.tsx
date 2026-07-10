@@ -3,15 +3,15 @@ import { Suspense } from "react";
 import { DonateContent } from "./donate-content";
 
 export const metadata: Metadata = {
-  title: "Donate | Support Fathers, Youth & Families",
+  title: "Donate | Fund the Future You Want to See",
   description:
-    "Your donation to Forever Forward directly funds workforce development for Black fathers, youth tech programs, and family events. Every dollar creates lasting impact in Los Angeles communities.",
+    "Your donation to Forever Forward puts real technology in real hands: career training for fathers, robotics and 3D-printing workshops for kids, and family events across Los Angeles.",
   keywords: [
     "donate to nonprofit",
     "support Black fathers",
-    "youth tech programs donation",
+    "sponsor robotics kit",
     "Los Angeles nonprofit donation",
-    "workforce development donation",
+    "career training donation",
     "charitable giving",
     "tax deductible donation",
     "family programs support",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Donate to Forever Forward",
     description:
-      "Your gift funds workforce development, youth programs, and family events. Every dollar creates lasting impact.",
+      "Sponsor a kid's robotics kit, a father's certification exam, or a family movie night. Every dollar moves a family forward.",
     type: "website",
     url: "/get-involved/donate",
   },
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Donate to Forever Forward",
     description:
-      "Support workforce development for fathers and youth in Los Angeles.",
+      "Fund career pathways for fathers and future tech for kids in Los Angeles.",
   },
   alternates: {
     canonical: "/get-involved/donate",

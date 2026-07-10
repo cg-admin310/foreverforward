@@ -2,46 +2,46 @@ import type { Metadata } from "next";
 import { HomeContentPremium } from "./home-content-premium";
 
 export const metadata: Metadata = {
-  title: "Forever Forward | Empowering Fathers, Strengthening Families, Building the Future",
+  title: "Forever Forward | The Future Belongs to Our Families",
   description:
-    "Forever Forward is a 501(c)(3) nonprofit delivering workforce development for Black fathers and youth while providing enterprise IT services to nonprofits and schools across Los Angeles and the Inland Empire.",
+    "Forever Forward is a Los Angeles 501(c)(3) that introduces underserved communities to the technologies shaping tomorrow — AI, robotics, 3D printing, and satellites — trains fathers for real careers in IT, skilled trades, and auto mechanics, and brings families together through unforgettable events.",
   keywords: [
     "Forever Forward",
     "nonprofit Los Angeles",
     "Black fathers",
+    "career training",
     "workforce development",
-    "IT training programs",
-    "Google IT certification",
-    "tech careers",
+    "robotics for kids",
+    "AI education",
+    "3D printing workshops",
+    "skilled trades",
+    "auto mechanics training",
     "youth programs",
-    "managed IT services",
-    "nonprofit IT support",
-    "Inland Empire nonprofits",
+    "family events",
     "father empowerment",
-    "family programs",
     "community development",
   ],
   openGraph: {
-    title: "Forever Forward | Empowering Fathers, Strengthening Families",
+    title: "Forever Forward | The Future Belongs to Our Families",
     description:
-      "Workforce development for Black fathers and youth. Enterprise IT services for nonprofits. A self-sustaining cycle of empowerment.",
+      "Career training for fathers. Future tech for kids. Unforgettable moments for families. Built in Los Angeles, moving forever forward.",
     type: "website",
     url: "/",
     images: [
       {
-        url: "/images/authentic/fathers/father-teaching-daughter.jpg",
+        url: "/images/future/hero-father-future.jpg",
         width: 1200,
         height: 630,
-        alt: "Forever Forward - Empowering fathers through tech education",
+        alt: "A father and daughter looking up at a glowing hologram of Earth and its satellites",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Forever Forward | Empowering Fathers, Strengthening Families",
+    title: "Forever Forward | The Future Belongs to Our Families",
     description:
-      "Workforce development for Black fathers and youth. Enterprise IT services for nonprofits.",
-    images: ["/images/authentic/fathers/father-teaching-daughter.jpg"],
+      "Career training for fathers. Future tech for kids. Unforgettable moments for families.",
+    images: ["/images/future/hero-father-future.jpg"],
   },
   alternates: {
     canonical: "/",

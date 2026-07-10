@@ -19,38 +19,132 @@ export const BRAND_COLORS = {
   border: "#DDDDDD",
 } as const;
 
+// The one-line mission that anchors every page.
+export const MISSION = {
+  headline: "The future belongs to our families.",
+  statement:
+    "Forever Forward introduces underserved communities to the technologies shaping tomorrow — AI, robotics, 3D printing, satellites orbiting overhead — and turns that first spark of curiosity into careers, confidence, and legacy.",
+  founderNote:
+    "I'm a Black father. I started with what I knew — and built forward from there.",
+} as const;
+
+// The three pillars everything on the site rolls up to.
+export const PILLARS = [
+  {
+    id: "careers",
+    kicker: "For Fathers",
+    name: "Career Forward",
+    headline: "Real training. Real credentials. Real careers.",
+    description:
+      "Career pathways built for fathers — IT and cybersecurity, plumbing and skilled trades, EV and auto mechanics. Modern industries that pay real wages and can't be outsourced. Pick a path. Build a legacy.",
+    image: "/images/future/pillar-careers.jpg",
+    href: "/programs/father-forward",
+  },
+  {
+    id: "future-tech",
+    kicker: "For Kids & Youth",
+    name: "Future Builders",
+    headline: "The first time a kid sees the future, everything changes.",
+    description:
+      "Robotics they can build. AI they can direct. 3D printers that turn their ideas into objects. Satellites they can track across the night sky. We put tomorrow's tools in young hands — the same hands the future is waiting on.",
+    image: "/images/future/pillar-future-tech.jpg",
+    href: "/programs/tech-ready-youth",
+  },
+  {
+    id: "moments",
+    kicker: "For Families",
+    name: "Making Moments",
+    headline: "Joy is a strategy.",
+    description:
+      "Movie nights with dinner on us. Robot races in the park. Festivals where fathers and kids show up as a team. Because strong families aren't built in classrooms alone — they're built in moments.",
+    image: "/images/future/pillar-moments.jpg",
+    href: "/programs/making-moments",
+  },
+] as const;
+
+// Career pathways inside Career Forward (Father Forward program).
+export const CAREER_PATHWAYS = [
+  {
+    id: "it",
+    name: "IT & Cybersecurity",
+    detail: "Google IT Support Certificate prep, networks, cloud, and security fundamentals.",
+  },
+  {
+    id: "trades",
+    name: "Plumbing & Skilled Trades",
+    detail: "Apprenticeship-ready fundamentals in plumbing and the building trades that keep every city running.",
+  },
+  {
+    id: "auto",
+    name: "Auto & EV Mechanics",
+    detail: "Diagnostics, repair, and the electric-vehicle skills the next generation of shops is hiring for.",
+  },
+] as const;
+
+// The technologies we put in front of the community.
+export const FUTURE_TECH = [
+  {
+    id: "ai",
+    name: "Artificial Intelligence",
+    line: "Not just using it — directing it.",
+  },
+  {
+    id: "robotics",
+    name: "Robotics",
+    line: "Build it, code it, race it.",
+  },
+  {
+    id: "printing",
+    name: "3D Printing",
+    line: "From imagination to object in an afternoon.",
+  },
+  {
+    id: "orbit",
+    name: "Low Earth Orbit",
+    line: "Satellites overhead, tracked from our own rooftops.",
+  },
+] as const;
+
+// How we show up for the wider nonprofit community — collaboration, not sales.
+export const COMMUNITY_TECH = {
+  kicker: "Stronger Together",
+  headline: "We help other organizations power up, too.",
+  description:
+    "Forever Forward builds apps and shares technology with fellow nonprofits — joining forces so the whole community-resource space can serve people better. When one organization levels up, everyone it serves levels up with it.",
+} as const;
+
 export const PROGRAMS = [
   {
     slug: "father-forward",
     name: "Father Forward",
-    tagline: "Tech. Leadership. Legacy.",
+    tagline: "Pick a Path. Build a Legacy.",
     audience: "fathers" as const,
     duration: "8 weeks",
     format: "Hybrid",
     description:
-      "An 8-week intensive program empowering fathers with IT skills, leadership training, and Google IT Certification preparation.",
+      "Career training built for fathers — choose IT & cybersecurity, plumbing & skilled trades, or auto & EV mechanics, with leadership coaching and a community that has your back.",
     icon: "💼",
   },
   {
     slug: "tech-ready-youth",
     name: "Tech-Ready Youth",
-    tagline: "Build Your Future in Tech",
+    tagline: "Build the Future With Your Own Hands",
     audience: "youth" as const,
     duration: "8 weeks",
     format: "Hybrid",
     description:
-      "Prepare for entry-level IT careers with hands-on training, Google IT Support Certificate prep, and a capstone gaming tournament.",
-    icon: "🎓",
+      "Hands-on robotics, AI, and real hardware for ages 16+ — ending in a capstone gaming tournament where the skills get put to the test.",
+    icon: "🤖",
   },
   {
     slug: "making-moments",
     name: "Making Moments",
-    tagline: "Creating Joy, Strengthening Bonds",
+    tagline: "Joy Is a Strategy",
     audience: "families" as const,
     duration: "Ongoing",
     format: "In-person",
     description:
-      "Community events and experiences designed to strengthen father-child bonds, including our signature Movies on the Menu series.",
+      "Community events that strengthen father-child bonds — dinner-and-a-movie nights, robot races, and festivals the whole family looks forward to.",
     icon: "❤️",
   },
   {
@@ -61,7 +155,7 @@ export const PROGRAMS = [
     duration: "Multi-phase",
     format: "Hybrid",
     description:
-      "A filmmaking program partnered with Dawnn Lewis, using AI and Unreal Engine to bring student stories to life.",
+      "A filmmaking program with Dawnn Lewis where students use AI and Unreal Engine to bring their own stories to the big screen.",
     icon: "🎬",
   },
   {
@@ -72,7 +166,7 @@ export const PROGRAMS = [
     duration: "Workshop",
     format: "In-person",
     description:
-      "Spark imagination through storytelling, AI design, and 3D printing with Bambu Lab. Kids take home their own creations.",
+      "Kids write the story of who they'll become, design it with AI, and 3D-print a piece of that future to take home.",
     icon: "✨",
   },
   {
@@ -87,36 +181,6 @@ export const PROGRAMS = [
     icon: "🎮",
   },
 ];
-
-export const SERVICES = [
-  {
-    slug: "managed-it",
-    name: "Managed IT Services",
-    tagline: "Enterprise IT. Nonprofit Heart.",
-    description:
-      "Comprehensive IT support for nonprofits and schools, from help desk to network management.",
-    icon: "server",
-    startingPrice: "$50/user/month",
-  },
-  {
-    slug: "software-ai",
-    name: "Software & AI Development",
-    tagline: "Custom Solutions for Impact",
-    description:
-      "Custom applications, AI chatbots, process automation, and data tools built for mission-driven organizations.",
-    icon: "code",
-    startingPrice: "$1,500/project",
-  },
-  {
-    slug: "low-voltage",
-    name: "Low Voltage & Infrastructure",
-    tagline: "Build the Foundation",
-    description:
-      "Structured cabling, CCTV installation, media walls, and network infrastructure for facilities.",
-    icon: "cable",
-    startingPrice: "$150/drop",
-  },
-] as const;
 
 export const CONTACT_INFO = {
   founder: "Thomas TJ Wilform",
@@ -136,9 +200,9 @@ export const SOCIAL_LINKS = {
 // These are our GOALS - what we're working toward
 export const IMPACT_GOALS = [
   { label: "Fathers to Train", value: 500, suffix: "+", current: 0 },
-  { label: "Events Annually", value: 50, suffix: "+", current: 0 },
-  { label: "Nonprofit Clients", value: 25, suffix: "+", current: 0 },
   { label: "Youth to Reach", value: 5000, suffix: "+", current: 0 },
+  { label: "Events Annually", value: 50, suffix: "+", current: 0 },
+  { label: "Partner Organizations", value: 25, suffix: "+", current: 0 },
 ] as const;
 
 // Legacy export for backward compatibility
@@ -194,7 +258,7 @@ export const BLOG_CATEGORIES = [
   { slug: "fatherhood", name: "Fatherhood & Leadership" },
   { slug: "tech-careers", name: "Tech Careers" },
   { slug: "family", name: "Family Activities" },
-  { slug: "it-nonprofits", name: "IT for Nonprofits" },
+  { slug: "future-tech", name: "Future Tech" },
   { slug: "community", name: "Community Stories" },
   { slug: "ai-innovation", name: "AI & Innovation" },
 ] as const;

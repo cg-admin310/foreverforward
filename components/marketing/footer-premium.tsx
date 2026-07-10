@@ -10,11 +10,11 @@ import { Input } from '@/components/ui/input'
 import { subscribeToNewsletter } from '@/lib/actions/newsletter'
 
 const QUICK_LINKS = [
+  { label: 'Our Mission', href: '/about' },
   { label: 'Programs', href: '/programs' },
-  { label: 'IT Services', href: '/services' },
-  { label: 'About Us', href: '/about' },
   { label: 'Events', href: '/events' },
-  { label: 'Blog', href: '/blog' },
+  { label: 'Stories', href: '/blog' },
+  { label: 'Donate', href: '/get-involved/donate' },
   { label: 'Contact', href: '/contact' },
 ]
 
@@ -50,10 +50,10 @@ export function FooterPremium() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h3 className="text-2xl lg:text-3xl font-bold text-white mb-3">
-                Stay in the Loop
+                The future has a newsletter.
               </h3>
               <p className="text-white/60">
-                Get updates on programs, events, and community impact. No spam, just good news.
+                Program dates, movie nights, robot races, and wins from the community. No spam — just forward motion.
               </p>
             </div>
 
@@ -92,15 +92,15 @@ export function FooterPremium() {
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-6">
               <Image
-                src="/images/brand/ff-logo-horizontal-dark-bg.svg"
+                src="/images/brand/ff-logo-stacked-tagline-dark-bg.svg"
                 alt="Forever Forward"
                 width={180}
-                height={48}
-                className="h-10 w-auto"
+                height={120}
+                className="h-24 w-auto"
               />
             </Link>
             <p className="text-white/60 text-sm leading-relaxed mb-6">
-              Empowering fathers, strengthening families, and inspiring youth through technology and leadership.
+              Introducing underserved communities to the technologies shaping tomorrow — and turning that spark into careers, confidence, and legacy.
             </p>
             <p className="text-white/40 text-xs">
               501(c)(3) Nonprofit Organization
