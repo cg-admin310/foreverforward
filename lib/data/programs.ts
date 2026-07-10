@@ -50,12 +50,10 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     icon: "💼",
     heroImage: "/images/future/pillar-careers.jpg",
     heroDescription:
-      "Twelve weeks of career training built for dads, by a dad. Pick your lane: IT & cybersecurity, plumbing & skilled trades, or auto & EV mechanics. Then walk out with a real credential, real confidence, and a crew that's got your back.",
+      "Twelve weeks of free career training built for dads, by a dad. Pick your lane: IT & cybersecurity, plumbing & skilled trades, or auto & EV mechanics, and walk out with a real credential and a crew that's got your back.",
     overview: [
-      "Let's be honest: nobody hands fathers a manual. Father Forward is the next best thing. It's our flagship program, built by a dad from Compton who figured out that the fastest way to change a family's future is to hand its father a career. Not a gig. Not a hustle. A career.",
-      "You pick one of three lanes. IT & Cybersecurity starts with CompTIA ITF+ certification and goes way past help desk. You'll get inside real data centers, learn how networks actually run the world, and see the road to network engineer and systems engineer laid out in front of you. Plumbing & Skilled Trades gets you apprenticeship-ready in the work that keeps every city standing. Auto & EV Mechanics puts you under the hood of the electric future every shop is scrambling to hire for.",
-      "Every week you'll hear from guest speakers who work in these industries right now, people who'll tell you the truth about what the work is like and how they got in. And whichever lane you pick, the leadership thread runs through all twelve weeks: goals, money, showing up for your kids, and a Path Forward Plan you build with us. Travis, our AI mentor, is on call 24/7 for the midnight study sessions and the pre-interview pep talks.",
-      "One more thing, because it matters: we're not looking for perfect. Show up, put in the reps, let your cohort hold you down. Progress over perfection, every single week.",
+      "Father Forward is our flagship, built by a dad from Compton who figured out that the fastest way to change a family's future is to hand its father a career. Pick a lane: IT & Cybersecurity (CompTIA ITF+ prep, real data center time, and the road to network and systems engineer laid out in front of you), Plumbing & Skilled Trades, or Auto & EV Mechanics.",
+      "Every week brings guest speakers who do this work right now, a leadership thread on goals, money, and showing up for your kids, and Travis, our AI mentor, on call 24/7. It's free, and we're not looking for perfect. Progress over perfection, every single week.",
     ],
     atAGlance: {
       duration: "12 weeks",
@@ -191,7 +189,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
         icon: "🎓",
         title: "A Real Credential",
         description:
-          "CompTIA ITF+ prep and exam support on the IT lane, or trade credential prep on yours. Proof, on paper, that you put in the work.",
+          "CompTIA ITF+ prep on the IT lane, or trade credential prep on yours: proof, on paper, that you put in the work.",
       },
       {
         icon: "🗺️",
@@ -230,11 +228,10 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     icon: "🤖",
     heroImage: "/images/future/pillar-future-tech.jpg",
     heroDescription:
-      "Robots you build. AI you get to boss around. Real hardware, real projects, and a capstone gaming tournament to put it all on the line.",
+      "Robots you build, AI you get to boss around, designs you print. Then a capstone gaming tournament to put it all on the line.",
     overview: [
-      "Tech-Ready Youth exists because talent is everywhere but exposure isn't. Most of our young people have never watched a robot respond to their own code, or seen a 3D printer turn their idea into something they can hold. One afternoon with those tools and the question flips from \"could I ever?\" to \"what's next?\"",
-      "Over 8 weeks, youth 16 and up go hands-on with the technologies that will define their generation: building and programming robots, directing AI tools instead of just scrolling past them, printing their own designs, and tracing the satellites passing over their neighborhood every 90 minutes.",
-      "The program closes with a capstone gaming tournament: machines they helped configure, brackets they run, and a community cheering them on. Skills, confidence, and proof they can finish what they start.",
+      "Talent is everywhere, exposure isn't. Over 8 weeks, youth 16 and up build and program robots, direct AI tools instead of scrolling past them, 3D-print their own designs, and track the satellites passing over their neighborhood.",
+      "It closes with a capstone gaming tournament on machines they helped configure, with the community cheering them on. Free for qualifying participants, and proof they can finish what they start.",
     ],
     atAGlance: {
       duration: "8 weeks",
@@ -352,191 +349,6 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     },
   },
 
-  "making-moments": {
-    slug: "making-moments",
-    name: "Making Moments",
-    tagline: "Joy Is a Strategy",
-    audience: "families",
-    duration: "Ongoing",
-    format: "In-person",
-    icon: "❤️",
-    heroImage: "/images/future/pillar-moments.jpg",
-    heroDescription:
-      "Dinner-and-a-movie nights, robot races in the park, festivals where dads and kids show up as a team. The memories that hold families together, made on purpose.",
-    overview: [
-      "Programs build skills. Moments build families. Making Moments is our ongoing series of community experiences built on one truth: a father and child who laugh together, build together, and celebrate together grow stronger together. That's not a slogan. That's the whole strategy.",
-      "Our signature Movies on the Menu nights pair a family dinner with a film under the stars: no cost, no catch, just an evening designed so a dad can be fully present. Around it we run robot races, 3D-printing pop-ups, stargazing and satellite-spotting nights, and an annual festival that turns a neighborhood park into a glimpse of the future.",
-      "Every event is a doorway. A family comes for the movie, and leaves knowing there's a career program for dad, a robotics lab for the kids, and a community that wants them both to win.",
-    ],
-    atAGlance: {
-      duration: "Ongoing, multiple events monthly",
-      format: "In-person, across Greater LA",
-      schedule: "Evenings & weekends",
-      cost: "Free, dinner included",
-    },
-    curriculum: [
-      {
-        phase: "Signature",
-        title: "Movies on the Menu",
-        topics: [
-          "Family dinner and a movie under the stars",
-          "Father-focused: designed for presence, not programming",
-          "Community resource tables: no pressure, just doors",
-        ],
-      },
-      {
-        phase: "Hands-On",
-        title: "Future Tech Pop-Ups",
-        topics: [
-          "Robot races and build stations",
-          "3D-printing corners: design it, print it, keep it",
-          "AI photo booths and creative stations",
-        ],
-      },
-      {
-        phase: "Look Up",
-        title: "Night Sky & Orbit Nights",
-        topics: [
-          "Telescopes and satellite tracking with the kids",
-          "Watch the ISS pass over your own block",
-          "The story of who builds what's up there",
-        ],
-      },
-      {
-        phase: "Annual",
-        title: "Forever Forward Festival",
-        topics: [
-          "A neighborhood park becomes a future fair",
-          "Graduations celebrated in public, out loud",
-          "Partners, food, music, and family",
-        ],
-      },
-    ],
-    deliverables: [
-      {
-        icon: "🍿",
-        title: "Movies on the Menu",
-        description:
-          "Our signature dinner-and-a-movie series for fathers and their kids.",
-      },
-      {
-        icon: "🤖",
-        title: "Tech the Kids Can Touch",
-        description:
-          "Robots, printers, and telescopes at every event. Curiosity included.",
-      },
-      {
-        icon: "📸",
-        title: "Memories on Purpose",
-        description:
-          "Photos, keepsakes, and 3D-printed mementos from every gathering.",
-      },
-      {
-        icon: "🚪",
-        title: "A Doorway In",
-        description:
-          "Every event connects families to programs, resources, and each other.",
-      },
-    ],
-    testimonial: {
-      quote:
-        "My daughter still has the little rocket she printed at the park. It sits on her dresser. She calls it the night we saw the satellites.",
-      name: "Andre W.",
-      role: "Making Moments Regular",
-    },
-  },
-
-  "from-script-to-screen": {
-    slug: "from-script-to-screen",
-    name: "From Script to Screen",
-    tagline: "Tell Your Story",
-    audience: "students",
-    duration: "Multi-phase",
-    format: "Hybrid",
-    icon: "🎬",
-    heroImage: "/images/generated/program-script-to-screen.png",
-    heroDescription:
-      "Students write it, AI and Unreal Engine help build it, and a real festival premieres it. Filmmaking with Dawnn Lewis from first line to final cut.",
-    overview: [
-      "Every neighborhood is full of stories the world never hears. From Script to Screen, created in partnership with actress and producer Dawnn Lewis and A New Day Foundation, hands students the most advanced storytelling tools on earth and says: tell yours.",
-      "Students move through the full production pipeline: writing their script, storyboarding with AI image tools, building worlds in Unreal Engine, and directing scenes that would have needed a studio budget five years ago. Working artists and technologists mentor every phase.",
-      "It ends the way every film should: with a premiere. Our annual student film festival puts their work on a big screen in front of family, friends, and industry guests.",
-    ],
-    atAGlance: {
-      duration: "Multi-phase (semester)",
-      format: "Hybrid workshops + production labs",
-      schedule: "After school & weekends",
-      ageRange: "Middle & high school",
-      cost: "Free for qualifying students",
-    },
-    curriculum: [
-      {
-        phase: "Phase 1",
-        title: "Story",
-        topics: [
-          "Finding the story only you can tell",
-          "Script structure and dialogue",
-          "Table reads and feedback",
-        ],
-      },
-      {
-        phase: "Phase 2",
-        title: "World",
-        topics: [
-          "Storyboarding with AI image tools",
-          "Building sets in Unreal Engine",
-          "Sound, light, and mood",
-        ],
-      },
-      {
-        phase: "Phase 3",
-        title: "Production",
-        topics: [
-          "Directing and performance",
-          "Virtual production techniques",
-          "Editing the final cut",
-        ],
-      },
-      {
-        phase: "Phase 4",
-        title: "Premiere",
-        topics: [
-          "Festival submission and screening",
-          "Q&A with the audience",
-          "Where a storytelling career starts",
-        ],
-      },
-    ],
-    deliverables: [
-      {
-        icon: "🎬",
-        title: "A Finished Film",
-        description: "A real short film, produced start to finish by the student.",
-      },
-      {
-        icon: "🎪",
-        title: "Festival Premiere",
-        description: "A big-screen debut at our annual student film festival.",
-      },
-      {
-        icon: "🛠️",
-        title: "Studio-Grade Skills",
-        description: "Unreal Engine, AI-assisted production, and editing experience.",
-      },
-      {
-        icon: "🌟",
-        title: "Industry Mentors",
-        description: "Guidance from working artists, led by Dawnn Lewis.",
-      },
-    ],
-    testimonial: {
-      quote:
-        "Seeing my film on that screen with my mom in the audience... I can't even describe it. I'm writing my next one already.",
-      name: "Destiny R.",
-      role: "From Script to Screen Filmmaker, 16",
-    },
-  },
-
   "stories-from-my-future": {
     slug: "stories-from-my-future",
     name: "Stories from My Future",
@@ -549,9 +361,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     heroDescription:
       "Kids write the story of who they'll become, illustrate it with AI, publish it as a real book with their name on the cover, and 3D-print a piece of that future to take home.",
     overview: [
-      "Ask a kid what they want to be, and you get an answer. Ask them to hold it in their hands, and you get a believer. Stories from My Future is a workshop where kids write a story about their future self, illustrate it with AI art tools, and publish it as a real book, author credit and all. Then they 3D-print an object straight out of that future on Bambu Lab printers.",
-      "A future firefighter prints her helmet. A future astronaut prints his rocket. A future engineer prints the robot she'll build one day. The book goes on the shelf, the object goes on the dresser, and the belief goes everywhere with them.",
-      "Parents and dads are welcome in the room. Honestly, half the magic is watching your kid become a published author before dinnertime.",
+      "Kids write a story about their future self, illustrate it with AI art tools, and publish it as a real book with their name on the cover. Then they 3D-print an object straight out of that future: the firefighter's helmet, the astronaut's rocket, the engineer's robot.",
+      "Parents and dads are welcome in the room. Half the magic is watching your kid become a published author before dinnertime.",
     ],
     atAGlance: {
       duration: "Single-day workshop",
@@ -611,79 +422,6 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     },
   },
 
-  lula: {
-    slug: "lula",
-    name: "LULA",
-    tagline: "Level Up Learning Academy",
-    audience: "youth",
-    duration: "Ongoing",
-    format: "Online",
-    icon: "🎮",
-    heroImage: "/images/generated/program-lula-learning.png",
-    heroDescription:
-      "A gamified STEM platform with AI-powered tutoring, where leveling up in the game means leveling up in real life.",
-    overview: [
-      "LULA, short for Level Up Learning Academy, is our answer to a simple observation: kids will grind for hours to level up a character, so we built a world where the character they're leveling up is themselves.",
-      "LULA wraps real STEM learning in game mechanics: quests, streaks, boss challenges, and unlockables. An AI tutor adapts to each learner, explaining concepts as many times and as many ways as it takes, with infinite patience.",
-      "Because it's online, LULA travels anywhere: a phone on the bus, a laptop at the library, a family computer at grandma's. Learning that meets kids exactly where they are.",
-    ],
-    atAGlance: {
-      duration: "Ongoing, self-paced",
-      format: "Online: phone, tablet, or computer",
-      schedule: "Anytime",
-      ageRange: "Ages 8–16",
-      cost: "Free for enrolled families",
-    },
-    curriculum: [
-      {
-        phase: "Explore",
-        title: "STEM Quests",
-        topics: [
-          "Math, science, and coding quest lines",
-          "Real-world projects between levels",
-        ],
-      },
-      {
-        phase: "Practice",
-        title: "AI Tutor",
-        topics: [
-          "One-on-one help, infinite patience",
-          "Adapts to how each kid learns",
-        ],
-      },
-      {
-        phase: "Compete",
-        title: "Challenges & Streaks",
-        topics: [
-          "Boss challenges and leaderboards",
-          "Streaks that reward showing up",
-        ],
-      },
-    ],
-    deliverables: [
-      {
-        icon: "🎮",
-        title: "Learning That Feels Like Play",
-        description: "Game mechanics wrapped around real STEM mastery.",
-      },
-      {
-        icon: "🤖",
-        title: "An AI Tutor",
-        description: "Personal help that never runs out of patience or time.",
-      },
-      {
-        icon: "📈",
-        title: "Visible Progress",
-        description: "Dashboards for students and parents to track learning.",
-      },
-    ],
-    testimonial: {
-      quote:
-        "My daughter actually asks to do LULA after school. She's completed two tracks and won't stop talking about making her own video game.",
-      name: "Kevin Brown",
-      role: "Parent of LULA Learner",
-    },
-  },
 };
 
 export function getProgramBySlug(slug: string): ProgramDetail | undefined {

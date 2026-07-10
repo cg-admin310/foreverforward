@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EVENT_SERIES } from "@/lib/constants";
 import type { Event, EventTicketType, EventAddon } from "@/types/database";
 
 interface EventWithDetails extends Event {
@@ -102,6 +103,75 @@ const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
 };
+
+// The three Making Moments series, driven by EVENT_SERIES in lib/constants
+function SeriesGrid() {
+  return (
+    <div className="grid sm:grid-cols-2 gap-6">
+      {EVENT_SERIES.map((series, i) => {
+        const isFlagship = series.flagship;
+        return (
+          <motion.div
+            key={series.id}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: i * 0.1 }}
+            className={isFlagship ? "sm:col-span-2" : ""}
+          >
+            <Link
+              href={series.href}
+              className="group relative block h-full rounded-3xl overflow-hidden border border-[#C9A84C]/30 bg-[#141413]"
+            >
+              <div className="absolute inset-0 opacity-60">
+                <Image
+                  src={series.image}
+                  alt=""
+                  fill
+                  sizes={isFlagship ? "100vw" : "(max-width: 640px) 100vw, 50vw"}
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#141413] via-[#141413]/70 to-transparent" />
+              <div
+                className={`relative flex flex-col justify-end px-6 py-8 sm:px-8 ${
+                  isFlagship ? "min-h-[240px] sm:min-h-[280px] sm:py-10" : "min-h-[240px]"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#C9A84C]/20 border border-[#C9A84C]/40 text-[#E8D48B] text-[11px] font-semibold uppercase tracking-[0.18em]">
+                    {series.audience}
+                  </span>
+                  {isFlagship && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#C9A84C] text-[#1A1A1A] text-[11px] font-bold uppercase tracking-[0.18em]">
+                      <Star className="h-3 w-3 fill-current" />
+                      Signature
+                    </span>
+                  )}
+                </div>
+                <h3
+                  className={`mt-3 text-white font-bold tracking-tight ${
+                    isFlagship ? "text-2xl sm:text-3xl lg:text-4xl" : "text-2xl"
+                  }`}
+                >
+                  {series.name}
+                </h3>
+                <p className="mt-1 text-[#E8D48B] font-medium">{series.tagline}</p>
+                <p className="mt-1.5 text-white/60 text-sm sm:text-base max-w-lg">
+                  {series.description}
+                </p>
+                <span className="mt-4 inline-flex items-center gap-2 font-semibold text-white group-hover:text-[#E8D48B] transition-colors">
+                  Explore the series
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </div>
+            </Link>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
 
 export function EventsContent({
   featured,
@@ -339,47 +409,23 @@ export function EventsContent({
             </div>
           </motion.div>
 
-          {/* Movies on the Menu spotlight — always visible */}
+          {/* The Series — always visible */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
             className="mt-10"
           >
-            <Link
-              href="/events/movies-on-the-menu"
-              className="group relative block rounded-3xl overflow-hidden border border-[#C9A84C]/30 bg-[#141413]"
-            >
-              <div className="absolute inset-0 opacity-60">
-                <Image
-                  src="/images/motm/motm-hero.jpg"
-                  alt=""
-                  fill
-                  sizes="100vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-r from-[#141413] via-[#141413]/70 to-transparent" />
-              <div className="relative px-6 py-8 sm:px-10 sm:py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-                <div>
-                  <p className="text-[11px] font-semibold tracking-[0.28em] uppercase text-[#E8D48B]">
-                    Our Signature Night
-                  </p>
-                  <h3 className="mt-2 text-white font-bold text-2xl sm:text-3xl tracking-tight">
-                    Movies on the Menu
-                  </h3>
-                  <p className="mt-1.5 text-white/60 max-w-lg text-sm sm:text-base">
-                    Chef-made dinner, a movie under the stars, and your family in it.
-                    Free, always. See what&apos;s on the marquee.
-                  </p>
-                </div>
-                <span className="shrink-0 inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#C9A84C] text-[#1A1A1A] font-semibold group-hover:bg-[#E8D48B] transition-colors">
-                  <Film className="h-4 w-4" />
-                  Now Showing
-                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </div>
-            </Link>
+            <div className="mb-6">
+              <span className="inline-flex items-center gap-2 text-xs font-semibold text-[#C9A84C] uppercase tracking-[0.28em]">
+                <span className="inline-block h-px w-8 bg-current opacity-60" />
+                The Series
+              </span>
+              <h2 className="mt-2 text-2xl lg:text-3xl font-bold text-[#1A1A1A]">
+                Three Ways We Make Moments
+              </h2>
+            </div>
+            <SeriesGrid />
           </motion.div>
         </div>
       </section>
@@ -417,47 +463,23 @@ export function EventsContent({
             </p>
           </motion.div>
 
-          {/* Movies on the Menu spotlight banner */}
+          {/* The Series grid */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="mb-12"
           >
-            <Link
-              href="/events/movies-on-the-menu"
-              className="group relative block rounded-3xl overflow-hidden border border-[#C9A84C]/30 bg-[#141413]"
-            >
-              <div className="absolute inset-0 opacity-60">
-                <Image
-                  src="/images/motm/motm-hero.jpg"
-                  alt=""
-                  fill
-                  sizes="100vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-r from-[#141413] via-[#141413]/70 to-transparent" />
-              <div className="relative px-6 py-8 sm:px-10 sm:py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-                <div>
-                  <p className="text-[11px] font-semibold tracking-[0.28em] uppercase text-[#E8D48B]">
-                    Our Signature Night
-                  </p>
-                  <h3 className="mt-2 text-white font-bold text-2xl sm:text-3xl tracking-tight">
-                    Movies on the Menu
-                  </h3>
-                  <p className="mt-1.5 text-white/60 max-w-lg text-sm sm:text-base">
-                    Chef-made dinner, a movie under the stars, and your family in it.
-                    Free, always. See what&apos;s on the marquee.
-                  </p>
-                </div>
-                <span className="shrink-0 inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#C9A84C] text-[#1A1A1A] font-semibold group-hover:bg-[#E8D48B] transition-colors">
-                  <Film className="h-4 w-4" />
-                  Now Showing
-                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </div>
-            </Link>
+            <div className="mb-6">
+              <span className="inline-flex items-center gap-2 text-xs font-semibold text-[#C9A84C] uppercase tracking-[0.28em]">
+                <span className="inline-block h-px w-8 bg-current opacity-60" />
+                The Series
+              </span>
+              <h3 className="mt-2 text-2xl lg:text-3xl font-bold text-[#1A1A1A]">
+                Three Ways We Make Moments
+              </h3>
+            </div>
+            <SeriesGrid />
           </motion.div>
 
           {/* Events Grid */}

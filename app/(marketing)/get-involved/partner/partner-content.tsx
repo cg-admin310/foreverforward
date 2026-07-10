@@ -247,10 +247,9 @@ export function PartnerContent() {
                 </span>
               </h2>
               <p className="text-[#555555] leading-relaxed mb-6">
-                We&apos;re never selling. We&apos;re pooling strengths. We bring technical
-                muscle, training pipelines, and future-tech gear; you bring roots,
-                trust, and reach. When we combine them, fathers get careers, kids get
-                exposure, and the whole community-resource space levels up.
+                We&apos;re never selling, we&apos;re pooling strengths: our technical
+                muscle and future-tech gear, your roots, trust, and reach. Fathers
+                get careers, kids get exposure, and the whole community levels up.
               </p>
               <ul className="space-y-4">
                 {[

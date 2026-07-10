@@ -180,7 +180,7 @@ export function ContactContentPremium() {
                 className="text-lg text-white/60 leading-relaxed mb-10"
               >
                 A question, an idea, or a kid who won&apos;t stop talking about
-                robots. Whatever brings you here, we&apos;re glad it did. Talk to us.
+                robots. Whatever brings you here, talk to us.
               </motion.p>
 
               {/* Contact Cards */}
@@ -513,8 +513,8 @@ export function ContactContentPremium() {
               </span>
             </h2>
             <p className="text-lg text-white/60 mb-10 max-w-2xl mx-auto">
-              You don&apos;t need to have it all figured out. You just need to show
-              up. We&apos;ll take it from there.
+              You don&apos;t need to have it all figured out. Just show up and
+              we&apos;ll take it from there.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button asChild size="lg" className="group px-8">

@@ -2,7 +2,7 @@
 
 /**
  * Forever Forward — Programs Hub
- * Design language: "Afro-futurist observatory" — six programs organized as
+ * Design language: "Afro-futurist observatory" — three programs organized as
  * three doors (pillars): Career Forward, Future Builders, Making Moments.
  */
 
@@ -43,12 +43,7 @@ function getPrograms(slugs: string[]): Program[] {
     .filter((p): p is Program => Boolean(p));
 }
 
-const FUTURE_BUILDER_SLUGS = [
-  "tech-ready-youth",
-  "stories-from-my-future",
-  "from-script-to-screen",
-  "lula",
-];
+const FUTURE_BUILDER_SLUGS = ["tech-ready-youth", "stories-from-my-future"];
 
 const PROGRAM_IMAGES: Record<string, { src: string; alt: string }> = {
   "tech-ready-youth": {
@@ -58,14 +53,6 @@ const PROGRAM_IMAGES: Record<string, { src: string; alt: string }> = {
   "stories-from-my-future": {
     src: "/images/future/program-3dprint-kids.jpg",
     alt: "A girl and her father watching her design come to life on a 3D printer",
-  },
-  "from-script-to-screen": {
-    src: "/images/generated/program-script-to-screen.png",
-    alt: "Students producing their own film with virtual production tools",
-  },
-  lula: {
-    src: "/images/generated/program-lula-learning.png",
-    alt: "A young learner leveling up through LULA's gamified STEM quests",
   },
 };
 
@@ -87,9 +74,7 @@ const PATHWAY_IMAGES: Record<PathwayId, { src: string; alt: string }> = {
 const AUDIENCE_LABELS: Record<Program["audience"], string> = {
   fathers: "For Fathers",
   youth: "For Youth",
-  families: "For Families",
   kids: "For Kids",
-  students: "For Students",
 };
 
 /* ----------------------------------------------------------------------------
@@ -148,15 +133,15 @@ const DOORS = [
     number: "02",
     name: "Future Builders",
     kicker: "For Kids & Youth",
-    line: "Robotics, AI, film, and 3D-printed futures.",
+    line: "Robotics, AI, and 3D-printed futures.",
     href: "#future-builders",
     icon: Cpu,
   },
   {
     number: "03",
     name: "Making Moments",
-    kicker: "For Families",
-    line: "Joy, on purpose. Events all year long.",
+    kicker: "Our Events",
+    line: "Movie nights, dad outings, family takeovers.",
     href: "#making-moments",
     icon: Heart,
   },
@@ -223,7 +208,7 @@ function ProgramsHero() {
               animate={{ y: 0 }}
               transition={{ duration: 0.9, delay: 0.2, ease: EASE }}
             >
-              SIX PROGRAMS.
+              THREE PROGRAMS.
             </motion.span>
           </span>
           <span className="block overflow-hidden">
@@ -233,7 +218,7 @@ function ProgramsHero() {
               animate={{ y: 0 }}
               transition={{ duration: 0.9, delay: 0.33, ease: EASE }}
             >
-              THREE DOORS.
+              EVENTS ALL YEAR.
             </motion.span>
           </span>
           <span className="block overflow-hidden pb-2">
@@ -600,7 +585,6 @@ function MakingMomentsSection() {
     offset: ["start end", "end start"],
   });
   const imgY = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
-  const makingMoments = programsBySlug.get("making-moments");
 
   return (
     <section
@@ -633,7 +617,7 @@ function MakingMomentsSection() {
                   03
                 </span>
                 <div>
-                  <Eyebrow light>Door Three · For Families</Eyebrow>
+                  <Eyebrow light>Door Three · Our Events</Eyebrow>
                   <h2 className="mt-2 font-bold text-white text-4xl sm:text-6xl lg:text-7xl tracking-tight leading-[0.98]">
                     Making{" "}
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] to-[#E8D48B]">
@@ -657,14 +641,13 @@ function MakingMomentsSection() {
             className="lg:col-span-7"
           >
             <p className="text-white/70 text-lg sm:text-xl leading-relaxed max-w-2xl">
-              {makingMoments?.description ??
-                "Community events that strengthen father-child bonds: dinner-and-a-movie nights, robot races, and festivals the whole family looks forward to."}
+              Not a program. A promise: joy, on the calendar, all year. Three
+              series, one house.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
-              <MetaChip light>Movies on the Menu, dinner included</MetaChip>
-              <MetaChip light>Robot races &amp; 3D-printing pop-ups</MetaChip>
-              <MetaChip light>Night-sky &amp; satellite nights</MetaChip>
-              <MetaChip light>Annual Forever Forward Festival</MetaChip>
+              <MetaChip light>Movies on the Menu · dinner + a movie, free</MetaChip>
+              <MetaChip light>Off the Clock · dads-only outings</MetaChip>
+              <MetaChip light>Family Takeovers · we rent the fun spots</MetaChip>
             </div>
           </motion.div>
 
@@ -676,17 +659,17 @@ function MakingMomentsSection() {
             className="lg:col-span-5 flex flex-col gap-3"
           >
             <Link
-              href="/programs/making-moments"
+              href="/events"
               className="group flex items-center justify-between rounded-2xl bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] px-6 py-5 text-[#1A1A1A]"
             >
-              <span className="font-semibold">Explore Making Moments</span>
+              <span className="font-semibold">Explore the events</span>
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
-              href="/events"
+              href="/events/movies-on-the-menu"
               className="group flex items-center justify-between rounded-2xl border border-white/15 bg-white/[0.04] px-6 py-5 text-white hover:border-[#C9A84C]/50 transition-colors"
             >
-              <span className="font-semibold">See upcoming events</span>
+              <span className="font-semibold">Movies on the Menu, our flagship night</span>
               <ArrowUpRight className="h-5 w-5 text-[#C9A84C] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </Link>
             <p className="text-white/40 text-sm px-1">
@@ -700,7 +683,7 @@ function MakingMomentsSection() {
 }
 
 /* ----------------------------------------------------------------------------
- * 5. The leadership thread — one DNA across all six
+ * 5. The leadership thread — one DNA across all three
  * ------------------------------------------------------------------------- */
 
 const DNA_STRANDS = [
@@ -751,7 +734,7 @@ function LeadershipThreadSection() {
           >
             <Eyebrow>The Leadership Thread</Eyebrow>
             <h2 className="mt-6 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl lg:text-[2.75rem] leading-[1.12] tracking-tight">
-              Six different programs.{" "}
+              Three programs.{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
                 One shared DNA.
               </span>

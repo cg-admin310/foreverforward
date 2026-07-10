@@ -146,9 +146,8 @@ export function VolunteerContent() {
               </span>
             </h1>
             <p className="text-lg sm:text-xl text-white/80">
-              We&apos;ve got fathers chasing new careers and kids building robots
-              who&apos;d love to meet you. Mentor, cheer, teach, build. Whatever
-              you bring, there&apos;s a place for it here.
+              Fathers chasing new careers and kids building robots would love to
+              meet you. Whatever you bring, there&apos;s a place for it here.
             </p>
           </motion.div>
         </div>

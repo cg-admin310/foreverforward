@@ -87,7 +87,6 @@ const enrollablePrograms = PROGRAMS.filter(
   (p) =>
     p.slug === "father-forward" ||
     p.slug === "tech-ready-youth" ||
-    p.slug === "from-script-to-screen" ||
     p.slug === "stories-from-my-future"
 );
 
@@ -107,10 +106,7 @@ export function EnrollContent() {
       const programTypeMap: Record<string, ProgramType> = {
         "father-forward": "father_forward",
         "tech-ready-youth": "tech_ready_youth",
-        "from-script-to-screen": "from_script_to_screen",
         "stories-from-my-future": "stories_from_my_future",
-        "making-moments": "making_moments",
-        "lula": "lula",
       };
 
       const programType = programTypeMap[formData.program] || "father_forward";
@@ -191,7 +187,6 @@ export function EnrollContent() {
 
   const isYouthProgram =
     formData.program === "tech-ready-youth" ||
-    formData.program === "from-script-to-screen" ||
     formData.program === "stories-from-my-future";
 
   const isFatherProgram = formData.program === "father-forward";
@@ -225,10 +220,8 @@ export function EnrollContent() {
               </span>
             </h1>
             <p className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto">
-              Fathers: pick your pathway from IT &amp; cybersecurity, skilled trades, or
-              auto &amp; EV. Kids and youth: robotics, filmmaking, 3D printing, and
-              more. It costs nothing but the decision, and we&apos;re with you every
-              step. (And yes, women&apos;s programs are coming soon.)
+              Career pathways for fathers, future tech for kids and youth, free
+              for qualifying participants. It costs nothing but the decision.
             </p>
           </motion.div>
         </div>
@@ -358,14 +351,7 @@ export function EnrollContent() {
                 </div>
 
                 <p className="text-center text-sm text-[#888888] mt-6">
-                  Looking for{" "}
-                  <Link
-                    href="/programs/making-moments"
-                    className="text-[#C9A84C] hover:underline"
-                  >
-                    Making Moments
-                  </Link>{" "}
-                  events?{" "}
+                  Looking for Making Moments family events?{" "}
                   <Link
                     href="/events"
                     className="text-[#C9A84C] hover:underline"
@@ -836,9 +822,9 @@ export function EnrollContent() {
                 </h2>
 
                 <p className="text-[#555555] text-lg max-w-lg mx-auto mb-8">
-                  Your application to {selectedProgram?.name} is in. A real
-                  human will review it and reach out within 3-5 business days.
-                  We save the robots for the workshops.
+                  Your application to {selectedProgram?.name} is in, and a real
+                  person will reach out within 3-5 business days. We save the
+                  robots for the workshops.
                 </p>
 
                 <div className="bg-white rounded-xl p-6 border border-[#DDDDDD] text-left max-w-md mx-auto mb-8">
@@ -884,7 +870,7 @@ export function EnrollContent() {
         <section className="py-12 bg-[#FBF6E9]">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <p className="text-[#555555]">
-              Stuck on a question? Second thoughts? Happens to everybody.{" "}
+              Stuck on a question? Happens to everybody.{" "}
               <Link
                 href="/contact"
                 className="text-[#C9A84C] font-semibold hover:underline"

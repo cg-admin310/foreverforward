@@ -318,13 +318,12 @@ export default function AssessPage() {
   };
 
   const getProgramDetails = (slug: ProgramType) => {
-    const slugMap: Record<ProgramType, string> = {
+    // Only active programs map to enrollable pages. Making Moments lives at
+    // /events now; from_script_to_screen and lula are retired.
+    const slugMap: Partial<Record<ProgramType, string>> = {
       father_forward: "father-forward",
       tech_ready_youth: "tech-ready-youth",
-      making_moments: "making-moments",
-      from_script_to_screen: "from-script-to-screen",
       stories_from_my_future: "stories-from-my-future",
-      lula: "lula",
     };
     return PROGRAMS.find((p) => p.slug === slugMap[slug]);
   };
@@ -386,8 +385,7 @@ export default function AssessPage() {
             </h1>
             <p className="text-lg text-white/70 max-w-2xl mx-auto">
               A few honest questions, two minutes, and we&apos;ll point you to the
-              program built for you. You don&apos;t need to have it all figured
-              out. You just need to start here.
+              program built for you. All you need to do is start here.
             </p>
           </motion.div>
         </div>
@@ -1106,6 +1104,60 @@ export default function AssessPage() {
 
                       <div className="space-y-4">
                         {results.recommendedPrograms.map((rec, idx) => {
+                          // Family-events recommendation routes to /events
+                          if (rec.program === "making_moments") {
+                            return (
+                              <motion.div
+                                key={rec.program}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: idx * 0.1 }}
+                                className={`p-5 rounded-xl border-2 ${
+                                  idx === 0
+                                    ? "border-[#C9A84C] bg-[#C9A84C]/5"
+                                    : "border-[#DDDDDD] bg-[#FAFAF8]"
+                                }`}
+                              >
+                                <div className="flex items-start justify-between mb-3">
+                                  <div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <span className="text-2xl">🍿</span>
+                                      <h3 className="text-lg font-semibold text-[#1A1A1A]">
+                                        Making Moments Family Events
+                                      </h3>
+                                      {idx === 0 && (
+                                        <span className="px-2 py-0.5 bg-[#C9A84C] text-black text-xs font-semibold rounded-full">
+                                          Best Match
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-sm text-[#C9A84C] font-medium">
+                                      Free family nights, all year long
+                                    </p>
+                                  </div>
+                                  <div className="text-right">
+                                    <div className="text-2xl font-bold text-[#1A1A1A]">
+                                      {rec.fitScore}%
+                                    </div>
+                                    <div className="text-xs text-[#888888]">Fit Score</div>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-[#555555] mb-4">{rec.reasoning}</p>
+                                <Link
+                                  href="/events"
+                                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                                    idx === 0
+                                      ? "bg-[#C9A84C] text-black hover:bg-[#A68A2E]"
+                                      : "bg-[#1A1A1A] text-white hover:bg-[#2D2D2D]"
+                                  }`}
+                                >
+                                  See upcoming events
+                                  <ArrowRight className="w-4 h-4" />
+                                </Link>
+                              </motion.div>
+                            );
+                          }
+
                           const program = getProgramDetails(rec.program);
                           if (!program) return null;
 
@@ -1173,7 +1225,7 @@ export default function AssessPage() {
                       <div className="mt-8 p-4 bg-[#EFF4EB] rounded-lg">
                         <p className="text-sm text-[#5A7247]">
                           <strong>Still torn?</strong> A real person will reach out within
-                          24 hours to talk it through. No pressure, no pitch. We&apos;ve got your back.
+                          24 hours to talk it through. No pressure, no pitch.
                         </p>
                       </div>
 

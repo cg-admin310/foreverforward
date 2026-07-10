@@ -12,6 +12,8 @@ const staticRoutes = [
   "/programs",
   "/events",
   "/events/movies-on-the-menu",
+  "/events/off-the-clock",
+  "/events/family-takeovers",
   "/blog",
   "/contact",
   "/privacy",
@@ -25,10 +27,7 @@ const staticRoutes = [
 const programSlugs = [
   "father-forward",
   "tech-ready-youth",
-  "making-moments",
-  "from-script-to-screen",
   "stories-from-my-future",
-  "lula",
 ];
 
 // Blog categories

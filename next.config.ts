@@ -19,6 +19,23 @@ const nextConfig: NextConfig = {
         destination: "/about",
         permanent: true,
       },
+      // Programs consolidated July 2026 — Making Moments became the events hub;
+      // From Script to Screen and LULA retired from the public lineup.
+      {
+        source: "/programs/making-moments",
+        destination: "/events",
+        permanent: true,
+      },
+      {
+        source: "/programs/from-script-to-screen",
+        destination: "/programs",
+        permanent: true,
+      },
+      {
+        source: "/programs/lula",
+        destination: "/programs",
+        permanent: true,
+      },
     ];
   },
 };

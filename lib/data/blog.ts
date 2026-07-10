@@ -66,7 +66,7 @@ Research on career development backs this up: young people mostly aspire to care
 
 ## Dads in the Room
 
-Here's our favorite part: at our family events, the fathers don't sit on the sidelines. Dads end up elbow-deep in the build, debating gear ratios with their kids. A father and child solving a problem together as equals: that's a memory with a long shelf life, and it's exactly the kind of moment our [Making Moments](/programs/making-moments) events are built around.
+Here's our favorite part: at our family events, the fathers don't sit on the sidelines. Dads end up elbow-deep in the build, debating gear ratios with their kids. A father and child solving a problem together as equals: that's a memory with a long shelf life, and it's exactly the kind of moment our [Making Moments](/events) events are built around.
 
 ## Put a Robot in Your Kid's Hands
 
@@ -181,7 +181,7 @@ Because that's the real lesson: this is *predictable*. It's math. And the kid wh
 
 ## From Looking Up to Building Up
 
-The space economy is hiring engineers, technicians, coders, and machinists, and much of it is headquartered right here in Southern California. Our [Future Builders programs](/programs/tech-ready-youth) use satellite tracking as a doorway into orbital mechanics, radio, and data skills, and our [Making Moments](/programs/making-moments) events turn it into family ritual.
+The space economy is hiring engineers, technicians, coders, and machinists, and much of it is headquartered right here in Southern California. Our [Future Builders programs](/programs/tech-ready-youth) use satellite tracking as a doorway into orbital mechanics, radio, and data skills, and our [Making Moments](/events) events turn it into family ritual.
 
 Come look up with us. Check [upcoming events](/events) for the next Night Sky Night. The ISS will be right on time.
     `,
@@ -259,7 +259,7 @@ We've seen what happens when the community-resource space levels up together: th
 
 **Shared know-how.** Workshops and honest advice on AI, automation, and security for partner organizations. The same technologies we teach our fathers and youth, translated for nonprofit operations.
 
-**Shared programming.** Co-hosted events, cross-referrals, and workshops that bring our [Future Builders](/programs/tech-ready-youth) and [Making Moments](/programs/making-moments) energy to the families you serve.
+**Shared programming.** Co-hosted events, cross-referrals, and workshops that bring our [Future Builders](/programs/tech-ready-youth) and [Making Moments](/events) energy to the families you serve.
 
 ## The Multiplier Effect
 

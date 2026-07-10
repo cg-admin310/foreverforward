@@ -410,12 +410,8 @@ function Manifesto() {
           >
             <p className="text-lg sm:text-xl text-[#555555] leading-relaxed">
               &ldquo;{MISSION.founderNote}{" "}
-              Growing up, my dad and the other men in my life showed me that we all
-              see the world a little differently, and every one of those viewpoints
-              fills in another piece of the picture. The more you get exposed to, the
-              more you find out about yourself. Somebody in our neighborhood is a
-              satellite engineer who just never found out it was an option. That&rsquo;s
-              who we built this for.&rdquo;
+              The more you get exposed to, the more you find out about
+              yourself.&rdquo;
             </p>
             <footer className="mt-4 text-sm font-semibold text-[#1A1A1A]">
               Thomas &ldquo;TJ&rdquo; Wilform
@@ -564,9 +560,8 @@ function FutureTechSection() {
               </span>
             </h2>
             <p className="mt-5 text-[#555555] text-base sm:text-lg leading-relaxed max-w-xl">
-              Every program puts real, working future-tech in real hands. Because the
-              first time you direct an AI, race a robot you built, or watch a satellite
-              you tracked pass overhead, &ldquo;someday&rdquo; becomes &ldquo;why not me?&rdquo;
+              Every program puts real, working future-tech in real hands, until
+              &ldquo;someday&rdquo; becomes &ldquo;why not me?&rdquo;
             </p>
 
             <div className="mt-8 grid grid-cols-2 gap-3">
@@ -711,7 +706,7 @@ function MakingMomentsSection() {
             {
               icon: Popcorn,
               title: "Movies on the Menu",
-              text: "Our signature series: dinner and a movie under the stars, on us. Designed so a father can just be present.",
+              text: "Dinner and a movie under the stars, on us, so a father can just be present.",
             },
             {
               icon: Bot,
@@ -721,7 +716,7 @@ function MakingMomentsSection() {
             {
               icon: Rocket,
               title: "Night Sky Nights",
-              text: "Telescopes out, satellites tracked, the ISS passing over your own block. Wonder, with your kids beside you.",
+              text: "Telescopes out, satellites tracked, the ISS passing over your own block, with your kids beside you.",
             },
           ].map((card, i) => (
             <motion.div
@@ -883,8 +878,8 @@ function ImpactAndCTA() {
                 Your path forward starts with one step.
               </h3>
               <p className="mt-3 text-[#1A1A1A]/75 max-w-md">
-                Free career training, future tech for your kids, and a community that
-                shows up. Enrolling costs nothing but the decision.
+                Free career training, future tech for your kids, and a community
+                that shows up.
               </p>
             </Link>
           </motion.div>
@@ -909,8 +904,7 @@ function ImpactAndCTA() {
                 Fund the future you want to see.
               </h3>
               <p className="mt-3 text-white/60 max-w-md">
-                Every dollar puts real technology in real hands, and every graduate
-                lifts a whole family. Donate, volunteer, or partner with the mission.
+                Every tax-deductible dollar puts real technology in real hands.
               </p>
             </Link>
           </motion.div>

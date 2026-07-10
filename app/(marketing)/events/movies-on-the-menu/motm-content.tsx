@@ -199,10 +199,8 @@ function WhyItMatters() {
 
         <div className="mt-10 grid sm:grid-cols-2 gap-x-12 gap-y-6 max-w-4xl">
           {[
-            "Life piles up on fathers: work, bills, the schedule. Presence is the first thing that gets squeezed out, and it's the one thing kids actually keep.",
-            "So we clear the runway. Dinner's handled. The movie's picked. The seats are saved. Nothing to plan, nothing to pay for, nothing to prove.",
-            "We go all out on purpose. When a family walks into a night this good and the answer to \"how much?\" is \"nothing, you're our guest,\" that says: you matter. Your family matters. This moment matters.",
-            "That's how we make it important. Not with a lecture about fatherhood. With a night your kids will bring up at breakfast for the next month.",
+            "Life piles up on fathers, and presence is the first thing that gets squeezed out. So we clear the runway: dinner's handled, the movie's picked, the seats are saved.",
+            "When the answer to \"how much?\" is \"nothing, you're our guest,\" that says your family matters. No lecture about fatherhood, just a night your kids will bring up at breakfast for a month.",
           ].map((text, i) => (
             <motion.p
               key={i}
@@ -229,7 +227,7 @@ const EXPERIENCE = [
     icon: Sparkles,
     kicker: "The Showstopper",
     title: "You're in the movie.",
-    text: "Before showtime, families step into our photo booth and our AI drops them straight into scenes from the night's film. Then the lights dim, the screen glows, and there's your crew, twenty feet tall, getting cheered by the whole park. Kids do not stop talking about this part.",
+    text: "Before showtime, our photo booth AI drops your family straight into scenes from the night's film. Then the lights dim and there's your crew, twenty feet tall, getting cheered by the whole park.",
     image: "/images/motm/motm-inthemovie.jpg",
     alt: "A father and his kids laughing as their own faces appear inside a movie scene on the giant outdoor screen",
   },
@@ -237,7 +235,7 @@ const EXPERIENCE = [
     icon: ChefHat,
     kicker: "The Menu",
     title: "Real chefs. Real dinner. Real love.",
-    text: "This isn't a snack table. Chefs who genuinely love feeding people build a menu around the movie and plate it like your family's the premiere party. Because tonight, you are.",
+    text: "Chefs who genuinely love feeding people build a menu around the movie and plate it like your family's the premiere party. Because tonight, you are.",
     image: "/images/motm/motm-chef.jpg",
     alt: "A joyful chef flame-searing a dish at an outdoor event kitchen while kids watch in delight",
   },
@@ -245,7 +243,7 @@ const EXPERIENCE = [
     icon: Heart,
     kicker: "The Point",
     title: "Made for memories, on purpose.",
-    text: "Blankets out, string lights on, phones optional. A hundred little moments get built into one night: the seat next to dad, the popcorn hand-off, the line everybody quotes on the ride home. We just set the stage. Your family makes the movie.",
+    text: "Blankets out, string lights on, phones optional. We set the stage, your family makes the movie.",
     image: "/images/motm/motm-memories.jpg",
     alt: "A father and daughter wrapped in one blanket, laughing over popcorn in the glow of the movie screen",
   },

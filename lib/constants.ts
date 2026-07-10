@@ -53,13 +53,50 @@ export const PILLARS = [
   },
   {
     id: "moments",
-    kicker: "For Families",
+    kicker: "For Everybody",
     name: "Making Moments",
     headline: "Joy is a strategy.",
     description:
-      "Movie nights with dinner on us. Robot races in the park. Evenings where the only assignment is being together. Strong families aren't built in classrooms. They're built in moments, so we make moments, on purpose, all year long.",
+      "Movie nights with dinner on us. Dad outings, no kids allowed. Family takeovers of the fun spots. Strong families are built in moments, so we make them on purpose, all year long.",
     image: "/images/future/pillar-moments.jpg",
-    href: "/programs/making-moments",
+    href: "/events",
+  },
+] as const;
+
+// Making Moments — the event series under one roof.
+export const EVENT_SERIES = [
+  {
+    id: "motm",
+    name: "Movies on the Menu",
+    audience: "Families",
+    flagship: true,
+    tagline: "Dinner. A movie. Your people.",
+    description:
+      "Our flagship night: chef-made dinner, a movie under the stars, and your family in it. Free, always.",
+    href: "/events/movies-on-the-menu",
+    image: "/images/motm/motm-hero.jpg",
+  },
+  {
+    id: "off-the-clock",
+    name: "Off the Clock",
+    audience: "Dads Only",
+    flagship: false,
+    tagline: "Grown-man time, on the calendar.",
+    description:
+      "Fishing trips, range days, cigar lounges, golf. Fellowship, a few new skills, and zero agenda.",
+    href: "/events/off-the-clock",
+    image: "/images/events/otc-hero.jpg",
+  },
+  {
+    id: "family-takeovers",
+    name: "Family Takeovers",
+    audience: "The Whole Crew",
+    flagship: false,
+    tagline: "We take over the fun spots.",
+    description:
+      "Trampoline parks, paintball, bowling, theme parks, block parties. We rent it out, you show up.",
+    href: "/events/family-takeovers",
+    image: "/images/events/ft-hero.jpg",
   },
 ] as const;
 
@@ -149,28 +186,6 @@ export const PROGRAMS = [
     icon: "🤖",
   },
   {
-    slug: "making-moments",
-    name: "Making Moments",
-    tagline: "Joy Is a Strategy",
-    audience: "families" as const,
-    duration: "Ongoing",
-    format: "In-person",
-    description:
-      "Dinner-and-a-movie nights, robot races, festivals. Events built so dads and kids get real time together, with no agenda except a good one.",
-    icon: "❤️",
-  },
-  {
-    slug: "from-script-to-screen",
-    name: "From Script to Screen",
-    tagline: "Tell Your Story",
-    audience: "students" as const,
-    duration: "Multi-phase",
-    format: "Hybrid",
-    description:
-      "Students write it, AI and Unreal Engine help build it, and a real festival premieres it. Filmmaking with Dawnn Lewis, from first line to final cut.",
-    icon: "🎬",
-  },
-  {
     slug: "stories-from-my-future",
     name: "Stories from My Future",
     tagline: "Imagine. Create. Print.",
@@ -180,17 +195,6 @@ export const PROGRAMS = [
     description:
       "Kids write the story of their future self, illustrate it with AI, publish it as a real book, and 3D-print a piece of that future to take home. Published author by dinnertime.",
     icon: "✨",
-  },
-  {
-    slug: "lula",
-    name: "LULA",
-    tagline: "Level Up Learning Academy",
-    audience: "youth" as const,
-    duration: "Ongoing",
-    format: "Online",
-    description:
-      "A gamified STEM platform where the character kids level up is themselves. AI tutoring included, patience unlimited.",
-    icon: "🎮",
   },
 ];
 

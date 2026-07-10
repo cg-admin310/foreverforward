@@ -258,23 +258,23 @@ function AboutHero() {
 const FOUNDER_BEATS = [
   {
     kicker: "Where it started",
-    text: "Compton. Not the wild west the shows make it out to be, and not all rainbows either. A real neighborhood, full of real people, that mostly gets shown one version of itself.",
+    text: "Compton. Not the wild west the shows make it out to be, just a real neighborhood that mostly gets shown one version of itself.",
   },
   {
     kicker: "What the men in his life gave him",
-    text: "TJ grew up with his dad and a whole crew of men who each saw the world their own way. The nerdy one, the cool one, the hustler, the craftsman. Every viewpoint filled in another piece of the picture, and being exposed to all of them taught him something bigger: the more you get to see, the more you find out about who you are.",
+    text: "TJ grew up around men who each saw the world their own way: the nerdy one, the cool one, the hustler, the craftsman. The more you get to see, the more you find out about who you are.",
   },
   {
     kicker: "What he built",
-    text: "Data centers, the actual rooms the internet lives in. Racks, cables, uptime, the whole thing. A career he didn't know existed until somebody showed him.",
+    text: "Data centers, the actual rooms the internet lives in. A career he didn't know existed until somebody showed him.",
   },
   {
     kicker: "What he noticed",
-    text: "Somewhere in every neighborhood there's a kid who would love being a herpetologist, or a satellite engineer, or a robotics tech, and they'll never find out. Not because they can't do it. Because nobody ever showed them it was an option.",
+    text: "Every neighborhood has a kid who would love being a herpetologist, or a satellite engineer, and they'll never find out. Not because they can't, but because nobody ever showed them it was an option.",
   },
   {
     kicker: "What he did about it",
-    text: "Founded Forever Forward in 2023 to show people what's out there and give them something real to be hopeful for. No grand master plan. Just good friends, consistent growth, and progress over perfection.",
+    text: "Founded Forever Forward, a 501(c)(3), in 2023 to show people what's out there. No grand master plan, just consistent growth and progress over perfection.",
   },
 ];
 
@@ -355,11 +355,9 @@ function FounderSection() {
               transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
               className="mt-10 text-[#1A1A1A] text-lg sm:text-xl leading-relaxed font-medium max-w-xl"
             >
-              TJ doesn&rsquo;t serve the fathers in our programs from across a desk.
-              He&rsquo;s lived their story, which is why every program starts from
-              respect, never rescue. We&rsquo;re the fun dads making sure fathers stay
-              relevant in a world that&rsquo;s changing fast. We don&rsquo;t have it all
-              figured out. That&rsquo;s kind of the point. We figure it out together.
+              TJ has lived the story of the fathers in our programs, so everything
+              starts from respect, never rescue. We don&rsquo;t have it all figured
+              out, and that&rsquo;s kind of the point: we figure it out together.
             </motion.p>
           </div>
         </div>
@@ -618,22 +616,22 @@ const VALUES = [
   {
     icon: DoorOpen,
     title: "Open to everyone",
-    text: "Our programs are designed around Black and brown fathers and youth, because that's who TJ is and where the gap is widest. And the door is open to every family, full stop. Women's pathways are on the way, too.",
+    text: "Designed around Black and brown fathers and youth, open to every family, with women's pathways on the way.",
   },
   {
     icon: Compass,
     title: "Progress over perfection",
-    text: "We're not chasing flawless. We're chasing forward. Consistent growth, one week at a time, with people who won't let you quit on yourself.",
+    text: "We're not chasing flawless, we're chasing forward, one week at a time.",
   },
   {
     icon: Satellite,
     title: "Future-focused, always",
-    text: "If a technology is shaping tomorrow, our community meets it today. AI, robotics, blockchain, renewable energy, rockets. Exposure first, then training, credentials, and careers.",
+    text: "If a technology is shaping tomorrow, our community meets it today: exposure first, then training, credentials, and careers.",
   },
   {
     icon: Heart,
     title: "Joy counts as impact",
-    text: "A father and kid laughing at a movie night is an outcome, not a perk. Strong families are the mission. Everything else is the method.",
+    text: "A father and kid laughing at a movie night is an outcome, not a perk.",
   },
 ];
 
@@ -878,7 +876,7 @@ const CTA_DOORS = [
     href: "/get-involved/partner",
     kicker: "For Organizations",
     title: "Partner",
-    text: "Join forces with us. We share tech, build apps together, and level up side by side.",
+    text: "We share tech, build apps together, and level up side by side.",
     featured: false,
   },
 ] as const;
