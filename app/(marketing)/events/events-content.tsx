@@ -338,6 +338,49 @@ export function EventsContent({
               </div>
             </div>
           </motion.div>
+
+          {/* Movies on the Menu spotlight — always visible */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="mt-10"
+          >
+            <Link
+              href="/events/movies-on-the-menu"
+              className="group relative block rounded-3xl overflow-hidden border border-[#C9A84C]/30 bg-[#141413]"
+            >
+              <div className="absolute inset-0 opacity-60">
+                <Image
+                  src="/images/motm/motm-hero.jpg"
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#141413] via-[#141413]/70 to-transparent" />
+              <div className="relative px-6 py-8 sm:px-10 sm:py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+                <div>
+                  <p className="text-[11px] font-semibold tracking-[0.28em] uppercase text-[#E8D48B]">
+                    Our Signature Night
+                  </p>
+                  <h3 className="mt-2 text-white font-bold text-2xl sm:text-3xl tracking-tight">
+                    Movies on the Menu
+                  </h3>
+                  <p className="mt-1.5 text-white/60 max-w-lg text-sm sm:text-base">
+                    Chef-made dinner, a movie under the stars, and your family in it.
+                    Free, always. See what&apos;s on the marquee.
+                  </p>
+                </div>
+                <span className="shrink-0 inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#C9A84C] text-[#1A1A1A] font-semibold group-hover:bg-[#E8D48B] transition-colors">
+                  <Film className="h-4 w-4" />
+                  Now Showing
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </div>
+            </Link>
+          </motion.div>
         </div>
       </section>
     );
@@ -372,6 +415,49 @@ export function EventsContent({
               Dinner-and-a-movie nights, robot races, night-sky watch parties, and
               festivals. Moments built for fathers, kids, and the whole family.
             </p>
+          </motion.div>
+
+          {/* Movies on the Menu spotlight banner */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-12"
+          >
+            <Link
+              href="/events/movies-on-the-menu"
+              className="group relative block rounded-3xl overflow-hidden border border-[#C9A84C]/30 bg-[#141413]"
+            >
+              <div className="absolute inset-0 opacity-60">
+                <Image
+                  src="/images/motm/motm-hero.jpg"
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#141413] via-[#141413]/70 to-transparent" />
+              <div className="relative px-6 py-8 sm:px-10 sm:py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+                <div>
+                  <p className="text-[11px] font-semibold tracking-[0.28em] uppercase text-[#E8D48B]">
+                    Our Signature Night
+                  </p>
+                  <h3 className="mt-2 text-white font-bold text-2xl sm:text-3xl tracking-tight">
+                    Movies on the Menu
+                  </h3>
+                  <p className="mt-1.5 text-white/60 max-w-lg text-sm sm:text-base">
+                    Chef-made dinner, a movie under the stars, and your family in it.
+                    Free, always. See what&apos;s on the marquee.
+                  </p>
+                </div>
+                <span className="shrink-0 inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#C9A84C] text-[#1A1A1A] font-semibold group-hover:bg-[#E8D48B] transition-colors">
+                  <Film className="h-4 w-4" />
+                  Now Showing
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </div>
+            </Link>
           </motion.div>
 
           {/* Events Grid */}

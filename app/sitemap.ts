@@ -11,6 +11,7 @@ const staticRoutes = [
   "/about/travis",
   "/programs",
   "/events",
+  "/events/movies-on-the-menu",
   "/blog",
   "/contact",
   "/privacy",
