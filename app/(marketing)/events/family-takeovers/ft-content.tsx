@@ -137,7 +137,9 @@ const STRIP = [
   "Trampoline Parks",
   "Paintball",
   "Bowling",
+  "VR Arcades",
   "Theme Parks",
+  "Beach Days",
   "Block Parties",
 ];
 
@@ -179,6 +181,27 @@ const TAKEOVERS = [
     text: "Lanes on us. Shoes on us. Bragging rights: you handle that part.",
     image: "/images/events/ft-bowling.jpg",
     alt: "A kid celebrating a strike while the whole family jumps up cheering behind them",
+  },
+  {
+    kicker: "The Arcade",
+    title: "Strap in, level up.",
+    text: "VR headsets on. The whole family gets stuck inside the game.",
+    image: "/images/events/ft-vr-arcade.jpg",
+    alt: "A family wearing VR headsets together in a colorful arcade, arms raised mid-game",
+  },
+  {
+    kicker: "The Park",
+    title: "Ride till your legs shake.",
+    text: "A full day at the theme park, gates open just for our families.",
+    image: "/images/events/ft-theme-park.jpg",
+    alt: "A family riding a theme park ride together, arms up and laughing",
+  },
+  {
+    kicker: "The Shore",
+    title: "Sand, sun, and a full crew.",
+    text: "Beach days built for building sandcastles and bigger memories.",
+    image: "/images/events/ft-beach-day.jpg",
+    alt: "A family playing frisbee together on a beach boardwalk at sunset",
   },
 ] as const;
 
@@ -241,7 +264,7 @@ function WhatItLooksLike() {
             initial={{ opacity: 0, y: 36 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.34, ease: EASE }}
-            className="relative flex flex-col justify-between rounded-3xl border border-[#C9A84C]/30 bg-[#C9A84C]/[0.06] p-8 sm:col-span-2 lg:col-span-1"
+            className="relative flex flex-col justify-between rounded-3xl border border-[#C9A84C]/30 bg-[#C9A84C]/[0.06] p-8"
           >
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#C9A84C]/15 border border-[#C9A84C]/30">
               <Users className="h-5 w-5 text-[#E8D48B]" />

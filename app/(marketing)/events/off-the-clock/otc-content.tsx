@@ -136,8 +136,8 @@ function OtcHero() {
 
 const STRIP = [
   "Fishing Trips",
-  "Range Days",
   "Cigar Lounges",
+  "Paintball",
   "Golf",
   "Good Company",
 ];
@@ -168,6 +168,13 @@ function MarqueeStrip() {
 
 const NIGHTS = [
   {
+    kicker: "The Pier",
+    title: "Cast a line, let it go quiet.",
+    text: "Fishing trips where the only rush is the bite.",
+    image: "/images/events/otc-fishing.jpg",
+    alt: "A father and a friend fishing off a pier at golden hour, close on their hands and the rods",
+  },
+  {
     kicker: "The Lounge",
     title: "Slow down. Talk it out.",
     text: "Dominoes, a good cigar, and conversation that goes somewhere.",
@@ -175,11 +182,18 @@ const NIGHTS = [
     alt: "Fathers laughing over a game of dominoes in a warm lounge, cigars and good conversation",
   },
   {
-    kicker: "The Range",
-    title: "Learn something new.",
-    text: "Real instructors, real safety, real focus. Skill is its own reward.",
-    image: "/images/events/otc-range.jpg",
-    alt: "A father at an indoor range with safety gear on, getting pointers from an instructor",
+    kicker: "The Field",
+    title: "Suit up, split up, go to work.",
+    text: "Paintball with the crew. Bragging rights stay on the line.",
+    image: "/images/events/otc-paintball.jpg",
+    alt: "A group of fathers playing paintball together in a wooded field at golden hour",
+  },
+  {
+    kicker: "The Green",
+    title: "Eighteen holes, zero pressure.",
+    text: "Golf mornings that have a way of turning into golf all-days.",
+    image: "/images/events/otc-golf.jpg",
+    alt: "Two fathers golfing together on a green fairway at golden hour",
   },
 ] as const;
 
@@ -242,7 +256,7 @@ function WhatANightLooksLike() {
             initial={{ opacity: 0, y: 36 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.34, ease: EASE }}
-            className="relative flex flex-col justify-between rounded-3xl border border-[#C9A84C]/30 bg-[#C9A84C]/[0.06] p-8 sm:col-span-2 lg:col-span-1"
+            className="relative flex flex-col justify-between rounded-3xl border border-[#C9A84C]/30 bg-[#C9A84C]/[0.06] p-8 sm:col-span-2 lg:col-span-2"
           >
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#C9A84C]/15 border border-[#C9A84C]/30">
               <Heart className="h-5 w-5 text-[#E8D48B]" />
@@ -357,7 +371,7 @@ function OtcCTA() {
                 Send a dad on the trip.
               </h3>
               <p className="mt-2 text-white/60 max-w-md">
-                Your gift covers the boat, the range, the round. A father gets a
+                Your gift covers the boat, the field, the round. A father gets a
                 day that fills him back up.
               </p>
               <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[#E8D48B]">

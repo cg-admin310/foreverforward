@@ -26,6 +26,8 @@ export interface ProgramDetail {
     phase?: string;
     title: string;
     topics: string[];
+    image?: string;
+    imageAlt?: string;
   }[];
   deliverables: {
     icon: string;
@@ -72,6 +74,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
           "Build your Path Forward Plan with your case worker",
           "Meet Travis, your 24/7 AI mentor",
         ],
+        image: "/images/programs/ff-orientation.jpg",
+        imageAlt: "Fathers in a bright classroom on orientation day, laptops open, building their Path Forward Plan",
       },
       {
         week: 2,
@@ -122,6 +126,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
           "What the jobs in that building really pay",
           "Leadership thread: showing your kids what work looks like",
         ],
+        image: "/images/programs/ff-datacenter.jpg",
+        imageAlt: "A father standing among glowing server racks inside a real data center, looking up in awe",
       },
       {
         week: 7,
@@ -152,6 +158,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
           "Study crew sessions: nobody preps alone",
           "Leadership thread: handling pressure without passing it down",
         ],
+        image: "/images/programs/ff-certprep.jpg",
+        imageAlt: "A study group of fathers around a table with laptops and notebooks, prepping for their ITF+ exam together",
       },
       {
         week: 10,
@@ -182,6 +190,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
           "Alumni network and continued mentorship",
           "Your next cert, on the calendar before you leave",
         ],
+        image: "/images/programs/ff-graduation.jpg",
+        imageAlt: "A father holding his certificate on graduation day while his kids and family cheer from the front row",
       },
     ],
     deliverables: [
@@ -268,6 +278,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
           "Sensors, motors, and logic",
           "First autonomous run",
         ],
+        image: "/images/programs/try-robotics.jpg",
+        imageAlt: "Teenagers gathered around a table building and programming a robot together",
       },
       {
         week: 4,
@@ -286,6 +298,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
           "Iterate: fail fast, print again",
           "Print a part for your robot",
         ],
+        image: "/images/programs/try-3dprint.jpg",
+        imageAlt: "A teenager watching a desktop 3D printer mid-print with amazement as their design takes shape",
       },
       {
         week: 6,
@@ -295,6 +309,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
           "Low Earth orbit: track live satellites overhead",
           "How space internet reaches underserved places",
         ],
+        image: "/images/programs/try-satellite.jpg",
+        imageAlt: "A teenager looking through a telescope at night, tablet in hand tracking a satellite overhead",
       },
       {
         week: 7,
@@ -313,6 +329,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
           "Tournament day, community invited",
           "Graduation and what comes next",
         ],
+        image: "/images/programs/try-tournament.jpg",
+        imageAlt: "Teenagers cheering and high-fiving at a community gaming tournament with colorful RGB-lit rigs",
       },
     ],
     deliverables: [
@@ -379,6 +397,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
           "Who are you at 25? Write it down",
           "Story circles: share it out loud",
         ],
+        image: "/images/programs/sfmf-imagine.jpg",
+        imageAlt: "A kid writing intently in a notebook, imagining their future self",
       },
       {
         phase: "Create",
@@ -387,6 +407,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
           "Illustrate your future with AI tools",
           "Design your object in kid-friendly CAD",
         ],
+        image: "/images/programs/sfmf-create.jpg",
+        imageAlt: "A kid illustrating a colorful storybook character on a tablet with an AI art tool",
       },
       {
         phase: "Print",
@@ -395,6 +417,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
           "Watch it print, layer by layer",
           "Take your future home with you",
         ],
+        image: "/images/programs/sfmf-print.jpg",
+        imageAlt: "A kid watching wide-eyed as a 3D printer brings their own design to life, layer by layer",
       },
     ],
     deliverables: [

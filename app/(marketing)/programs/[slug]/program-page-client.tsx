@@ -418,68 +418,147 @@ function Curriculum({ program }: { program: ProgramDetail }) {
           />
 
           <div className="space-y-6 sm:space-y-8">
-            {program.curriculum.map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 28 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-8%" }}
-                transition={{ duration: 0.7, delay: (index % 4) * 0.08, ease: EASE }}
-                className="relative pl-12 sm:pl-16"
-              >
-                {/* Timeline node */}
-                <span
-                  className="absolute left-3 sm:left-[17px] top-7 h-3.5 w-3.5 rounded-full bg-[#C9A84C] shadow-[0_0_14px_3px_rgba(201,168,76,0.55)] ring-4 ring-[#141413]"
-                  aria-hidden
-                />
+            {program.curriculum.map((item, index) => {
+              const label = item.week !== undefined ? `Week ${item.week}` : item.phase;
+              const number =
+                item.week !== undefined
+                  ? String(item.week).padStart(2, "0")
+                  : String(index + 1).padStart(2, "0");
 
-                <div className="group rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur p-6 sm:p-7 hover:border-[#C9A84C]/40 transition-colors overflow-hidden relative">
-                  <div
-                    className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C9A84C]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+              if (item.image) {
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 28 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-8%" }}
+                    transition={{ duration: 0.7, delay: (index % 4) * 0.08, ease: EASE }}
+                    className="relative pl-12 sm:pl-16"
+                  >
+                    <span
+                      className="absolute left-3 sm:left-[17px] top-7 h-3.5 w-3.5 rounded-full bg-[#C9A84C] shadow-[0_0_14px_3px_rgba(201,168,76,0.55)] ring-4 ring-[#141413]"
+                      aria-hidden
+                    />
+
+                    <div className="group rounded-3xl border border-[#C9A84C]/40 bg-white/[0.04] backdrop-blur overflow-hidden hover:border-[#C9A84C]/70 transition-colors relative">
+                      <div className="grain-overlay relative aspect-[16/9] sm:aspect-[21/9] overflow-hidden">
+                        <Image
+                          src={item.image}
+                          alt={item.imageAlt ?? item.title}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 800px"
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#141413] via-[#141413]/20 to-transparent" />
+                        <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C9A84C] text-[#1A1A1A] text-[10px] font-bold tracking-[0.2em] uppercase">
+                          Milestone
+                        </span>
+                      </div>
+                      <div className="p-6 sm:p-8">
+                        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                          <span className="text-outline-gold font-bold text-3xl sm:text-4xl leading-none select-none">
+                            {number}
+                          </span>
+                          <div>
+                            <p className="text-[#E8D48B] text-[10px] font-semibold tracking-[0.25em] uppercase">
+                              {label}
+                            </p>
+                            <h3 className="text-white font-semibold text-xl sm:text-2xl">
+                              {item.title}
+                            </h3>
+                          </div>
+                        </div>
+                        <ul className="mt-4 grid sm:grid-cols-2 gap-x-6 gap-y-2">
+                          {item.topics.map((topic, topicIndex) => (
+                            <li
+                              key={topicIndex}
+                              className="flex items-start gap-2.5 text-white/60 text-sm leading-relaxed"
+                            >
+                              <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 14 14"
+                                className="text-[#C9A84C] shrink-0 mt-1"
+                                aria-hidden
+                              >
+                                <path
+                                  d="M2 1l6 6-6 6M7 1l6 6-6 6"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  fill="none"
+                                />
+                              </svg>
+                              {topic}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              }
+
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 28 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-8%" }}
+                  transition={{ duration: 0.7, delay: (index % 4) * 0.08, ease: EASE }}
+                  className="relative pl-12 sm:pl-16"
+                >
+                  {/* Timeline node */}
+                  <span
+                    className="absolute left-3 sm:left-[17px] top-7 h-3.5 w-3.5 rounded-full bg-[#C9A84C] shadow-[0_0_14px_3px_rgba(201,168,76,0.55)] ring-4 ring-[#141413]"
                     aria-hidden
                   />
-                  <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                    <span className="text-outline-gold font-bold text-3xl sm:text-4xl leading-none select-none">
-                      {item.week !== undefined
-                        ? String(item.week).padStart(2, "0")
-                        : String(index + 1).padStart(2, "0")}
-                    </span>
-                    <div>
-                      <p className="text-[#E8D48B] text-[10px] font-semibold tracking-[0.25em] uppercase">
-                        {item.week !== undefined ? `Week ${item.week}` : item.phase}
-                      </p>
-                      <h3 className="text-white font-semibold text-lg sm:text-xl">
-                        {item.title}
-                      </h3>
+
+                  <div className="group rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur p-6 sm:p-7 hover:border-[#C9A84C]/40 transition-colors overflow-hidden relative">
+                    <div
+                      className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C9A84C]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-hidden
+                    />
+                    <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                      <span className="text-outline-gold font-bold text-3xl sm:text-4xl leading-none select-none">
+                        {number}
+                      </span>
+                      <div>
+                        <p className="text-[#E8D48B] text-[10px] font-semibold tracking-[0.25em] uppercase">
+                          {label}
+                        </p>
+                        <h3 className="text-white font-semibold text-lg sm:text-xl">
+                          {item.title}
+                        </h3>
+                      </div>
                     </div>
-                  </div>
-                  <ul className="mt-4 grid sm:grid-cols-2 gap-x-6 gap-y-2">
-                    {item.topics.map((topic, topicIndex) => (
-                      <li
-                        key={topicIndex}
-                        className="flex items-start gap-2.5 text-white/60 text-sm leading-relaxed"
-                      >
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 14 14"
-                          className="text-[#C9A84C] shrink-0 mt-1"
-                          aria-hidden
+                    <ul className="mt-4 grid sm:grid-cols-2 gap-x-6 gap-y-2">
+                      {item.topics.map((topic, topicIndex) => (
+                        <li
+                          key={topicIndex}
+                          className="flex items-start gap-2.5 text-white/60 text-sm leading-relaxed"
                         >
-                          <path
-                            d="M2 1l6 6-6 6M7 1l6 6-6 6"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            fill="none"
-                          />
-                        </svg>
-                        {topic}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </motion.div>
-            ))}
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 14 14"
+                            className="text-[#C9A84C] shrink-0 mt-1"
+                            aria-hidden
+                          >
+                            <path
+                              d="M2 1l6 6-6 6M7 1l6 6-6 6"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              fill="none"
+                            />
+                          </svg>
+                          {topic}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </div>

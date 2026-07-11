@@ -106,6 +106,26 @@ export function FooterPremium() {
               <br />
               Donations are tax-deductible to the extent allowed by law.
             </p>
+            <p className="mt-4 text-white/40 text-xs">
+              In partnership with{" "}
+              <a
+                href="https://www.find-commonground.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#C9A84C] transition-colors"
+              >
+                CommonGround
+              </a>{" "}
+              &amp;{" "}
+              <a
+                href="https://marigold.4everforward.net/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#C9A84C] transition-colors"
+              >
+                Marigold
+              </a>
+            </p>
           </div>
 
           {/* Quick links */}

@@ -21,10 +21,10 @@ import {
   ArrowRight,
   ArrowUpRight,
   Sparkles,
-  Bot,
   Heart,
   Popcorn,
-  Rocket,
+  Handshake,
+  PartyPopper,
 } from "lucide-react";
 import { FFIcon, type FFIconName } from "@/components/shared/ff-icons";
 import {
@@ -33,6 +33,7 @@ import {
   FUTURE_TECH,
   COMMUNITY_TECH,
   IMPACT_GOALS,
+  EVENT_SERIES,
 } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -689,34 +690,31 @@ function MakingMomentsSection() {
       <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-24 sm:pb-32 pt-10">
         <div className="grid lg:grid-cols-3 gap-6">
           {[
-            {
-              icon: Popcorn,
-              title: "Movies on the Menu",
-              text: "Dinner and a movie under the stars, on us, so a father can just be present.",
-            },
-            {
-              icon: Bot,
-              title: "Robot Races & Pop-Ups",
-              text: "Build stations, 3D-printing corners, and robot races that turn a park into a playground of the future.",
-            },
-            {
-              icon: Rocket,
-              title: "Night Sky Nights",
-              text: "Telescopes out, satellites tracked, the ISS passing over your own block, with your kids beside you.",
-            },
-          ].map((card, i) => (
+            { icon: Popcorn, series: EVENT_SERIES[0] },
+            { icon: Handshake, series: EVENT_SERIES[1] },
+            { icon: PartyPopper, series: EVENT_SERIES[2] },
+          ].map(({ icon: Icon, series }, i) => (
             <motion.div
-              key={card.title}
+              key={series.id}
               initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10%" }}
               transition={{ duration: 0.7, delay: i * 0.12, ease: EASE }}
-              className="group relative rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur p-6 sm:p-7 hover:border-[#C9A84C]/40 transition-colors overflow-hidden"
             >
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C9A84C]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <card.icon className="h-7 w-7 text-[#C9A84C]" />
-              <h3 className="mt-4 text-white font-semibold text-lg">{card.title}</h3>
-              <p className="mt-2 text-white/55 text-sm leading-relaxed">{card.text}</p>
+              <Link
+                href={series.href}
+                className="group relative block rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur p-6 sm:p-7 hover:border-[#C9A84C]/40 transition-colors overflow-hidden h-full"
+              >
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C9A84C]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="flex items-start justify-between">
+                  <Icon className="h-7 w-7 text-[#C9A84C]" />
+                  <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-white/35">
+                    {series.audience}
+                  </span>
+                </div>
+                <h3 className="mt-4 text-white font-semibold text-lg">{series.name}</h3>
+                <p className="mt-2 text-white/55 text-sm leading-relaxed">{series.description}</p>
+              </Link>
             </motion.div>
           ))}
         </div>
@@ -803,6 +801,28 @@ function CommunityTechSection() {
               Join forces with us
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1.5 transition-transform" />
             </Link>
+
+            <div className="mt-8 pt-6 border-t border-[#DDDDDD] flex flex-wrap items-center gap-x-5 gap-y-2">
+              <span className="text-[10px] font-semibold tracking-[0.25em] uppercase text-[#888888]">
+                Proud Partners
+              </span>
+              <a
+                href="https://www.find-commonground.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold text-[#1A1A1A] hover:text-[#5A7247] transition-colors"
+              >
+                CommonGround
+              </a>
+              <a
+                href="https://marigold.4everforward.net/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold text-[#1A1A1A] hover:text-[#5A7247] transition-colors"
+              >
+                Marigold
+              </a>
+            </div>
           </motion.div>
         </div>
       </div>
