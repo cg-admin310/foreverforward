@@ -102,7 +102,9 @@ export function FooterPremium() {
               Introducing underserved communities to the technologies shaping tomorrow, and turning that spark into careers, confidence, and legacy.
             </p>
             <p className="text-white/40 text-xs">
-              501(c)(3) Nonprofit Organization
+              501(c)(3) Nonprofit Organization · EIN 87-0944016
+              <br />
+              Donations are tax-deductible to the extent allowed by law.
             </p>
           </div>
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createDonationCheckout } from "@/lib/stripe";
+import { createDonationCheckout, resolveFund } from "@/lib/stripe";
 import { createDonation } from "@/lib/actions/donations";
 
 // =============================================================================
@@ -51,6 +51,9 @@ export async function POST(request: NextRequest) {
     // Get the site URL for redirects
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
+    // Normalize the designation to a known fund (defaults to "general")
+    const fund = resolveFund(designation);
+
     // Create a pending donation record first
     const donationResult = await createDonation({
       donorFirstName: donorFirstName || "Anonymous",
@@ -60,7 +63,7 @@ export async function POST(request: NextRequest) {
       amount: amount,
       frequency: frequency === "monthly" ? "monthly" : "one_time",
       campaign: campaign,
-      designation: designation,
+      designation: fund,
       isAnonymous: isAnonymous,
       paymentStatus: "pending",
       source: "website",
@@ -80,6 +83,7 @@ export async function POST(request: NextRequest) {
     const { sessionId, url } = await createDonationCheckout({
       amount,
       frequency,
+      fund,
       donorEmail,
       donorName: donorFirstName && donorLastName
         ? `${donorFirstName} ${donorLastName}`
@@ -89,7 +93,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         donation_id: donationId,
         campaign: campaign || "",
-        designation: designation || "",
+        designation: fund,
       },
     });
 

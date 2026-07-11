@@ -27,7 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FFIcon, type FFIconName } from "@/components/shared/ff-icons";
-import { IMPACT_GOALS } from "@/lib/constants";
+import { IMPACT_GOALS, DONATION_FUNDS, type DonationFundId } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -157,6 +157,15 @@ export function DonateContent() {
   const [donorEmail, setDonorEmail] = useState("");
   const [donorFirstName, setDonorFirstName] = useState("");
   const [donorLastName, setDonorLastName] = useState("");
+  const [fund, setFund] = useState<DonationFundId>("general");
+
+  // Preselect a fund from ?fund= (e.g. sponsor links pass making-moments)
+  useEffect(() => {
+    const requested = searchParams.get("fund");
+    if (requested && DONATION_FUNDS.some((f) => f.id === requested)) {
+      setFund(requested as DonationFundId);
+    }
+  }, [searchParams]);
 
   // Scroll to top on mount
   useEffect(() => {
@@ -191,6 +200,7 @@ export function DonateContent() {
         body: JSON.stringify({
           amount,
           frequency: donationType,
+          designation: fund,
           donorEmail: donorEmail || undefined,
           donorFirstName: donorFirstName || undefined,
           donorLastName: donorLastName || undefined,
@@ -433,6 +443,37 @@ export function DonateContent() {
                 </p>
               </motion.div>
             )}
+
+            {/* Direct your gift — every dollar is tracked per program */}
+            <div className="mb-8">
+              <p className="text-center text-sm font-medium text-[#555555] mb-4">
+                Direct your gift
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {DONATION_FUNDS.map((f) => {
+                  const active = fund === f.id;
+                  return (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => setFund(f.id)}
+                      aria-pressed={active}
+                      className={cn(
+                        "px-4 py-2.5 rounded-full text-sm font-semibold border-2 transition-all",
+                        active
+                          ? "border-[#C9A84C] bg-[#FBF6E9] text-[#1A1A1A] shadow-[0_4px_16px_rgba(201,168,76,0.25)]"
+                          : "border-[#DDDDDD] bg-white text-[#555555] hover:border-[#C9A84C]/50"
+                      )}
+                    >
+                      {f.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-3 text-center text-xs text-[#888888] max-w-md mx-auto">
+                {DONATION_FUNDS.find((f) => f.id === fund)?.blurb}
+              </p>
+            </div>
 
             {/* Optional Donor Info */}
             <div className="mb-8 space-y-4">

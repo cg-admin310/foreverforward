@@ -219,7 +219,40 @@ export const CONTACT_INFO = {
   phone: "(951) 877-5196",
   email: "4ever4wardfoundation@gmail.com",
   website: "forever4ward.org",
+  ein: "87-0944016",
 } as const;
+
+// Donation designations. Every dollar is tagged with a fund so giving can be
+// tracked per program in Stripe and in the admin Donations module.
+export const DONATION_FUNDS = [
+  {
+    id: "general",
+    label: "Where It's Needed Most",
+    blurb: "We put it where the mission needs it: programs, events, and the families in them.",
+  },
+  {
+    id: "father-forward",
+    label: "Father Forward",
+    blurb: "Free IT training for fathers: CompTIA ITF+ certs, data center visits, career launches.",
+  },
+  {
+    id: "tech-ready-youth",
+    label: "Tech-Ready Youth",
+    blurb: "Robotics, AI, and real hardware for youth 16 and up.",
+  },
+  {
+    id: "stories-from-my-future",
+    label: "Stories from My Future",
+    blurb: "Kids publish AI-illustrated books and 3D-print pieces of their future.",
+  },
+  {
+    id: "making-moments",
+    label: "Making Moments",
+    blurb: "Movie nights, dad outings, and family takeovers, free for families.",
+  },
+] as const;
+
+export type DonationFundId = (typeof DONATION_FUNDS)[number]["id"];
 
 export const SOCIAL_LINKS = {
   instagram: "https://instagram.com/foreverforward",

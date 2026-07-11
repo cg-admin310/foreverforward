@@ -467,7 +467,7 @@ function MotmCTA() {
             transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
           >
             <Link
-              href="/get-involved/donate"
+              href="/get-involved/donate?fund=making-moments"
               className="group relative block rounded-3xl overflow-hidden border border-white/15 bg-white/[0.04] backdrop-blur p-8 sm:p-10 min-h-[15rem] hover:border-[#C9A84C]/50 transition-colors"
             >
               <p className="text-[#C9A84C] text-xs font-semibold tracking-[0.3em] uppercase">

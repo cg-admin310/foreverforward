@@ -19,11 +19,58 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 export interface CreateDonationCheckoutParams {
   amount: number; // in dollars
   frequency: "one_time" | "monthly";
+  fund?: string; // donation designation, e.g. "father-forward"
   donorEmail?: string;
   donorName?: string;
   successUrl: string;
   cancelUrl: string;
   metadata?: Record<string, string>;
+}
+
+// =============================================================================
+// DONATION FUNDS
+// Each fund maps to a real Stripe Product so giving is sectioned per program
+// in the dashboard. Product IDs come from env (test vs live mode differ).
+// =============================================================================
+
+const FUND_PRODUCT_ENV: Record<string, string | undefined> = {
+  general: process.env.STRIPE_FUND_PRODUCT_GENERAL,
+  "father-forward": process.env.STRIPE_FUND_PRODUCT_FATHER_FORWARD,
+  "tech-ready-youth": process.env.STRIPE_FUND_PRODUCT_TECH_READY_YOUTH,
+  "stories-from-my-future": process.env.STRIPE_FUND_PRODUCT_STORIES_FROM_MY_FUTURE,
+  "making-moments": process.env.STRIPE_FUND_PRODUCT_MAKING_MOMENTS,
+};
+
+const FUND_DISPLAY: Record<string, { name: string; description: string }> = {
+  general: {
+    name: "General Donation",
+    description:
+      "Supports Forever Forward wherever the need is greatest. 501(c)(3) nonprofit, EIN 87-0944016.",
+  },
+  "father-forward": {
+    name: "Father Forward Fund",
+    description:
+      "Free IT career training for fathers: CompTIA ITF+ certification and career launch support. 501(c)(3), EIN 87-0944016.",
+  },
+  "tech-ready-youth": {
+    name: "Tech-Ready Youth Fund",
+    description:
+      "Robotics, AI, and hands-on hardware programs for youth 16 and up. 501(c)(3), EIN 87-0944016.",
+  },
+  "stories-from-my-future": {
+    name: "Stories from My Future Fund",
+    description:
+      "Kids publish AI-illustrated books and 3D-print pieces of their future. 501(c)(3), EIN 87-0944016.",
+  },
+  "making-moments": {
+    name: "Making Moments Fund",
+    description:
+      "Free family events: movie nights, dad outings, and family takeovers. 501(c)(3), EIN 87-0944016.",
+  },
+};
+
+export function resolveFund(fund?: string): string {
+  return fund && fund in FUND_DISPLAY ? fund : "general";
 }
 
 export interface CreateInvoiceParams {
@@ -57,42 +104,41 @@ export async function createDonationCheckout(
 ): Promise<{ sessionId: string; url: string }> {
   const { amount, frequency, donorEmail, donorName, successUrl, cancelUrl, metadata } = params;
 
+  // Resolve the fund (defaults to general) so every dollar is attributable.
+  const fund = resolveFund(params.fund);
+  const fundProduct = FUND_PRODUCT_ENV[fund];
+  const display = FUND_DISPLAY[fund];
+
   // Convert dollars to cents
   const amountInCents = Math.round(amount * 100);
 
-  // Build line items based on frequency
-  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+  // Price data: use the fund's real Stripe Product when configured so the
+  // dashboard sections revenue per program; fall back to inline product_data.
+  const basePrice: Stripe.Checkout.SessionCreateParams.LineItem.PriceData = fundProduct
+    ? {
+        currency: "usd",
+        product: fundProduct,
+        unit_amount: amountInCents,
+      }
+    : {
+        currency: "usd",
+        product_data: {
+          name: frequency === "monthly" ? `${display.name} (Monthly)` : display.name,
+          description: display.description,
+          metadata: { fund },
+        },
+        unit_amount: amountInCents,
+      };
 
-  if (frequency === "monthly") {
-    // For recurring donations, we need to create a price dynamically
-    lineItems.push({
-      price_data: {
-        currency: "usd",
-        product_data: {
-          name: "Monthly Donation to Forever Forward",
-          description: "Your recurring gift supports workforce development for Black fathers and youth in Los Angeles.",
-        },
-        unit_amount: amountInCents,
-        recurring: {
-          interval: "month",
-        },
-      },
+  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+    {
+      price_data:
+        frequency === "monthly"
+          ? { ...basePrice, recurring: { interval: "month" } }
+          : basePrice,
       quantity: 1,
-    });
-  } else {
-    // One-time donation
-    lineItems.push({
-      price_data: {
-        currency: "usd",
-        product_data: {
-          name: "Donation to Forever Forward",
-          description: "Your gift supports workforce development for Black fathers and youth in Los Angeles.",
-        },
-        unit_amount: amountInCents,
-      },
-      quantity: 1,
-    });
-  }
+    },
+  ];
 
   const sessionParams: Stripe.Checkout.SessionCreateParams = {
     mode: frequency === "monthly" ? "subscription" : "payment",
@@ -108,6 +154,7 @@ export async function createDonationCheckout(
     metadata: {
       type: "donation",
       frequency,
+      fund,
       amount: amount.toString(),
       ...metadata,
     },
@@ -118,12 +165,13 @@ export async function createDonationCheckout(
     sessionParams.customer_email = donorEmail;
   }
 
-  // Add customer creation for subscriptions
+  // Subscription mode creates the customer automatically; customer_creation
+  // is only valid in payment mode and Stripe rejects it otherwise.
   if (frequency === "monthly") {
-    sessionParams.customer_creation = "always";
     sessionParams.subscription_data = {
       metadata: {
         type: "donation",
+        fund,
         donor_name: donorName || "",
       },
     };
@@ -131,6 +179,7 @@ export async function createDonationCheckout(
     sessionParams.payment_intent_data = {
       metadata: {
         type: "donation",
+        fund,
         donor_name: donorName || "",
       },
     };

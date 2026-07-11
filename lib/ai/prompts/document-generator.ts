@@ -32,7 +32,7 @@ export function getDocumentGeneratorSystemPrompt(): string {
 - Phone: (951) 877-5196
 - Email: 4ever4wardfoundation@gmail.com
 - Website: forever4ward.org
-- EIN: [501(c)(3) nonprofit]
+- EIN: 87-0944016 (501(c)(3) nonprofit)
 
 ## Our Unique Value Proposition
 1. **Mission-Aligned**: We're a nonprofit serving nonprofits - we understand budget constraints and mission focus

@@ -277,7 +277,7 @@ export function donationReceiptEmail(data: {
 
               <div style="background-color: #EFF4EB; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
                 <p style="color: #3D5030; font-size: 14px; margin: 0; line-height: 1.6;">
-                  <strong>Tax Information:</strong> Forever Forward Foundation is a 501(c)(3) nonprofit organization (EIN pending). No goods or services were provided in exchange for this donation. This receipt confirms your charitable contribution for tax purposes.
+                  <strong>Tax Information:</strong> Forever Forward Foundation is a 501(c)(3) nonprofit organization (EIN 87-0944016). No goods or services were provided in exchange for this donation. This receipt confirms your charitable contribution for tax purposes.
                 </p>
               </div>
 

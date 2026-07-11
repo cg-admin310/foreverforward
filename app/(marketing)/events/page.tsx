@@ -133,7 +133,7 @@ export default async function EventsPage() {
         <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-6">
             <Link
-              href="/get-involved/donate"
+              href="/get-involved/donate?fund=making-moments"
               className="group relative block rounded-3xl overflow-hidden border border-[#C9A84C]/30 bg-gradient-to-br from-[#C9A84C] to-[#A68A2E] p-8 sm:p-10 min-h-[14rem]"
             >
               <div className="absolute top-6 right-6 w-11 h-11 rounded-full bg-[#1A1A1A]/15 flex items-center justify-center text-[#1A1A1A] group-hover:bg-[#1A1A1A] group-hover:text-[#C9A84C] transition-colors">
