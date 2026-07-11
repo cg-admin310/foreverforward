@@ -842,15 +842,17 @@ export default function AssessPage() {
                         What&apos;s your primary goal? *
                       </label>
                       <div className="grid grid-cols-2 gap-3">
-                        {[
-                          { value: "career_change", label: "Start a New Career", icon: "💼" },
-                          { value: "certification", label: "Earn a Certification", icon: "📜" },
-                          { value: "skills_upgrade", label: "Upgrade My Skills", icon: "📈" },
-                          { value: "employment", label: "Find Employment", icon: "🎯" },
-                          { value: "personal_growth", label: "Personal Growth", icon: "🌱" },
-                          { value: "help_family", label: "Help My Family", icon: "👨‍👩‍👧" },
-                          { value: "creative_expression", label: "Creative Expression", icon: "🎨" },
-                        ].map((option) => (
+                        {(
+                          [
+                            { value: "career_change", label: "Start a New Career", icon: "briefcase" },
+                            { value: "certification", label: "Earn a Certification", icon: "certificate" },
+                            { value: "skills_upgrade", label: "Upgrade My Skills", icon: "rocket" },
+                            { value: "employment", label: "Find Employment", icon: "compass" },
+                            { value: "personal_growth", label: "Personal Growth", icon: "spark" },
+                            { value: "help_family", label: "Help My Family", icon: "crew" },
+                            { value: "creative_expression", label: "Creative Expression", icon: "book" },
+                          ] as const
+                        ).map((option) => (
                           <button
                             key={option.value}
                             type="button"
@@ -861,8 +863,10 @@ export default function AssessPage() {
                                 : "border-[#DDDDDD] hover:border-[#C9A84C]/50"
                             }`}
                           >
-                            <span className="text-lg mr-2">{option.icon}</span>
-                            <span className="text-sm font-medium text-[#1A1A1A]">{option.label}</span>
+                            <span className="inline-flex items-center gap-2">
+                              <FFIcon name={option.icon} className="h-5 w-5 text-[#A68A2E] shrink-0" />
+                              <span className="text-sm font-medium text-[#1A1A1A]">{option.label}</span>
+                            </span>
                           </button>
                         ))}
                       </div>
