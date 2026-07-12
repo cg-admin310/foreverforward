@@ -24,11 +24,18 @@ const navLinks = [
   { href: "/about", label: "Our Mission" },
   {
     label: "Programs",
-    dropdown: PROGRAMS.map((p) => ({
-      href: `/programs/${p.slug}`,
-      label: p.name,
-      description: p.tagline,
-    })),
+    dropdown: [
+      ...PROGRAMS.map((p) => ({
+        href: `/programs/${p.slug}`,
+        label: p.name,
+        description: p.tagline,
+      })),
+      {
+        href: "/programs/marigold",
+        label: "Marigold",
+        description: "Free IEP help for parents",
+      },
+    ],
     viewAllHref: "/programs",
   },
   { href: "/events", label: "Making Moments" },
