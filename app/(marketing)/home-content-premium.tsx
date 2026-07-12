@@ -373,9 +373,9 @@ function Manifesto() {
       <div className="relative max-w-5xl mx-auto px-5 sm:px-6 lg:px-8">
         <Eyebrow>Why We Exist</Eyebrow>
         <h2 className="mt-6 font-semibold text-[#1A1A1A] text-3xl sm:text-5xl lg:text-[3.4rem] leading-[1.12] tracking-tight">
-          <RevealWords text="Talent is everywhere. Exposure isn't. We close that gap one father, one kid, one" />{" "}
+          <RevealWords text="Talent is everywhere. Exposure isn't." />{" "}
           <RevealWords
-            text="unforgettable moment at a time."
+            text="We close that gap, one family at a time."
             className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]"
           />
         </h2>

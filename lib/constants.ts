@@ -23,7 +23,7 @@ export const BRAND_COLORS = {
 export const MISSION = {
   headline: "The future belongs to our families.",
   statement:
-    "Forever Forward introduces Black and brown communities to the technology shaping tomorrow, from AI and robotics to 3D printing and beyond, and turns that first spark into careers, confidence, and legacy.",
+    "Forever Forward uses technology to empower families in Black and brown communities, turning that first spark of exposure into careers, confidence, and legacy.",
   founderNote:
     "I'm a Black father, born in Compton in the late 1900s. I started with what I knew and built forward from there.",
   mantra: "Progress over perfection.",
@@ -37,7 +37,7 @@ export const PILLARS = [
     name: "Career Forward",
     headline: "Real training. Real credentials. Real careers.",
     description:
-      "Twelve weeks of free IT training built around real life: evenings and Saturdays, toward your CompTIA ITF+ and a real career in tech. Work that pays real money and can't be outsourced. HVAC, auto, and the trades are coming next. You just need to show up. We'll figure out the rest together.",
+      "Twelve weeks of free IT training that works around your life, evenings and Saturdays, so you can earn your CompTIA ITF+ without missing a shift or a bedtime. It's the start of a real career in tech: work that pays well and can't be outsourced. HVAC, auto, and the trades are coming next. You just need to show up. We'll figure out the rest together.",
     image: "/images/future/pillar-careers.jpg",
     href: "/programs/father-forward",
   },
@@ -47,7 +47,7 @@ export const PILLARS = [
     name: "Future Builders",
     headline: "The first time a kid sees the future, everything changes.",
     description:
-      "Robots they build. AI they get to boss around. 3D printers that turn \"what if\" into \"look what I made.\" Books they write and publish with their own name on the cover. We hand kids tomorrow's tools, then get out of the way.",
+      "Robots, AI, 3D printers, satellites: the same tools shaping the world, put directly into a kid's hands. They stop watching the future happen and start building it themselves. We hand them tomorrow's tools, then get out of the way.",
     image: "/images/future/pillar-future-tech.jpg",
     href: "/programs/tech-ready-youth",
   },
