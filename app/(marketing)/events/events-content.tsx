@@ -161,7 +161,7 @@ function SeriesGrid() {
                   {series.description}
                 </p>
                 <span className="mt-4 inline-flex items-center gap-2 font-semibold text-white group-hover:text-[#E8D48B] transition-colors">
-                  Explore the series
+                  See how it feels
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </span>
               </div>
@@ -390,8 +390,9 @@ export function EventsContent({
                   The Next Moment Is in the Works
                 </h2>
                 <p className="text-lg text-[#555555] mb-8 max-w-lg mx-auto leading-relaxed">
-                  The next movie night, dad outing, or family takeover is in the
-                  works. Be the first to know when the date drops.
+                  The next movie night, dad outing, or family takeover is coming
+                  together right now. Leave your name and you&apos;ll be the first
+                  to know the moment the date drops.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -730,7 +731,8 @@ export function EventsContent({
                 Moments We&apos;ve Made
               </h2>
               <p className="text-[#888888]">
-                Proof it happens: recent gatherings, and the families who showed up
+                A look back at recent gatherings, and the families who showed up
+                and made them real
               </p>
             </motion.div>
 
@@ -840,7 +842,8 @@ export function EventsContent({
                     You&apos;re In
                   </h3>
                   <p className="text-[#555555] mb-6">
-                    The details are in your email. Your only job now is to show up.
+                    The details are on their way to your inbox. Your only job now
+                    is to show up and be present. We&apos;ve got the rest.
                   </p>
                   <Button onClick={handleCloseModal} size="lg">
                     Done

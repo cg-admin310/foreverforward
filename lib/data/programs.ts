@@ -52,10 +52,11 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     icon: "briefcase",
     heroImage: "/images/future/program-it-pathway.jpg",
     heroDescription:
-      "Twelve weeks of free IT training built for fathers. Earn your CompTIA ITF+, get real data center time, and walk out with a credential, a portfolio, and a community behind you. This track is IT. HVAC, auto, and the trades are next.",
+      "Twelve weeks of free, hands-on IT training built around a father's real life. Earn your CompTIA ITF+, stand inside a working data center, and walk out with a credential, a portfolio, and a room full of people in your corner. IT is the first track. HVAC, auto, and the trades are next.",
     overview: [
-      "Father Forward is our flagship program, built on a simple idea: the fastest way to change a family's future is to hand its father a real career. Right now, that career is IT. You'll earn your CompTIA ITF+, learn how networks actually run the world, get inside a working data center, and see the road from help desk to network and systems engineer laid out in front of you.",
-      "Every week brings guest speakers who do this work today, a leadership thread on goals, money, and showing up for your kids, and Travis, our AI mentor, on call 24/7. It's free, and IT is only the first track. HVAC, auto and EV, and the skilled trades are coming next.",
+      "Father Forward is our flagship program, built on one simple belief: the fastest way to change a family's future is to hand its father a real career. Right now, that career is IT. You'll earn your CompTIA ITF+, learn how networks actually run the world, stand inside a working data center, and see the road from help desk to network and systems engineer laid out clearly in front of you.",
+      "Every week brings guest speakers who do this work today, a leadership thread on goals, money, and showing up for your kids, and Travis, our AI mentor, on call around the clock. It's completely free, and IT is only the first track. HVAC, auto and EV, and the skilled trades are coming next.",
+      "For a company, this is more than goodwill. It's a pipeline of certified, motivated talent and a direct line into the neighborhoods you say you want to reach. Sponsor a cohort, send a speaker, or hire a graduate, and your name goes on a father's fresh start.",
     ],
     atAGlance: {
       duration: "12 weeks",

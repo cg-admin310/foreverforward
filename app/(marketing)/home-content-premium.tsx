@@ -389,7 +389,7 @@ function Manifesto() {
         >
           Forever Forward puts real technology in the hands of families the industry
           usually skips, then walks with them from that first spark to a
-          certification, a career, and a community that shows up.
+          certification, a career, and a community that has their back. No pity. Just proof.
         </motion.p>
 
         <motion.div
@@ -551,7 +551,7 @@ function FutureTechSection() {
             </h2>
           </div>
           <p className="text-white/50 text-sm sm:text-base max-w-xs shrink-0 lg:pb-2">
-            Six technologies. Real hardware, real reps, in real hands.
+            Six technologies. Real hardware, real reps, real hands, and free for the family.
           </p>
         </div>
 
@@ -733,7 +733,7 @@ function MakingMomentsSection() {
             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
           <p className="text-white/40 text-sm">
-            Free for families · Across Greater Los Angeles
+            Free and open to every family · Across Greater Los Angeles
           </p>
         </motion.div>
       </div>
@@ -910,7 +910,7 @@ function ImpactAndCTA() {
                 Fund the future you want to see.
               </h3>
               <p className="mt-3 text-white/60 max-w-md">
-                Every tax-deductible dollar puts real technology in real hands.
+                Every tax-deductible dollar puts real technology in real hands, and keeps a family moving forward.
               </p>
             </Link>
           </motion.div>

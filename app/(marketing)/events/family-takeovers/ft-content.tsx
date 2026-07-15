@@ -99,7 +99,7 @@ function FtHero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7, ease: EASE }}
           >
-            We rent out the fun spot. You bring everybody.
+            We rent out the whole fun spot. You just bring everybody.
           </motion.p>
 
           <motion.div
@@ -382,7 +382,7 @@ function FtCTA() {
               </h3>
               <p className="mt-2 text-white/60 max-w-md">
                 Your gift books the lanes, the park, the whole day. Families just
-                show up and play.
+                show up and play, no cost and no catch.
               </p>
               <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[#E8D48B]">
                 Sponsor a takeover

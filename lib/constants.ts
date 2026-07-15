@@ -172,9 +172,9 @@ export const FUTURE_TECH = [
 // How we show up for the wider nonprofit community — collaboration, not sales.
 export const COMMUNITY_TECH = {
   kicker: "Stronger Together",
-  headline: "We help other nonprofits power up, too.",
+  headline: "We help fellow nonprofits power up, too.",
   description:
-    "A lot of organizations are doing big work with old tools. So we jump in. We get fellow nonprofits onto modern platforms, tighten up their tech, build small custom tools, and put AI to work so limited resources stretch further. We're not selling anything. We're joining forces. When one org levels up, every family it serves levels up with it.",
+    "So many organizations are doing heroic work with tools that hold them back. So we roll up our sleeves and help. We get fellow nonprofits onto modern platforms, tighten up their tech, build small custom tools, and put AI to work so every limited dollar stretches further. We're not selling anything. We're joining forces. When one organization levels up, every family it serves rises with it.",
 } as const;
 
 export const PROGRAMS = [
@@ -228,12 +228,12 @@ export const DONATION_FUNDS = [
   {
     id: "general",
     label: "Where It's Needed Most",
-    blurb: "We put it where the mission needs it: programs, events, and the families in them.",
+    blurb: "Trust us to put it exactly where a family needs it most that week: programs, events, and the people in them.",
   },
   {
     id: "father-forward",
     label: "Father Forward",
-    blurb: "Free IT training for fathers: CompTIA ITF+ certs, data center visits, career launches.",
+    blurb: "Send a father through free IT training toward a CompTIA ITF+, a real career, and a future his kids get to watch.",
   },
   {
     id: "tech-ready-youth",

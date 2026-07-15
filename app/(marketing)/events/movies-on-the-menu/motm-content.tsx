@@ -109,7 +109,8 @@ function MotmHero() {
             transition={{ duration: 0.8, delay: 0.7, ease: EASE }}
           >
             Dinner by chefs who love what they do. A movie under the stars. Your
-            family, front and center. Free, always. Your only job is to be there.
+            family, front and center. Always free. Your only job is to show up
+            and be present.
           </motion.p>
 
           <motion.div
@@ -199,8 +200,8 @@ function WhyItMatters() {
 
         <div className="mt-10 grid sm:grid-cols-2 gap-x-12 gap-y-6 max-w-4xl">
           {[
-            "Life piles up on fathers, and presence is the first thing that gets squeezed out. So we clear the runway: dinner's handled, the movie's picked, the seats are saved.",
-            "When the answer to \"how much?\" is \"nothing, you're our guest,\" that says your family matters. No lecture about fatherhood, just a night your kids will bring up at breakfast for a month.",
+            "Life piles up on fathers, and presence is the first thing that gets squeezed out. So we clear the runway: dinner's handled, the movie's picked, the seats are saved. All you carry is your family.",
+            "When the answer to \"how much?\" is \"nothing, you're our guest,\" that says your family matters. No lecture about fatherhood, just a warm night your kids will bring up at breakfast for a month.",
           ].map((text, i) => (
             <motion.p
               key={i}
@@ -361,7 +362,8 @@ function NowShowing() {
             </h2>
           </div>
           <p className="text-white/50 text-sm sm:text-base max-w-xs">
-            Dates drop soon. Join the newsletter below and you&apos;ll hear it first.
+            Dates drop soon. Join the newsletter below and your family will hear
+            it first.
           </p>
         </div>
 

@@ -215,7 +215,7 @@ function AboutHero() {
                     The whole point
                   </p>
                   <p className="text-white text-lg sm:text-xl font-semibold mt-1 leading-snug">
-                    Kids on shoulders, looking past the skyline.
+                    Kids on shoulders, seeing further than we did.
                   </p>
                 </div>
               </motion.div>
@@ -258,7 +258,7 @@ function AboutHero() {
 const BELIEFS = [
   {
     kicker: "Exposure first",
-    text: "You can't want a career you've never seen. So we put the real thing in front of people: the robot, the data center, the printer mid-print.",
+    text: "You can't want a career you've never seen. So we skip the brochure and bring the real thing: the robot mid-race, the data center humming, the 3D printer laying down its first layer.",
   },
   {
     kicker: "Careers change households",
@@ -979,9 +979,10 @@ function FounderBlurb() {
             </p>
             <p className="mt-2 text-[#555555] text-base sm:text-lg leading-relaxed">
               Forever Forward was founded in 2023 by Thomas &ldquo;TJ&rdquo; Wilform, a
-              father and data center engineer who saw how one introduction to
-              technology can redirect a whole life. The organization has been making
-              those introductions ever since.
+              father from Compton who built data centers for a living. He watched how one
+              close look at what&rsquo;s possible can redirect a whole life, so he started
+              with what he knew and built forward from there. We&rsquo;ve been making those
+              introductions ever since, one family at a time.
             </p>
           </div>
         </motion.div>

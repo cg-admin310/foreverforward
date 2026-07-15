@@ -67,21 +67,21 @@ const quickLinks = [
   },
   {
     title: "Join Forces With Us",
-    description: "Partnerships for orgs, employers & schools",
+    description: "Sponsor, hire, or build alongside us",
     href: "/get-involved/partner",
     icon: Handshake,
     color: "olive",
   },
   {
     title: "Make a Donation",
-    description: "Support our mission",
+    description: "Fuel careers, robots, and family nights",
     href: "/get-involved/donate",
     icon: Heart,
     color: "gold",
   },
   {
     title: "Attend an Event",
-    description: "Movies on the Menu and more",
+    description: "Movies on the Menu, robot races, and more",
     href: "/events",
     icon: Calendar,
     color: "olive",
@@ -280,9 +280,9 @@ export function ContactContentPremium() {
                   <div className="w-20 h-20 rounded-full bg-[#EFF4EB] flex items-center justify-center mx-auto mb-6">
                     <CheckCircle2 className="h-10 w-10 text-[#5A7247]" />
                   </div>
-                  <h3 className="text-2xl font-bold text-[#1A1A1A] mb-3">Got It</h3>
+                  <h3 className="text-2xl font-bold text-[#1A1A1A] mb-3">We Hear You</h3>
                   <p className="text-[#555555] leading-relaxed">
-                    A real person will get back to you within 24 hours, probably sooner.
+                    A real person on our team will get back to you within 24 hours, probably sooner.
                   </p>
                 </motion.div>
               ) : (

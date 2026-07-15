@@ -99,8 +99,8 @@ function OtcHero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7, ease: EASE }}
           >
-            No kids. No pressure. No agenda. Just dads, doing something worth
-            leaving the house for.
+            No kids. No pressure. No agenda. Just dads and good company, doing
+            something worth leaving the house for.
           </motion.p>
 
           <motion.div
@@ -372,7 +372,7 @@ function OtcCTA() {
               </h3>
               <p className="mt-2 text-white/60 max-w-md">
                 Your gift covers the boat, the field, the round. A father gets a
-                day that fills him back up.
+                day that fills him back up, and goes home lighter for his kids.
               </p>
               <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[#E8D48B]">
                 Sponsor an outing

@@ -330,7 +330,7 @@ function CareerPathways() {
                 </p>
                 <p className="mt-5 inline-flex items-center gap-2 text-[#E8D48B] text-sm font-semibold">
                   <BadgeCheck className="h-4 w-4" />
-                  You walk out with your CompTIA ITF+.
+                  You walk out CompTIA ITF+ certified and job-ready.
                 </p>
               </div>
             </motion.div>

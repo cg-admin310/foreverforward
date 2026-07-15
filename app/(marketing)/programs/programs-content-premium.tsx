@@ -105,7 +105,7 @@ const DOORS = [
     number: "01",
     name: "Career Forward",
     kicker: "For Fathers",
-    line: "Free IT training toward your CompTIA ITF+.",
+    line: "Free IT training to your CompTIA ITF+ and a real career.",
     href: "#career-forward",
     icon: Users,
   },
@@ -219,9 +219,9 @@ function ProgramsHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.7, ease: EASE }}
         >
-          IT training for fathers. Future tech in young hands. Events all year for
-          the whole family. Every door leads to the same house. Pick yours and step
-          through.
+          Career training for fathers. Future tech in young hands. Events all year
+          for the whole family. Every door opens onto the same house, built on one
+          belief: progress over perfection. Pick yours and step through.
         </motion.p>
 
         {/* Door index */}
@@ -403,7 +403,7 @@ function CareerForwardSection() {
                   IT &amp; Cybersecurity
                 </p>
                 <p className="text-white text-lg sm:text-2xl font-semibold mt-1 max-w-lg">
-                  From your CompTIA ITF+ to network engineer.
+                  From your CompTIA ITF+ to a hire-ready network engineer.
                 </p>
               </div>
             </div>
@@ -887,8 +887,9 @@ function ProgramsCTA() {
                 Enroll. It costs nothing but the decision.
               </h3>
               <p className="mt-3 text-[#1A1A1A]/75 max-w-sm text-sm sm:text-base">
-                Every program is free for qualifying participants. Tell us who you
-                are and we&rsquo;ll take it from there.
+                Every program is free for qualifying participants, backed by people
+                who believe in this. Tell us who you are and we&rsquo;ll take it from
+                there.
               </p>
             </Link>
           </motion.div>

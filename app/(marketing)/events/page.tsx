@@ -8,7 +8,7 @@ import { EventsContent } from "./events-content";
 export const metadata = {
   title: "Making Moments",
   description:
-    "Making Moments is how Forever Forward brings families together: Movies on the Menu dinner-and-a-movie nights, dads-only Off the Clock outings, and Family Takeovers of the fun spots. Free for families across Greater Los Angeles.",
+    "Making Moments is how Forever Forward turns joy into a strategy: Movies on the Menu dinner-and-a-movie nights, dads-only Off the Clock outings, and Family Takeovers of the fun spots. Free for families across Greater Los Angeles, all year long.",
   keywords: [
     "Making Moments",
     "family events Los Angeles",
@@ -20,7 +20,7 @@ export const metadata = {
   openGraph: {
     title: "Making Moments | Forever Forward",
     description:
-      "Movie nights, dad outings, and family takeovers. Joy, on the calendar, all year long.",
+      "Movie nights, dad outings, and family takeovers. Free for families, and joy is the whole point.",
     type: "website",
     url: "/events",
     images: [{ url: "/images/motm/motm-hero.jpg", width: 1200, height: 630 }],
@@ -102,8 +102,8 @@ export default async function EventsPage() {
           </h1>
 
           <p className="mt-6 max-w-xl text-lg sm:text-xl text-white/70 leading-relaxed">
-            Joy is a strategy. Movie nights, dad outings, and family takeovers,
-            on the calendar all year long.
+            Joy is a strategy, and we plan it like one. Movie nights, dad
+            outings, and family takeovers, on the calendar all year long.
           </p>
 
           <p className="mt-4 text-sm text-white/40">
@@ -146,8 +146,8 @@ export default async function EventsPage() {
                 Put a family in the front row.
               </h3>
               <p className="mt-2 text-[#1A1A1A]/75 max-w-md">
-                $500 covers a full Movies on the Menu night. Dinner, seats, and
-                the memory.
+                $500 covers a full Movies on the Menu night: dinner, seats, and a
+                memory a kid carries for years. You can be the reason it happens.
               </p>
             </Link>
 
@@ -162,11 +162,11 @@ export default async function EventsPage() {
                 Host With Us
               </p>
               <h3 className="mt-3 font-bold text-white text-2xl sm:text-3xl leading-tight max-w-md">
-                Bring an event to your block.
+                Bring a moment to your block.
               </h3>
               <p className="mt-2 text-white/60 max-w-md">
-                Organizations, venues, and community leaders: let&apos;s make
-                something together.
+                Organizations, venues, and community leaders: partner with us and
+                let&apos;s put joy on your neighborhood&apos;s calendar together.
               </p>
               <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[#E8D48B]">
                 Start the conversation
