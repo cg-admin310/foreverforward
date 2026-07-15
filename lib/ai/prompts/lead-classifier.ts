@@ -32,10 +32,10 @@ export function getProgramClassifierSystemPrompt(): string {
 ### 2. Tech-Ready Youth
 - **Duration**: 8 weeks
 - **Audience**: Youth ages 16+
-- **Focus**: Google IT Certificate prep, hands-on labs, capstone Gaming Tournament
-- **Best For**: Young adults seeking IT career entry, those preparing for workforce
-- **Requirements**: Age 16+, commitment to certification track
-- **Outcomes**: Google IT certification, career readiness
+- **Focus**: Hands-on exposure to robotics, AI, 3D printing, and satellites, a tech-sponsor facility field trip, and a capstone Gaming Tournament
+- **Best For**: Young people curious about technology and future careers
+- **Requirements**: Age 16+, curiosity and commitment to show up
+- **Outcomes**: Broad exposure to future-facing tech and careers, hands-on project experience
 
 ### 3. Making Moments
 - **Duration**: Ongoing events

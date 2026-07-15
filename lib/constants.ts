@@ -192,12 +192,12 @@ export const PROGRAMS = [
   {
     slug: "tech-ready-youth",
     name: "Tech-Ready Youth",
-    tagline: "Build the Future With Your Own Hands",
+    tagline: "Get Your Hands on the Future",
     audience: "youth" as const,
     duration: "8 weeks",
     format: "Hybrid",
     description:
-      "Robots, AI, and real hardware for ages 16+. Eight weeks of building things that actually work, capped off with a gaming tournament they run themselves.",
+      "Eight weeks of real access to the tech shaping tomorrow: robots, AI, 3D printing, and satellites. Includes a field trip inside a real tech company and a capstone gaming tournament they run themselves.",
     icon: "robot",
   },
   {
@@ -238,7 +238,7 @@ export const DONATION_FUNDS = [
   {
     id: "tech-ready-youth",
     label: "Tech-Ready Youth",
-    blurb: "Robotics, AI, and real hardware for youth 16 and up.",
+    blurb: "Give a young person real access to robotics, AI, and 3D printing, plus a look inside a real tech company.",
   },
   {
     id: "stories-from-my-future",

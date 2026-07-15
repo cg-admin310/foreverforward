@@ -232,23 +232,23 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
   "tech-ready-youth": {
     slug: "tech-ready-youth",
     name: "Tech-Ready Youth",
-    tagline: "Build the Future With Your Own Hands",
+    tagline: "Get Your Hands on the Future",
     audience: "youth",
     duration: "8 weeks",
     format: "Hybrid",
     icon: "robot",
     heroImage: "/images/future/pillar-future-tech.jpg",
     heroDescription:
-      "Robots you build, AI you get to boss around, designs you print. Then a capstone gaming tournament to put it all on the line.",
+      "Eight weeks of hands-on access to the technology shaping tomorrow: robots you build, AI you direct, designs you print, satellites you track. Plus a field trip inside a real tech company to meet the people who do this for a living. It all ends with a capstone gaming tournament on machines you set up yourself.",
     overview: [
-      "Talent is everywhere, exposure isn't. Over 8 weeks, youth 16 and up build and program robots, direct AI tools instead of scrolling past them, 3D-print their own designs, and track the satellites passing over their neighborhood.",
-      "It closes with a capstone gaming tournament on machines they helped configure, with the community cheering them on. Free for qualifying participants, and proof they can finish what they start.",
+      "Talent is everywhere. Access isn't. Tech-Ready Youth throws the doors wide open. Over eight weeks, young people get their hands on the tools most kids only ever see on a screen: they build and program robots, direct AI instead of scrolling past it, design and 3D-print their own creations, and track the satellites crossing their own sky.",
+      "The heart of it is exposure. We take the whole crew inside a real tech company, one of our sponsors, to see the machines up close and meet the engineers, builders, and creatives who run them. Suddenly a career in tech stops being a far-off idea. It becomes a real person, doing real work, in a room these kids are standing in.",
+      "It all builds to a capstone gaming tournament on rigs they set up themselves, with the whole community cheering them on. Free for qualifying participants, and proof that this world is theirs to step into.",
     ],
     atAGlance: {
       duration: "8 weeks",
-      format: "Hybrid (labs + online)",
+      format: "Hybrid (labs + a tech sponsor site visit)",
       schedule: "After school & Saturdays",
-      certification: "Google IT Support Certificate prep",
       ageRange: "16+",
       cost: "Free for qualifying participants",
     },
@@ -258,8 +258,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
         title: "Welcome to the Future",
         topics: [
           "Tour of the tech: robots, printers, AI, and orbit",
-          "How the internet actually works",
-          "Set your 8-week build goal",
+          "How the technology around you actually works",
+          "Set what you want to explore over 8 weeks",
         ],
       },
       {
@@ -268,14 +268,14 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
         topics: [
           "Tear down and rebuild a PC",
           "Components, from silicon to screen",
-          "Troubleshooting like a technician",
+          "See how the machines are really put together",
         ],
       },
       {
         week: 3,
-        title: "Robotics I",
+        title: "Robotics",
         topics: [
-          "Assemble your team's robot",
+          "Assemble and program your team's robot",
           "Sensors, motors, and logic",
           "First autonomous run",
         ],
@@ -286,9 +286,9 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
         week: 4,
         title: "AI as a Tool, Not a Toy",
         topics: [
-          "Prompting and directing AI for real work",
+          "Direct AI to do real work, in your own words",
           "Build a project with AI as your assistant",
-          "Where AI careers are heading",
+          "See where AI shows up in real jobs",
         ],
       },
       {
@@ -297,30 +297,32 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
         topics: [
           "Design in CAD, print on Bambu Lab machines",
           "Iterate: fail fast, print again",
-          "Print a part for your robot",
+          "Turn an idea in your head into something you can hold",
         ],
         image: "/images/programs/try-3dprint.jpg",
         imageAlt: "A teenager watching a desktop 3D printer mid-print with amazement as their design takes shape",
       },
       {
         week: 6,
-        title: "Networks & the Sky",
+        title: "Inside a Tech Company",
         topics: [
-          "Networking fundamentals, hands-on",
-          "Low Earth orbit: track live satellites overhead",
-          "How space internet reaches underserved places",
+          "Field trip behind the scenes at a tech sponsor's facility",
+          "See the real machines up close, and how they're used",
+          "Meet the engineers and creatives, and the jobs they do",
         ],
-        image: "/images/programs/try-satellite.jpg",
-        imageAlt: "A teenager looking through a telescope at night, tablet in hand tracking a satellite overhead",
+        image: "/images/programs/try-facility.jpg",
+        imageAlt: "Teenagers on a field trip inside a tech company, an engineer showing them advanced equipment",
       },
       {
         week: 7,
-        title: "Certification & Careers",
+        title: "The Sky Above Us",
         topics: [
-          "Google IT Support Certificate prep",
-          "Meet young professionals who started here",
-          "Resumes, portfolios, and next steps",
+          "Networking fundamentals, hands-on",
+          "Low Earth orbit: track live satellites overhead",
+          "How space internet reaches places like ours",
         ],
+        image: "/images/programs/try-satellite.jpg",
+        imageAlt: "A teenager looking through a telescope at night, tablet in hand tracking a satellite overhead",
       },
       {
         week: 8,
@@ -328,7 +330,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
         topics: [
           "Configure the rigs, run the network",
           "Tournament day, community invited",
-          "Graduation and what comes next",
+          "Celebrate the crew and what comes next",
         ],
         image: "/images/programs/try-tournament.jpg",
         imageAlt: "Teenagers cheering and high-fiving at a community gaming tournament with colorful RGB-lit rigs",
@@ -342,10 +344,10 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
           "A robot your team programmed, parts you printed, and an AI project with your name on it.",
       },
       {
-        icon: "certificate",
-        title: "Certificate Momentum",
+        icon: "briefcase",
+        title: "A Look Inside the Industry",
         description:
-          "Google IT Support Certificate prep and a study plan to finish it.",
+          "A field trip through a real tech company, face to face with the people who build tomorrow.",
       },
       {
         icon: "trophy",
@@ -355,9 +357,9 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
       },
       {
         icon: "compass",
-        title: "A Map to a Career",
+        title: "A Wider Sense of What's Possible",
         description:
-          "Exposure to five future-facing fields and mentors inside each one.",
+          "Hands-on exposure to the tools, fields, and careers most kids never get to touch.",
       },
     ],
     testimonial: {
