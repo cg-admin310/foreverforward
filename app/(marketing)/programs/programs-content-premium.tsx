@@ -46,8 +46,8 @@ const PROGRAM_IMAGES: Record<string, { src: string; alt: string }> = {
     alt: "Youth building and programming robots in a Forever Forward lab",
   },
   "stories-from-my-future": {
-    src: "/images/future/program-3dprint-kids.jpg",
-    alt: "A girl and her father watching her design come to life on a 3D printer",
+    src: "/images/programs/sfmf-character.jpg",
+    alt: "A kid drawing their own original hero character at a creative writing workshop",
   },
 };
 

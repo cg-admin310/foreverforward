@@ -388,6 +388,7 @@ function CareerPathways() {
  * ------------------------------------------------------------------------- */
 
 function Curriculum({ program }: { program: ProgramDetail }) {
+  const isWeekBased = program.curriculum.some((item) => item.week !== undefined);
   return (
     <section className="relative bg-[#141413] py-24 sm:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-starfield opacity-70" aria-hidden />
@@ -404,7 +405,7 @@ function Curriculum({ program }: { program: ProgramDetail }) {
       <div className="relative max-w-5xl mx-auto px-5 sm:px-6 lg:px-8">
         <Eyebrow light>The Journey</Eyebrow>
         <h2 className="mt-6 font-semibold text-white text-3xl sm:text-5xl tracking-tight leading-[1.08]">
-          Plotted week by week,{" "}
+          {isWeekBased ? "Plotted week by week," : "One step at a time,"}{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] to-[#E8D48B]">
             built to finish.
           </span>

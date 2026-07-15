@@ -203,12 +203,12 @@ export const PROGRAMS = [
   {
     slug: "stories-from-my-future",
     name: "Stories from My Future",
-    tagline: "Imagine. Create. Print.",
+    tagline: "Dream it. Write it. Hold it.",
     audience: "kids" as const,
     duration: "Workshop",
     format: "In-person",
     description:
-      "Kids write the story of their future self, illustrate it with AI, publish it as a real book, and 3D-print a piece of that future to take home. Published author by dinnertime.",
+      "A guided creative writing adventure. With a mentor's help, kids invent a hero, build a full story with an AI writing partner, then draw their character and 3D-print it to take home, along with their digital story.",
     icon: "spark",
   },
 ];
@@ -243,7 +243,7 @@ export const DONATION_FUNDS = [
   {
     id: "stories-from-my-future",
     label: "Stories from My Future",
-    blurb: "Kids publish AI-illustrated books and 3D-print pieces of their future.",
+    blurb: "Kids invent a hero, write a full story with an AI partner, and 3D-print their character to keep.",
   },
   {
     id: "making-moments",
