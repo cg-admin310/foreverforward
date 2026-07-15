@@ -4,7 +4,9 @@
  * Donate — fund the mission.
  * Observatory design language wrapped around untouched checkout logic:
  * amount selection state, one-time/monthly toggle, POST /api/stripe/checkout,
- * and Stripe redirect handling all preserved exactly.
+ * and Stripe redirect handling all preserved exactly. Gifts are directed to
+ * one of three areas (Fathers / Youth / Family) or where it's needed most,
+ * each mapped to an existing tracked fund so Stripe attribution is unchanged.
  */
 
 import { useState, useEffect, useRef } from "react";
@@ -20,6 +22,8 @@ import {
 import {
   AlertCircle,
   ArrowRight,
+  ArrowUpRight,
+  Building2,
   CheckCircle2,
   CreditCard,
   Loader2,
@@ -95,7 +99,7 @@ const AMOUNT_TIERS: {
     amount: 200,
     icon: "certificate",
     title: "The Builder",
-    impact: "Covers a father's certification exam. That's a career for $200.",
+    impact: "Covers a father's certification exam. A career for $200.",
     popular: true,
   },
   {
@@ -104,23 +108,102 @@ const AMOUNT_TIERS: {
     title: "The Moment",
     impact: "Funds a full family movie night, dinner included.",
   },
+  {
+    amount: 1000,
+    icon: "route",
+    title: "The Launch",
+    impact: "Carries a father through a month of training.",
+  },
 ];
 
-const PILLAR_IMPACT: { icon: FFIconName; title: string; text: string }[] = [
+/**
+ * The three areas a gift can go, plus "where it's needed most".
+ * Each maps to an existing tracked Stripe fund so attribution is unchanged.
+ */
+const GIVING_AREAS: {
+  id: string;
+  fund: DonationFundId;
+  icon: FFIconName;
+  label: string;
+  blurb: string;
+  includes: string;
+}[] = [
   {
-    icon: "briefcase",
-    title: "Career Forward",
-    text: "Free IT training for fathers, toward a CompTIA ITF+ and a paycheck that holds.",
+    id: "general",
+    fund: "general",
+    icon: "compass",
+    label: "Where It's Needed Most",
+    blurb: "We put it where the mission needs it that week. The most flexible, highest-impact way to give.",
+    includes: "Fathers · Youth · Family",
   },
   {
+    id: "fathers",
+    fund: "father-forward",
+    icon: "briefcase",
+    label: "Fathers",
+    blurb: "Free IT training toward a CompTIA ITF+ and a real career. The bulk of our work goes here.",
+    includes: "Father Forward · career training",
+  },
+  {
+    id: "youth",
+    fund: "tech-ready-youth",
     icon: "chip",
-    title: "Future Builders",
-    text: "Robotics, AI, 3D printing, and satellite tracking for kids who deserve a head start.",
+    label: "Youth",
+    blurb: "Robotics, AI, and 3D printing for kids, plus Marigold, our free tool for parents navigating IEPs.",
+    includes: "Tech-Ready Youth · Stories from My Future · Marigold",
+  },
+  {
+    id: "family",
+    fund: "making-moments",
+    icon: "crew",
+    label: "Family",
+    blurb: "Movie nights and events that keep families close, plus our CommonGround co-parenting partnership.",
+    includes: "Making Moments · CommonGround",
+  },
+];
+
+function areaForFund(fund: DonationFundId): string {
+  if (fund === "father-forward") return "fathers";
+  if (fund === "tech-ready-youth" || fund === "stories-from-my-future") return "youth";
+  if (fund === "making-moments") return "family";
+  return "general";
+}
+
+const PROOF: { icon: FFIconName; title: string; text: string }[] = [
+  {
+    icon: "briefcase",
+    title: "Three programs, built and running",
+    text: "Father Forward, Tech-Ready Youth, and Stories from My Future, free for the families in them.",
+  },
+  {
+    icon: "spark",
+    title: "Two tech tools, shipped free",
+    text: "Marigold decodes a child's IEP. CommonGround, our partner, calms co-parenting. Real tools, in real hands.",
   },
   {
     icon: "crew",
-    title: "Making Moments",
-    text: "Movie nights, robot races, and festivals that put dads and kids in the same moment.",
+    title: "A calendar full of moments",
+    text: "Movies on the Menu, Off the Clock, and Family Takeovers keep dads and kids in the same room all year.",
+  },
+  {
+    icon: "network",
+    title: "A growing network of partners",
+    text: "We collaborate with fellow nonprofits and organizations so the whole community levels up together.",
+  },
+];
+
+const MAJOR_GIFTS: { title: string; text: string }[] = [
+  {
+    title: "Sponsor a cohort or a program",
+    text: "Underwrite a full Father Forward class or a season of youth builds, and see exactly what your name makes possible.",
+  },
+  {
+    title: "Corporate partnership & matching",
+    text: "Match your team's giving, fund an event series, or build a multi-year commitment. We'll shape it around your goals.",
+  },
+  {
+    title: "Foundation & major gifts",
+    text: "Multi-year grants and major gifts move whole programs forward. Let's talk about the impact you want to own.",
   },
 ];
 
@@ -227,6 +310,7 @@ export function DonateContent() {
   };
 
   const currentAmount = customAmount ? parseInt(customAmount) : selectedAmount;
+  const activeArea = areaForFund(fund);
 
   const scrollToGive = (monthly: boolean) => {
     if (monthly) setDonationType("monthly");
@@ -264,15 +348,15 @@ export function DonateContent() {
           >
             <Eyebrow light>Fund the Mission</Eyebrow>
             <h1 className="mt-5 text-4xl sm:text-5xl lg:text-[4.25rem] font-bold text-white leading-[1.02] tracking-tight">
-              Fund the future you{" "}
+              Put your gift where{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] via-[#E8D48B] to-[#C9A84C]">
-                want to see.
+                futures get built.
               </span>
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-white/75 leading-relaxed max-w-xl">
-              Every dollar puts real technology in real hands: a father&apos;s
-              certification, a kid&apos;s first robot, a family&apos;s night under
-              the stars.
+              Give to fathers, youth, or the whole family, or let us put it where the
+              mission needs it most. Every dollar is tracked, and every gift is
+              tax-deductible.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
@@ -283,10 +367,17 @@ export function DonateContent() {
                 Give Now
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </a>
+              <a
+                href="#major-gifts"
+                className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl border border-white/25 text-white font-semibold hover:border-[#C9A84C]/60 hover:bg-white/5 transition-colors"
+              >
+                <Building2 className="h-4 w-4 text-[#C9A84C]" />
+                Corporate & major gifts
+              </a>
             </div>
 
             <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/55">
-              {["501(c)(3) nonprofit", "Tax-deductible", "Receipt by email"].map((chip) => (
+              {["501(c)(3) nonprofit", "EIN 87-0944016", "Tax-deductible", "Receipt by email"].map((chip) => (
                 <span key={chip} className="inline-flex items-center gap-2">
                   <span className="h-1 w-1 rounded-full bg-[#C9A84C]" aria-hidden />
                   {chip}
@@ -323,8 +414,54 @@ export function DonateContent() {
               </motion.div>
             )}
 
+            {/* Step 1: Direct your gift — three areas + where needed most */}
+            <div className="mb-8">
+              <p className="text-sm font-semibold text-[#1A1A1A] mb-1">
+                1. Choose where your gift goes
+              </p>
+              <p className="text-xs text-[#888888] mb-4">
+                Every dollar is tracked to the area you pick.
+              </p>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {GIVING_AREAS.map((area) => {
+                  const active = activeArea === area.id;
+                  return (
+                    <button
+                      key={area.id}
+                      type="button"
+                      onClick={() => setFund(area.fund)}
+                      aria-pressed={active}
+                      className={cn(
+                        "relative rounded-2xl p-4 text-left border-2 transition-all",
+                        active
+                          ? "border-[#C9A84C] bg-[#FBF6E9] shadow-[0_8px_30px_rgba(201,168,76,0.22)]"
+                          : "border-[#DDDDDD] bg-[#FAFAF8] hover:border-[#C9A84C]/50"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "flex h-10 w-10 items-center justify-center rounded-xl border transition-colors",
+                          active
+                            ? "bg-[#C9A84C] border-[#A68A2E] text-[#1A1A1A]"
+                            : "bg-[#C9A84C]/10 border-[#C9A84C]/30 text-[#A68A2E]"
+                        )}
+                      >
+                        <FFIcon name={area.icon} className="h-5 w-5" />
+                      </span>
+                      <span className="mt-3 block font-semibold text-[#1A1A1A] text-sm leading-tight">
+                        {area.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-3 text-sm text-[#555555]">
+                {GIVING_AREAS.find((a) => a.id === activeArea)?.blurb}
+              </p>
+            </div>
+
             {/* Donation Type Toggle */}
-            <div className="flex justify-center mb-10">
+            <div className="flex justify-center mb-8">
               <div className="inline-flex rounded-xl bg-[#F5F3EF] p-1.5 border border-[#DDDDDD]">
                 <button
                   onClick={() => setDonationType("one_time")}
@@ -354,12 +491,12 @@ export function DonateContent() {
             {/* Amount Tiles */}
             <div className="mb-8">
               <p className="text-center text-sm font-medium text-[#555555] mb-6">
-                Pick what your gift does
+                2. Pick what your gift does
                 {donationType === "monthly" && (
                   <span className="text-[#888888]"> (charged monthly)</span>
                 )}
               </p>
-              <div className="grid sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {AMOUNT_TIERS.map((tier) => {
                   const active = selectedAmount === tier.amount && !customAmount;
                   return (
@@ -393,7 +530,7 @@ export function DonateContent() {
                         <FFIcon name={tier.icon} className="h-5.5 w-5.5" />
                       </span>
                       <span className="mt-4 block text-3xl font-bold text-[#1A1A1A]">
-                        ${tier.amount}
+                        ${tier.amount.toLocaleString()}
                       </span>
                       <span className="mt-0.5 block text-xs font-semibold tracking-[0.18em] uppercase text-[#A68A2E]">
                         {tier.title}
@@ -426,6 +563,12 @@ export function DonateContent() {
                     )}
                   />
                 </div>
+                <p className="mt-2 text-center text-xs text-[#888888]">
+                  No ceiling here. Giving $5,000 or more?{" "}
+                  <a href="#major-gifts" className="text-[#A68A2E] font-semibold hover:underline">
+                    See major & corporate giving.
+                  </a>
+                </p>
               </div>
             </div>
 
@@ -437,43 +580,12 @@ export function DonateContent() {
                 className="mb-8 p-4 rounded-xl bg-[#EFF4EB] border border-[#7A9A63]"
               >
                 <p className="text-[#3D5030] text-center text-sm sm:text-base">
-                  <span className="font-semibold">Your ${currentAmount}</span>{" "}
+                  <span className="font-semibold">Your ${currentAmount.toLocaleString()}</span>{" "}
                   {donationType === "monthly" ? "monthly " : ""}gift will help
-                  us {currentAmount >= 500 ? "host a family movie night or a full 3D-printing workshop" : currentAmount >= 200 ? "cover a father's certification exam" : "put a robotics kit in a kid's hands"}.
+                  us {currentAmount >= 1000 ? "carry a father through a month of training" : currentAmount >= 500 ? "host a family movie night or a full 3D-printing workshop" : currentAmount >= 200 ? "cover a father's certification exam" : "put a robotics kit in a kid's hands"}.
                 </p>
               </motion.div>
             )}
-
-            {/* Direct your gift — every dollar is tracked per program */}
-            <div className="mb-8">
-              <p className="text-center text-sm font-medium text-[#555555] mb-4">
-                Direct your gift
-              </p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {DONATION_FUNDS.map((f) => {
-                  const active = fund === f.id;
-                  return (
-                    <button
-                      key={f.id}
-                      type="button"
-                      onClick={() => setFund(f.id)}
-                      aria-pressed={active}
-                      className={cn(
-                        "px-4 py-2.5 rounded-full text-sm font-semibold border-2 transition-all",
-                        active
-                          ? "border-[#C9A84C] bg-[#FBF6E9] text-[#1A1A1A] shadow-[0_4px_16px_rgba(201,168,76,0.25)]"
-                          : "border-[#DDDDDD] bg-white text-[#555555] hover:border-[#C9A84C]/50"
-                      )}
-                    >
-                      {f.label}
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="mt-3 text-center text-xs text-[#888888] max-w-md mx-auto">
-                {DONATION_FUNDS.find((f) => f.id === fund)?.blurb}
-              </p>
-            </div>
 
             {/* Optional Donor Info */}
             <div className="mb-8 space-y-4">
@@ -518,7 +630,7 @@ export function DonateContent() {
                 <>
                   <CreditCard className="h-5 w-5 mr-2" />
                   Donate{" "}
-                  {currentAmount ? `$${currentAmount}` : ""}
+                  {currentAmount ? `$${currentAmount.toLocaleString()}` : ""}
                   {donationType === "monthly" && currentAmount ? "/month" : ""}
                 </>
               )}
@@ -533,7 +645,7 @@ export function DonateContent() {
         </div>
       </section>
 
-      {/* 3. Where every dollar goes */}
+      {/* 3. Where every dollar goes — the three areas */}
       <section className="relative py-20 lg:py-28 bg-[#F5F3EF] overflow-hidden">
         <div className="absolute inset-0 bg-mesh" aria-hidden />
         <div className="relative max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
@@ -545,39 +657,84 @@ export function DonateContent() {
           >
             <Eyebrow>Where Every Dollar Goes</Eyebrow>
             <h2 className="mt-5 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl lg:text-5xl leading-tight tracking-tight max-w-2xl">
-              Three pillars.{" "}
+              Three areas.{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
                 Zero mystery.
               </span>
             </h2>
             <p className="mt-4 text-[#555555] text-base sm:text-lg max-w-2xl">
-              We&apos;re a 501(c)(3) and we like receipts as much as you do. Your
-              donation lands in one of three places.
+              We&apos;re a 501(c)(3) and we like receipts as much as you do. Your gift
+              lands in one of three places, or wherever the mission needs it most.
             </p>
           </motion.div>
 
           <div className="mt-12 grid md:grid-cols-3 gap-6">
-            {PILLAR_IMPACT.map((pillar, i) => (
+            {GIVING_AREAS.filter((a) => a.id !== "general").map((area, i) => (
               <motion.div
-                key={pillar.title}
+                key={area.id}
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ duration: 0.7, delay: i * 0.1, ease: EASE }}
-                className="group bg-white rounded-2xl p-7 border border-[#DDDDDD] hover:border-[#C9A84C]/60 hover:shadow-[0_12px_40px_rgba(26,26,26,0.08)] transition-all"
+                className="group bg-white rounded-2xl p-7 border border-[#DDDDDD] hover:border-[#C9A84C]/60 hover:shadow-[0_12px_40px_rgba(26,26,26,0.08)] transition-all flex flex-col"
               >
                 <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#C9A84C]/10 border border-[#C9A84C]/30 text-[#A68A2E] group-hover:bg-[#C9A84C] group-hover:text-[#1A1A1A] transition-colors">
-                  <FFIcon name={pillar.icon} className="h-6 w-6" />
+                  <FFIcon name={area.icon} className="h-6 w-6" />
                 </span>
-                <h3 className="mt-5 text-lg font-semibold text-[#1A1A1A]">{pillar.title}</h3>
-                <p className="mt-2 text-[#555555] text-sm leading-relaxed">{pillar.text}</p>
+                <h3 className="mt-5 text-lg font-semibold text-[#1A1A1A]">{area.label}</h3>
+                <p className="mt-2 text-[#555555] text-sm leading-relaxed flex-1">{area.blurb}</p>
+                <p className="mt-4 pt-4 border-t border-[#DDDDDD] text-[11px] font-semibold tracking-[0.12em] uppercase text-[#A68A2E]">
+                  {area.includes}
+                </p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 4. The goals your gift moves */}
+      {/* 4. Proof — what we've already put into the world */}
+      <section className="relative py-20 lg:py-28 bg-[#FAFAF8] overflow-hidden">
+        <div className="relative max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 0.8, ease: EASE }}
+          >
+            <Eyebrow>Proof, Not Promises</Eyebrow>
+            <h2 className="mt-5 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl tracking-tight max-w-2xl">
+              What your support has already put into the world.
+            </h2>
+            <p className="mt-4 text-[#555555] text-base sm:text-lg max-w-2xl">
+              We&apos;re young, and we move. Here&apos;s what&apos;s real and running
+              today, and what your gift keeps growing.
+            </p>
+          </motion.div>
+
+          <div className="mt-12 grid sm:grid-cols-2 gap-5">
+            {PROOF.map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-10%" }}
+                transition={{ duration: 0.7, delay: i * 0.08, ease: EASE }}
+                className="group flex items-start gap-4 p-6 rounded-2xl bg-white border border-[#DDDDDD] hover:border-[#C9A84C]/60 hover:shadow-[0_12px_40px_rgba(26,26,26,0.08)] transition-all"
+              >
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#C9A84C]/10 border border-[#C9A84C]/30 text-[#A68A2E] group-hover:bg-[#C9A84C] group-hover:text-[#1A1A1A] transition-colors">
+                  <FFIcon name={item.icon} className="h-6 w-6" />
+                </span>
+                <div>
+                  <h3 className="font-semibold text-[#1A1A1A]">{item.title}</h3>
+                  <p className="mt-1.5 text-[#555555] text-sm leading-relaxed">{item.text}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. The goals your gift moves */}
       <section className="relative py-20 lg:py-28 bg-[#141413] overflow-hidden">
         <div className="absolute inset-0 bg-starfield opacity-60" aria-hidden />
         <div
@@ -598,6 +755,9 @@ export function DonateContent() {
             <h2 className="mt-5 font-semibold text-white text-3xl sm:text-4xl tracking-tight">
               This is what we&apos;re building toward.
             </h2>
+            <p className="mt-3 text-white/50 text-sm max-w-xl mx-auto">
+              Our north-star goals. Every gift moves a number.
+            </p>
           </motion.div>
 
           <div className="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
@@ -613,7 +773,76 @@ export function DonateContent() {
         </div>
       </section>
 
-      {/* 5. Other ways to give */}
+      {/* 6. Major gifts & corporate partnership */}
+      <section
+        id="major-gifts"
+        className="relative py-20 lg:py-28 bg-[#F5F3EF] overflow-hidden scroll-mt-20"
+      >
+        <div className="absolute top-0 inset-x-0 h-20 bg-chevron-band opacity-60" aria-hidden />
+        <div className="relative max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-10%" }}
+              transition={{ duration: 0.8, ease: EASE }}
+            >
+              <Eyebrow>Major & Corporate Giving</Eyebrow>
+              <h2 className="mt-5 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl lg:text-[2.75rem] leading-[1.12] tracking-tight">
+                Thinking bigger?{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
+                  Let&apos;s build something.
+                </span>
+              </h2>
+              <p className="mt-5 text-[#555555] text-base sm:text-lg leading-relaxed">
+                Companies, foundations, and major donors move whole programs, not
+                just single gifts. We&apos;ll sit down with you, shape the impact
+                around your goals, and show you exactly what your name makes
+                possible.
+              </p>
+
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <Link
+                  href="/get-involved/partner"
+                  className="group inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl bg-[#1A1A1A] text-[#E8D48B] font-semibold hover:bg-[#2D2D2D] transition-colors"
+                >
+                  Start the conversation
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <a
+                  href="mailto:4ever4wardfoundation@gmail.com"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl border-2 border-[#1A1A1A]/20 text-[#1A1A1A] font-semibold hover:border-[#1A1A1A] transition-colors"
+                >
+                  Email our team
+                </a>
+              </div>
+            </motion.div>
+
+            <div className="space-y-4">
+              {MAJOR_GIFTS.map((gift, i) => (
+                <motion.div
+                  key={gift.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-10%" }}
+                  transition={{ duration: 0.7, delay: i * 0.1, ease: EASE }}
+                  className="group flex items-start gap-4 p-6 rounded-2xl bg-white border border-[#DDDDDD] hover:border-[#C9A84C]/60 hover:shadow-[0_12px_40px_rgba(26,26,26,0.08)] transition-all"
+                >
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#C9A84C]/10 border border-[#C9A84C]/30 text-[#A68A2E] group-hover:bg-[#C9A84C] group-hover:text-[#1A1A1A] transition-colors">
+                    <Building2 className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <h3 className="font-semibold text-[#1A1A1A]">{gift.title}</h3>
+                    <p className="mt-1.5 text-[#555555] text-sm leading-relaxed">{gift.text}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Other ways to give */}
       <section className="py-20 lg:py-28 bg-[#FAFAF8]">
         <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
           <motion.div
@@ -663,7 +892,7 @@ export function DonateContent() {
         </div>
       </section>
 
-      {/* 6. Closing dual CTA */}
+      {/* 8. Closing dual CTA */}
       <section className="relative bg-[#141413] py-24 sm:py-28 overflow-hidden">
         <div className="absolute inset-0 bg-starfield" aria-hidden />
         <div
@@ -714,15 +943,15 @@ export function DonateContent() {
                   Go Bigger
                 </p>
                 <h3 className="mt-3 font-bold text-white text-2xl sm:text-3xl leading-tight max-w-md">
-                  Talk to us about sponsorship.
+                  Bring your company to the table.
                 </h3>
                 <p className="mt-2 text-white/60 max-w-md">
                   Sponsor a cohort, an event series, or a whole program. We&apos;ll
                   show you exactly what your name makes possible.
                 </p>
                 <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[#E8D48B]">
-                  Join forces
-                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  Explore partnership
+                  <ArrowUpRight className="h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </span>
               </Link>
             </motion.div>
@@ -730,7 +959,7 @@ export function DonateContent() {
         </div>
       </section>
 
-      {/* 7. Tax info */}
+      {/* 9. Tax info */}
       <section className="py-12 bg-[#FBF6E9]">
         <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 text-center">
           <p className="text-[#555555]">

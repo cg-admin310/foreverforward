@@ -35,6 +35,11 @@ const navLinks = [
         label: "Marigold",
         description: "Free IEP help for parents",
       },
+      {
+        href: "/programs/commonground",
+        label: "CommonGround",
+        description: "Calmer co-parenting app",
+      },
     ],
     viewAllHref: "/programs",
   },

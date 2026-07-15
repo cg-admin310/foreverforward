@@ -21,7 +21,6 @@ import {
   Users,
   Heart,
   Cpu,
-  FileText,
   Sprout,
 } from "lucide-react";
 import { PROGRAMS, CAREER_PATHWAYS } from "@/lib/constants";
@@ -649,87 +648,103 @@ function TechInitiativesSection() {
             </span>
           </h2>
           <p className="mt-5 text-white/60 text-base sm:text-lg leading-relaxed">
-            Forever Forward builds free technology to solve problems families
-            actually face. Marigold is the first. It won&rsquo;t be the last.
+            Forever Forward builds and backs technology that solves problems
+            families actually face. These are the first. They won&rsquo;t be the
+            last.
           </p>
         </div>
 
-        <div className="mt-12 grid lg:grid-cols-3 gap-6 items-stretch">
-          {/* Marigold feature card */}
-          <motion.div
-            initial={{ opacity: 0, y: 32 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-10%" }}
-            transition={{ duration: 0.8, ease: EASE }}
-            className="lg:col-span-2"
-          >
-            <Link
-              href="/programs/marigold"
-              className="group relative block h-full rounded-3xl overflow-hidden border border-white/10 hover:border-[#C9A84C]/50 transition-colors"
+        <div className="mt-12 grid md:grid-cols-2 gap-6 items-stretch">
+          {TECH_TOOLS.map((tool, i) => (
+            <motion.div
+              key={tool.href}
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-10%" }}
+              transition={{ duration: 0.8, delay: i * 0.12, ease: EASE }}
             >
-              <div className="grain-overlay relative aspect-[16/10] sm:aspect-[2/1] overflow-hidden">
-                <Image
-                  src="/images/programs/marigold-hero.jpg"
-                  alt="A parent and child understanding an IEP together with Marigold"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 66vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#141413] via-[#141413]/30 to-transparent" />
-                <span className="absolute top-5 left-5 inline-flex items-center gap-1.5 rounded-full bg-[#C9A84C] text-[#1A1A1A] px-3 py-1 text-[10px] font-bold tracking-[0.18em] uppercase">
-                  Free Tool
-                </span>
-                <div className="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7 sm:right-7">
-                  <p className="text-[#E8D48B] text-xs font-semibold tracking-[0.25em] uppercase">
-                    Marigold · Their plan. Your language.
-                  </p>
-                  <h3 className="mt-2 text-white text-2xl sm:text-3xl font-semibold leading-tight max-w-lg">
-                    Your child&rsquo;s IEP, finally in plain language.
-                  </h3>
-                  <p className="mt-2 text-white/70 text-sm sm:text-base max-w-lg leading-relaxed">
-                    Upload the plan, understand every line, and get matched to the
-                    right resources. Free for every parent.
-                  </p>
-                  <span className="mt-4 inline-flex items-center gap-2 font-semibold text-white group-hover:text-[#E8D48B] transition-colors">
-                    Explore Marigold
-                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              <Link
+                href={tool.href}
+                className="group relative block h-full rounded-3xl overflow-hidden border border-white/10 hover:border-[#C9A84C]/50 transition-colors"
+              >
+                <div className="grain-overlay relative aspect-[16/11] overflow-hidden">
+                  <Image
+                    src={tool.image}
+                    alt={tool.alt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#141413] via-[#141413]/35 to-transparent" />
+                  <span className="absolute top-5 left-5 inline-flex items-center gap-1.5 rounded-full bg-[#C9A84C] text-[#1A1A1A] px-3 py-1 text-[10px] font-bold tracking-[0.18em] uppercase">
+                    {tool.badge}
                   </span>
+                  <div className="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7 sm:right-7">
+                    <p className="text-[#E8D48B] text-xs font-semibold tracking-[0.25em] uppercase">
+                      {tool.eyebrow}
+                    </p>
+                    <h3 className="mt-2 text-white text-2xl sm:text-3xl font-semibold leading-tight">
+                      {tool.title}
+                    </h3>
+                    <p className="mt-2 text-white/70 text-sm sm:text-base leading-relaxed">
+                      {tool.text}
+                    </p>
+                    <span className="mt-4 inline-flex items-center gap-2 font-semibold text-white group-hover:text-[#E8D48B] transition-colors">
+                      {tool.cta}
+                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          </motion.div>
-
-          {/* More coming card */}
-          <motion.div
-            initial={{ opacity: 0, y: 32 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-10%" }}
-            transition={{ duration: 0.8, delay: 0.12, ease: EASE }}
-            className="relative flex flex-col justify-between rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur p-7 sm:p-8"
-          >
-            <div>
-              <span className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#C9A84C]/12 border border-[#C9A84C]/25 text-[#E8D48B]">
-                <Sprout className="h-6 w-6" />
-              </span>
-              <h3 className="mt-5 text-white font-semibold text-xl">
-                More tools are growing.
-              </h3>
-              <p className="mt-2 text-white/55 text-sm sm:text-base leading-relaxed">
-                We&rsquo;re pointing today&rsquo;s technology at the everyday
-                barriers our families run into. When the next tool is ready, it
-                lands here, and it&rsquo;s free too.
-              </p>
-            </div>
-            <div className="mt-6 flex items-center gap-2 text-white/40 text-sm">
-              <FileText className="h-4 w-4 text-[#C9A84C]" />
-              Built by Forever Forward, for the community.
-            </div>
-          </motion.div>
+              </Link>
+            </motion.div>
+          ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-10%" }}
+          transition={{ duration: 0.7, delay: 0.2, ease: EASE }}
+          className="mt-6 flex flex-col sm:flex-row sm:items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur px-6 py-5"
+        >
+          <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-[#C9A84C]/12 border border-[#C9A84C]/25 text-[#E8D48B] shrink-0">
+            <Sprout className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="text-white font-semibold">More tools are growing.</p>
+            <p className="text-white/50 text-sm leading-relaxed">
+              We keep pointing today&rsquo;s technology at the everyday barriers our
+              families run into. When the next one is ready, it lands here.
+            </p>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
 }
+
+const TECH_TOOLS = [
+  {
+    href: "/programs/marigold",
+    image: "/images/programs/marigold-hero.jpg",
+    alt: "A parent and child understanding an IEP together with Marigold",
+    badge: "Free Tool",
+    eyebrow: "Marigold · For Youth & Families",
+    title: "Your child's IEP, in plain language.",
+    text: "Decode the plan, understand every line, and get matched to the right resources. Free for every parent.",
+    cta: "Explore Marigold",
+  },
+  {
+    href: "/programs/commonground",
+    image: "/images/programs/commonground-hero.jpg",
+    alt: "A father laughing with his child, co-parenting at peace with CommonGround",
+    badge: "Partner",
+    eyebrow: "CommonGround · For Families",
+    title: "Co-parenting, made a whole lot calmer.",
+    text: "Cools tense messages, keeps the schedule straight, and keeps kids out of the middle. Free to start.",
+    cta: "Explore CommonGround",
+  },
+] as const;
 
 /* ----------------------------------------------------------------------------
  * 5. The leadership thread — one DNA across all three
