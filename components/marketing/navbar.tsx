@@ -25,7 +25,9 @@ const navLinks = [
   {
     label: "Programs",
     dropdown: [
-      ...PROGRAMS.map((p) => ({
+      // Stories from My Future lives under the Tech-Ready Youth umbrella, so it
+      // is not surfaced as a top-level menu item.
+      ...PROGRAMS.filter((p) => p.slug !== "stories-from-my-future").map((p) => ({
         href: `/programs/${p.slug}`,
         label: p.name,
         description: p.tagline,
