@@ -21,6 +21,7 @@ import {
   Gift,
   Compass,
   Sparkles,
+  Check,
 } from "lucide-react";
 import { CAREER_PATHWAYS } from "@/lib/constants";
 import { FFIcon, isFFIconName } from "@/components/shared/ff-icons";
@@ -463,6 +464,100 @@ function ProgramEvents({ program }: { program: ProgramDetail }) {
           </div>
         )}
 
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * 3.55 Who it's for — help a reader see themselves in it
+ * ------------------------------------------------------------------------- */
+
+function WhoItsFor({ program }: { program: ProgramDetail }) {
+  const items = program.forYou;
+  if (!items || items.length === 0) return null;
+  return (
+    <section className="relative bg-[#FBF6E9] py-20 sm:py-28 overflow-hidden border-y border-[#C9A84C]/20">
+      <div className="absolute inset-0 bg-blueprint opacity-60" aria-hidden />
+      <div className="relative max-w-5xl mx-auto px-5 sm:px-6 lg:px-8">
+        <Eyebrow>Who It&rsquo;s For</Eyebrow>
+        <h2 className="mt-6 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl lg:text-[2.6rem] leading-[1.12] tracking-tight max-w-2xl">
+          This is for you if{" "}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
+            any of this sounds like you.
+          </span>
+        </h2>
+        <div className="mt-10 grid sm:grid-cols-2 gap-x-8 gap-y-5">
+          {items.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ duration: 0.5, delay: (i % 2) * 0.08, ease: EASE }}
+              className="flex items-start gap-3.5"
+            >
+              <span className="mt-0.5 shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-[#C9A84C] text-[#1A1A1A]">
+                <Check className="h-3.5 w-3.5" strokeWidth={3} />
+              </span>
+              <p className="text-[#1A1A1A] text-base sm:text-lg leading-relaxed">
+                {item}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * 3.58 Real talk — honest answers to the worries that hold people back
+ * ------------------------------------------------------------------------- */
+
+function ProgramFaq({ program }: { program: ProgramDetail }) {
+  const faqs = program.faqs;
+  if (!faqs || faqs.length === 0) return null;
+  return (
+    <section className="relative bg-[#FAFAF8] py-24 sm:py-32 overflow-hidden">
+      <div className="absolute inset-0 bg-mesh" aria-hidden />
+      <div className="relative max-w-5xl mx-auto px-5 sm:px-6 lg:px-8">
+        <div className="max-w-2xl">
+          <Eyebrow>Real Talk</Eyebrow>
+          <h2 className="mt-6 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl lg:text-[2.6rem] leading-[1.12] tracking-tight">
+            The stuff you&rsquo;re{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
+              actually wondering.
+            </span>
+          </h2>
+        </div>
+        <div className="mt-12 grid md:grid-cols-2 gap-5">
+          {faqs.map((faq, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ duration: 0.6, delay: (i % 2) * 0.08, ease: EASE }}
+              className="group rounded-3xl bg-white border border-[#DDDDDD] p-6 sm:p-7 hover:border-[#C9A84C]/50 hover:shadow-[0_12px_40px_rgba(201,168,76,0.12)] transition-all duration-300"
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  className="shrink-0 text-outline-gold font-bold text-2xl leading-none select-none"
+                  aria-hidden
+                >
+                  Q
+                </span>
+                <h3 className="font-semibold text-[#1A1A1A] text-base sm:text-lg leading-snug pt-0.5">
+                  {faq.q}
+                </h3>
+              </div>
+              <p className="mt-3 pl-9 text-[#555555] text-sm sm:text-base leading-relaxed">
+                {faq.a}
+              </p>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -974,11 +1069,13 @@ export function ProgramPageClient({ program }: ProgramPageClientProps) {
       <ProgramHero program={program} />
       <AtAGlance program={program} />
       <Overview program={program} />
+      {program.forYou && <WhoItsFor program={program} />}
       <ProgramEvents program={program} />
       {program.slug === "it-foundations" && <CareerPathways />}
       <Curriculum program={program} />
       <Deliverables program={program} />
       {program.testimonial && <Testimonial testimonial={program.testimonial} />}
+      {program.faqs && <ProgramFaq program={program} />}
       {program.sponsorCta && <SponsorCta />}
       <ProgramCTA program={program} />
     </>

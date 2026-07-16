@@ -52,6 +52,10 @@ export interface ProgramDetail {
   curriculumSubtitle?: string;
   // When true, render a "For Partners & Sponsors" call to action on the page.
   sponsorCta?: boolean;
+  // "This is for you if..." self-identification bullets.
+  forYou?: string[];
+  // Honest objection-busting Q&A ("the stuff you're actually wondering").
+  faqs?: { q: string; a: string }[];
   curriculum: {
     week?: number;
     phase?: string;
@@ -97,6 +101,30 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
       cost: "Free for qualifying participants",
     },
     sponsorCta: true,
+    forYou: [
+      "You're a father who wants a career, not just a job, and you're ready to show up for it.",
+      "You've never worked in tech, and you're the one your family calls when the Wi-Fi goes down.",
+      "You need training that fits around a shift and a bedtime, not the other way around.",
+      "You want your kids to watch you build something real.",
+    ],
+    faqs: [
+      {
+        q: "I've never worked in IT. Am I already behind?",
+        a: "You're right on time. We start at zero: no degree, no experience, no jargon. Most of our fathers walk in not knowing what an IP address is and walk out certified.",
+      },
+      {
+        q: "What does it cost?",
+        a: "Nothing, for qualifying participants. No tuition, no hidden fees. We're a 501(c)(3) nonprofit. Your only investment is showing up.",
+      },
+      {
+        q: "I work full-time. When are classes?",
+        a: "Evenings and Saturdays, built around real life. You've got a shift and kids. The schedule bends to you, not the other way around.",
+      },
+      {
+        q: "What do I actually walk away with?",
+        a: "A CompTIA Tech+ certification, a portfolio, interview reps, and real introductions to employers, plus a crew and mentors who don't disappear at graduation.",
+      },
+    ],
     curriculumEyebrow: "The Course",
     curriculumTitle: "Plotted week by week,",
     curriculum: [
@@ -285,6 +313,30 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
       cost: "Free for qualifying participants",
     },
     sponsorCta: true,
+    forYou: [
+      "You learn best by doing, with your hands on the actual gear.",
+      "You've always wondered how the internet and those giant screens really work.",
+      "You want a real taste of a tech career before committing to a full course.",
+      "You'd show up curious and leave with a skill and a story.",
+    ],
+    faqs: [
+      {
+        q: "Do I need any tech background?",
+        a: "Not a bit. If you can follow along and use your hands, you'll leave having built a working network. We teach it plain, no jargon.",
+      },
+      {
+        q: "Is it really free, including the Cosm trip?",
+        a: "Yes. Lunch, materials, the build, and the field trip are all on us.",
+      },
+      {
+        q: "What if I've never touched networking gear?",
+        a: "Perfect, that's the whole point. Mentors walk you through every step, and you test your own work before you leave.",
+      },
+      {
+        q: "Where can this lead?",
+        a: "Straight into IT & Cybersecurity Foundations if you catch the bug, plus a first look at the jobs and the people who do this for a living.",
+      },
+    ],
     curriculumEyebrow: "How the Day Flows",
     curriculumTitle: "One day, start to finish,",
     curriculum: [
@@ -375,6 +427,30 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
       cost: "Free for qualifying participants",
     },
     sponsorCta: true,
+    forYou: [
+      "You're drawn to work with discipline, structure, and a clear path.",
+      "You've thought about security work but never knew where to start.",
+      "You want a respectful, safety-first introduction, not a stunt.",
+      "You value a brotherhood that has your back.",
+    ],
+    faqs: [
+      {
+        q: "Do I need any experience with firearms?",
+        a: "No. We start with safety: the four rules, safe handling, respect, before anything else. A certified instructor leads every minute.",
+      },
+      {
+        q: "Is this really a path to a job?",
+        a: "Yes. Built with Swift Security Solutions, the day opens the door to armed-security and installer roles, with applications you can start on the spot.",
+      },
+      {
+        q: "What's the deal with the e-waste targets?",
+        a: "They're donated old drives and office hardware from partner orgs, destroyed for good. A real data-disposal win, and a genuinely fun day.",
+      },
+      {
+        q: "What does it cost?",
+        a: "Free for qualifying participants, safety gear included. You bring focus and respect; we handle the rest.",
+      },
+    ],
     curriculumEyebrow: "How the Day Flows",
     curriculumTitle: "One day, start to finish,",
     curriculum: [
@@ -467,6 +543,30 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
       cost: "Free for qualifying participants",
     },
     sponsorCta: true,
+    forYou: [
+      "You're a young person curious about how things actually work.",
+      "You'd rather build the future than just scroll past it.",
+      "You've never had your hands on a robot, an AI, or a 3D printer, until now.",
+      "You want to see, up close, that a tech career could be yours.",
+    ],
+    faqs: [
+      {
+        q: "Does my kid need any experience?",
+        a: "None at all. We start from curiosity, and every tool is put in their hands with a mentor right beside them.",
+      },
+      {
+        q: "How much does it cost?",
+        a: "Free for qualifying participants. Nothing to buy, we provide everything.",
+      },
+      {
+        q: "What's the field trip?",
+        a: "A real visit inside a tech company, one of our sponsors, to see the machines and meet the people who run them. For a lot of kids, that's the moment it clicks.",
+      },
+      {
+        q: "What age is this for?",
+        a: "Built for ages 16 and up, after school and Saturdays, so it fits around school.",
+      },
+    ],
     eventsEyebrow: "The Experiences",
     eventsTitle: "Every week, a new piece of the future in their hands.",
     eventsIntro:
@@ -661,6 +761,30 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
       ageRange: "Ages 6–12",
       cost: "Free at community events; $100/$200 private plans",
     },
+    forYou: [
+      "Your kid dreams up whole worlds and loves to draw.",
+      "You want screen time that creates something instead of just filling time.",
+      "You'd love for your child to hold something they imagined.",
+      "You believe every kid has a story worth telling.",
+    ],
+    faqs: [
+      {
+        q: "What ages is this for?",
+        a: "Ages 6 to 12. Mentors meet each kid where they are, from first-time writers to little authors who never stop.",
+      },
+      {
+        q: "Does my child need to be a strong reader or writer?",
+        a: "Not at all. We start with imagination. The AI partner and mentor help shape it into a full story in their own words.",
+      },
+      {
+        q: "What do they take home?",
+        a: "Their finished digital story and a 3D-printed figure of the hero they drew. Something they made, start to finish.",
+      },
+      {
+        q: "Is it free?",
+        a: "Free at our community events. Private plans are available at $100 and $200 for a dedicated experience.",
+      },
+    ],
     curriculum: [
       {
         phase: "Imagine",
