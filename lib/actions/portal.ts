@@ -3,9 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthUser } from "@/lib/auth";
-import { programLabel } from "@/lib/lms";
+import { lmsProgramLabel } from "@/lib/lms";
 import type {
-  ProgramType,
   MembershipStatus,
   Course,
   CourseLesson,
@@ -26,7 +25,7 @@ async function requireMemberId(): Promise<string | null> {
  * ------------------------------------------------------------------------ */
 
 export interface DashboardMembership {
-  program: ProgramType;
+  program: string;
   label: string;
   status: MembershipStatus;
 }
@@ -34,7 +33,7 @@ export interface DashboardMembership {
 export interface DashboardCourse {
   assignmentId: string;
   courseId: string;
-  program: ProgramType;
+  program: string;
   programLabel: string;
   title: string;
   summary: string | null;
@@ -62,9 +61,9 @@ export async function getPortalDashboard(): Promise<ActionResult<PortalDashboard
       .eq("member_id", memberId);
 
     const membershipRows: DashboardMembership[] = (memberships ?? []).map(
-      (m: { program: ProgramType; status: MembershipStatus }) => ({
+      (m: { program: string; status: MembershipStatus }) => ({
         program: m.program,
-        label: programLabel(m.program),
+        label: lmsProgramLabel(m.program),
         status: m.status,
       })
     );
@@ -118,7 +117,7 @@ export async function getPortalDashboard(): Promise<ActionResult<PortalDashboard
           assignmentId: a.id,
           courseId: a.course_id,
           program: a.program,
-          programLabel: programLabel(a.program),
+          programLabel: lmsProgramLabel(a.program),
           title: c.title,
           summary: c.summary,
           coverImageUrl: c.cover_image_url,
@@ -139,7 +138,7 @@ export async function getPortalDashboard(): Promise<ActionResult<PortalDashboard
  * Request to join a program
  * ------------------------------------------------------------------------ */
 
-export async function requestMembership(program: ProgramType): Promise<ActionResult> {
+export async function requestMembership(program: string): Promise<ActionResult> {
   try {
     const memberId = await requireMemberId();
     if (!memberId) return { success: false, error: "Not signed in" };
@@ -188,7 +187,7 @@ export interface PlayerQuestion {
 
 export interface CoursePlayerData {
   assignmentId: string;
-  program: ProgramType;
+  program: string;
   programLabel: string;
   course: Pick<Course, "id" | "title" | "summary" | "cover_image_url" | "level" | "pass_threshold">;
   lessons: CourseLesson[];
@@ -265,7 +264,7 @@ export async function getCoursePlayer(assignmentId: string): Promise<ActionResul
       data: {
         assignmentId,
         program: assignment.program,
-        programLabel: programLabel(assignment.program),
+        programLabel: lmsProgramLabel(assignment.program),
         course: course as CoursePlayerData["course"],
         lessons: (lessons ?? []) as CourseLesson[],
         questions: (questions ?? []) as PlayerQuestion[],

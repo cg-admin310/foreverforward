@@ -24,8 +24,8 @@ import {
   deleteCourse,
   type CourseDetail,
 } from "@/lib/actions/courses";
-import { ALL_PROGRAM_TYPES, programLabel } from "@/lib/lms";
-import type { CourseLevel, CourseStatus, ProgramType } from "@/types/database";
+import { ALL_LMS_PROGRAMS, lmsProgramLabel } from "@/lib/lms";
+import type { CourseLevel, CourseStatus } from "@/types/database";
 
 export function CourseEditor({ detail }: { detail: CourseDetail }) {
   const router = useRouter();
@@ -67,7 +67,7 @@ export function CourseEditor({ detail }: { detail: CourseDetail }) {
     router.push("/courses");
   };
 
-  const unassignedPrograms = ALL_PROGRAM_TYPES.filter(
+  const unassignedPrograms = ALL_LMS_PROGRAMS.filter(
     (p) => !assignments.some((a) => a.program === p)
   );
 
@@ -174,7 +174,7 @@ export function CourseEditor({ detail }: { detail: CourseDetail }) {
               key={a.id}
               className="inline-flex items-center gap-2 rounded-full border border-[#C9A84C]/40 bg-[#FBF6E9] px-3 py-1.5 text-sm font-semibold text-[#A68A2E]"
             >
-              {programLabel(a.program)}
+              {lmsProgramLabel(a.program)}
               <button
                 onClick={async () => {
                   await unassignCourse(a.id, course.id);
@@ -273,21 +273,21 @@ function AddProgram({
   programs,
   onAdd,
 }: {
-  programs: ProgramType[];
-  onAdd: (p: ProgramType) => Promise<void>;
+  programs: string[];
+  onAdd: (p: string) => Promise<void>;
 }) {
-  const [value, setValue] = useState<ProgramType | "">("");
+  const [value, setValue] = useState<string>("");
   return (
     <div className="flex items-center gap-2">
       <select
         value={value}
-        onChange={(e) => setValue(e.target.value as ProgramType)}
+        onChange={(e) => setValue(e.target.value)}
         className="rounded-lg border border-[#DDDDDD] px-3 py-2 text-sm focus:border-[#C9A84C] focus:outline-none"
       >
         <option value="">Add a program…</option>
         {programs.map((p) => (
           <option key={p} value={p}>
-            {programLabel(p)}
+            {lmsProgramLabel(p)}
           </option>
         ))}
       </select>

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Check, Clock, Loader2 } from "lucide-react";
 import { MEMBER_PROGRAMS } from "@/lib/lms";
 import { requestMembership } from "@/lib/actions/portal";
-import type { ProgramType } from "@/types/database";
 
 export function ProgramsList({
   statusByProgram,
@@ -14,10 +13,10 @@ export function ProgramsList({
 }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
-  const [busy, setBusy] = useState<ProgramType | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const request = async (program: ProgramType) => {
+  const request = async (program: string) => {
     setError(null);
     setBusy(program);
     const res = await requestMembership(program);
@@ -33,10 +32,10 @@ export function ProgramsList({
     <div className="space-y-4">
       {error && <p className="text-sm text-red-600">{error}</p>}
       {MEMBER_PROGRAMS.map((p) => {
-        const status = statusByProgram[p.program];
+        const status = statusByProgram[p.slug];
         return (
           <div
-            key={p.program}
+            key={p.slug}
             className="rounded-2xl border border-[#DDDDDD] bg-white p-6 flex flex-col sm:flex-row sm:items-center gap-4 justify-between"
           >
             <div>
@@ -61,11 +60,11 @@ export function ProgramsList({
                 </span>
               ) : (
                 <button
-                  onClick={() => request(p.program)}
-                  disabled={busy === p.program}
+                  onClick={() => request(p.slug)}
+                  disabled={busy === p.slug}
                   className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] px-4 py-2.5 text-sm font-semibold text-[#1A1A1A] disabled:opacity-60"
                 >
-                  {busy === p.program ? (
+                  {busy === p.slug ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" /> Requesting…
                     </>

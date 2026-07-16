@@ -3,14 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStaffUser } from "@/lib/auth";
-import type { MembershipStatus, ProgramType } from "@/types/database";
+import type { MembershipStatus } from "@/types/database";
 
 type ActionResult<T = void> = { success: boolean; data?: T; error?: string };
 
 export interface ProgramRequestRow {
   id: string;
   member_id: string;
-  program: ProgramType;
+  program: string;
   status: MembershipStatus;
   message: string | null;
   admin_notes: string | null;
@@ -41,7 +41,7 @@ export async function listProgramRequests(): Promise<ActionResult<ProgramRequest
       return {
         id: r.id as string,
         member_id: r.member_id as string,
-        program: r.program as ProgramType,
+        program: r.program as string,
         status: r.status as MembershipStatus,
         message: (r.message ?? null) as string | null,
         admin_notes: (r.admin_notes ?? null) as string | null,

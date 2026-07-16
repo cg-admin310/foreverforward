@@ -1456,7 +1456,7 @@ export type MemberUpdate = Partial<Omit<Member, "id" | "created_at" | "updated_a
 export interface ProgramMembership {
   id: string;
   member_id: string;
-  program: ProgramType;
+  program: string; // website program slug (see lib/lms.ts LMS_PROGRAMS)
   status: MembershipStatus;
   message: string | null;
   decided_by: string | null;
@@ -1522,7 +1522,7 @@ export type QuizQuestionUpdate = Partial<Omit<QuizQuestion, "id" | "course_id" |
 export interface CourseProgramAssignment {
   id: string;
   course_id: string;
-  program: ProgramType;
+  program: string; // website program slug (see lib/lms.ts LMS_PROGRAMS)
   position: number;
   status: AssignmentStatus;
   assigned_by: string | null;

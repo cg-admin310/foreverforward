@@ -58,10 +58,13 @@ CREATE INDEX IF NOT EXISTS idx_members_email ON members(email);
 -- PROGRAM MEMBERSHIPS — a join request that becomes a membership on approval.
 -- One row per (member, program). Admin approves / waitlists / denies.
 -- ---------------------------------------------------------------------------
+-- `program` holds a website program slug (e.g. 'networking-live', 'future-tech-lab',
+-- 'it-foundations', 'security-path', 'stories-from-my-future') — the same units
+-- members join and courses attach to. Stored as TEXT, not the CRM program_type enum.
 CREATE TABLE IF NOT EXISTS program_memberships (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
-  program program_type NOT NULL,
+  program TEXT NOT NULL,
   status membership_status NOT NULL DEFAULT 'pending',
   message TEXT,
   decided_by UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -142,7 +145,7 @@ CREATE INDEX IF NOT EXISTS idx_quiz_questions_course ON quiz_questions(course_id
 CREATE TABLE IF NOT EXISTS course_program_assignments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-  program program_type NOT NULL,
+  program TEXT NOT NULL,
   position INTEGER NOT NULL DEFAULT 0,
   status assignment_status NOT NULL DEFAULT 'active',
   assigned_by UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -152,6 +155,11 @@ CREATE TABLE IF NOT EXISTS course_program_assignments (
 );
 CREATE INDEX IF NOT EXISTS idx_course_assignments_program ON course_program_assignments(program);
 CREATE INDEX IF NOT EXISTS idx_course_assignments_course ON course_program_assignments(course_id);
+
+-- If an earlier version of this migration created `program` as the program_type
+-- enum, convert it to TEXT. No-op if it's already TEXT.
+ALTER TABLE program_memberships ALTER COLUMN program TYPE TEXT USING program::text;
+ALTER TABLE course_program_assignments ALTER COLUMN program TYPE TEXT USING program::text;
 
 -- ---------------------------------------------------------------------------
 -- MEMBER COURSE PROGRESS — one row per (member, assignment).

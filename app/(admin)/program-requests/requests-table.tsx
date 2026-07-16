@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Clock, X, UserCheck } from "lucide-react";
 import { decideProgramRequest, type ProgramRequestRow } from "@/lib/actions/program-requests";
-import { programLabel } from "@/lib/lms";
+import { lmsProgramLabel } from "@/lib/lms";
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-[#FBF6E9] text-[#A68A2E] border-[#C9A84C]/40",
@@ -72,7 +72,7 @@ export function RequestsTable({ requests }: { requests: ProgramRequestRow[] }) {
                   </span>
                 </div>
                 <p className="text-sm text-[#888888]">
-                  {programLabel(r.program)} · {r.member_kind} · {r.member_email}
+                  {lmsProgramLabel(r.program)} · {r.member_kind} · {r.member_email}
                 </p>
                 {r.message && (
                   <p className="mt-1 text-sm text-[#555555] italic">&ldquo;{r.message}&rdquo;</p>

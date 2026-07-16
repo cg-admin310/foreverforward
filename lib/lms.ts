@@ -1,61 +1,66 @@
-import type { ProgramType, CourseLevel } from "@/types/database";
-
-/** Friendly labels for the CRM program types courses attach to. */
-export const PROGRAM_TYPE_LABELS: Record<ProgramType, string> = {
-  father_forward: "Father Forward",
-  tech_ready_youth: "Tech-Ready Youth",
-  making_moments: "Making Moments",
-  from_script_to_screen: "From Script to Screen",
-  stories_from_my_future: "Stories from My Future",
-  lula: "LULA",
-};
-
-export function programLabel(program: ProgramType): string {
-  return PROGRAM_TYPE_LABELS[program] ?? program;
-}
+import type { CourseLevel } from "@/types/database";
 
 /**
- * The programs a member can request to join from the portal. Admins can still
- * assign courses to any program type; this is just the member-facing menu.
+ * LMS "programs" are the website programs (the units members join and courses
+ * attach to), keyed by their slug. Grouped under their umbrella for display.
  */
-export const MEMBER_PROGRAMS: {
-  program: ProgramType;
+export interface LmsProgram {
+  slug: string;
   label: string;
+  umbrella: string;
   audience: string;
   description: string;
-}[] = [
+}
+
+export const LMS_PROGRAMS: LmsProgram[] = [
   {
-    program: "father_forward",
-    label: "Father Forward",
+    slug: "it-foundations",
+    label: "IT & Cybersecurity Foundations",
+    umbrella: "Father Forward",
     audience: "For fathers",
-    description:
-      "Career, leadership, and brotherhood: IT & Cybersecurity Foundations, Networking Live, and The Security Path.",
+    description: "Earn your CompTIA Tech+ and start a real tech career.",
   },
   {
-    program: "tech_ready_youth",
-    label: "Tech-Ready Youth",
+    slug: "networking-live",
+    label: "Networking Live",
+    umbrella: "Father Forward",
+    audience: "For fathers & youth",
+    description: "Learn networking hands-on and build a real home network.",
+  },
+  {
+    slug: "security-path",
+    label: "The Security Path",
+    umbrella: "Father Forward",
+    audience: "For fathers",
+    description: "Safety training and a door into a security career.",
+  },
+  {
+    slug: "future-tech-lab",
+    label: "Future Tech Lab",
+    umbrella: "Tech-Ready Youth",
     audience: "For kids & youth",
-    description:
-      "Hands-on with the future: robotics, AI, 3D printing, and a real tech-company field trip.",
+    description: "Robotics, AI, 3D printing, satellites, and a real tech-company visit.",
   },
   {
-    program: "stories_from_my_future",
+    slug: "stories-from-my-future",
     label: "Stories from My Future",
+    umbrella: "Tech-Ready Youth",
     audience: "For kids",
-    description:
-      "Dream it, write it, hold it: a story you write with an AI partner and a 3D-printed hero you keep.",
+    description: "Write a story with an AI partner and 3D-print your own hero.",
   },
 ];
 
-/** All program types (for the admin course-assignment picker). */
-export const ALL_PROGRAM_TYPES: ProgramType[] = [
-  "father_forward",
-  "tech_ready_youth",
-  "stories_from_my_future",
-  "making_moments",
-  "from_script_to_screen",
-  "lula",
-];
+const BY_SLUG = new Map(LMS_PROGRAMS.map((p) => [p.slug, p]));
+
+export function lmsProgramLabel(slug: string): string {
+  return BY_SLUG.get(slug)?.label ?? slug;
+}
+
+/** Programs a member can request to join from the portal. */
+export const MEMBER_PROGRAMS = LMS_PROGRAMS;
+
+/** All program slugs (for the admin course-assignment picker). */
+export const ALL_LMS_PROGRAMS: string[] = LMS_PROGRAMS.map((p) => p.slug);
 
 export const COURSE_LEVEL_LABELS: Record<CourseLevel, string> = {
   intro: "Intro",

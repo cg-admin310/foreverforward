@@ -9,7 +9,6 @@ import type {
   CourseLesson,
   QuizQuestion,
   CourseProgramAssignment,
-  ProgramType,
   CourseStatus,
   CourseLevel,
 } from "@/types/database";
@@ -285,7 +284,7 @@ export async function deleteQuestion(id: string, courseId: string): Promise<Acti
 
 export async function assignCourseToProgram(
   courseId: string,
-  program: ProgramType
+  program: string
 ): Promise<ActionResult> {
   try {
     const staff = await getStaffUser();
