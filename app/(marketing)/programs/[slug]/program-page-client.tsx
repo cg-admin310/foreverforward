@@ -463,28 +463,41 @@ function ProgramEvents({ program }: { program: ProgramDetail }) {
           </div>
         )}
 
-        {/* Sponsor hook — bring a company into the room */}
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * 3.6 Sponsor CTA — put a company in the room (career + youth programs)
+ * ------------------------------------------------------------------------- */
+
+function SponsorCta() {
+  return (
+    <section className="relative bg-[#FBF6E9] py-16 sm:py-20 overflow-hidden">
+      <div className="absolute inset-0 bg-blueprint opacity-60" aria-hidden />
+      <div className="relative max-w-5xl mx-auto px-5 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-10%" }}
           transition={{ duration: 0.7, ease: EASE }}
-          className="mt-8 rounded-3xl border border-[#C9A84C]/40 bg-[#FBF6E9] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-5 justify-between"
+          className="rounded-3xl border border-[#C9A84C]/40 bg-white p-7 sm:p-9 flex flex-col sm:flex-row sm:items-center gap-5 justify-between"
         >
           <div>
             <p className="text-[11px] font-semibold tracking-[0.28em] uppercase text-[#A68A2E]">
               For Partners &amp; Sponsors
             </p>
             <p className="mt-2 text-[#1A1A1A] font-semibold text-lg sm:text-xl leading-snug max-w-xl">
-              Put your company in the room. Sponsor an event, send a speaker, or
-              host the visit.
+              Put your company in the room. Sponsor this program, send a speaker,
+              or host the visit.
             </p>
           </div>
           <Link
             href="/get-involved/partner"
             className="group shrink-0 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#1A1A1A] text-[#E8D48B] font-semibold hover:bg-[#2D2D2D] transition-colors"
           >
-            Sponsor an event
+            Sponsor this program
             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
@@ -494,7 +507,7 @@ function ProgramEvents({ program }: { program: ProgramDetail }) {
 }
 
 /* ----------------------------------------------------------------------------
- * 4. The track — Father Forward only (IT now, trades next)
+ * 4. The track — IT Foundations only (IT now, trades next)
  * ------------------------------------------------------------------------- */
 
 function CareerPathways() {
@@ -962,10 +975,11 @@ export function ProgramPageClient({ program }: ProgramPageClientProps) {
       <AtAGlance program={program} />
       <Overview program={program} />
       <ProgramEvents program={program} />
-      {program.slug === "father-forward" && <CareerPathways />}
+      {program.slug === "it-foundations" && <CareerPathways />}
       <Curriculum program={program} />
       <Deliverables program={program} />
       {program.testimonial && <Testimonial testimonial={program.testimonial} />}
+      {program.sponsorCta && <SponsorCta />}
       <ProgramCTA program={program} />
     </>
   );

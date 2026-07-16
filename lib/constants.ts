@@ -192,12 +192,12 @@ export const PROGRAMS = [
   {
     slug: "tech-ready-youth",
     name: "Tech-Ready Youth",
-    tagline: "Get Your Hands on the Future",
+    tagline: "The Future, in Their Hands.",
     audience: "youth" as const,
-    duration: "8 weeks",
-    format: "Hybrid",
+    duration: "Ongoing",
+    format: "Two Programs",
     description:
-      "Eight weeks of real access to the tech shaping tomorrow: robots, AI, 3D printing, and satellites. Includes a field trip inside a real tech company and a capstone gaming tournament they run themselves.",
+      "The umbrella over how we spark the next generation. Future Tech Lab puts robotics, AI, and 3D printing in their hands with a real tech-company field trip. Stories from My Future turns their imagination into a story and a 3D-printed hero.",
     icon: "robot",
   },
   {

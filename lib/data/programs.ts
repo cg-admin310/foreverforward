@@ -50,6 +50,8 @@ export interface ProgramDetail {
   curriculumEyebrow?: string;
   curriculumTitle?: string;
   curriculumSubtitle?: string;
+  // When true, render a "For Partners & Sponsors" call to action on the page.
+  sponsorCta?: boolean;
   curriculum: {
     week?: number;
     phase?: string;
@@ -71,101 +73,32 @@ export interface ProgramDetail {
 }
 
 export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
-  "father-forward": {
-    slug: "father-forward",
-    name: "Father Forward",
-    tagline: "Career. Leadership. Brotherhood.",
+  "it-foundations": {
+    slug: "it-foundations",
+    name: "IT & Cybersecurity Foundations",
+    tagline: "Your First Cert. Your Next Career.",
     audience: "fathers",
-    duration: "Ongoing",
-    format: "Events & Courses",
-    icon: "briefcase",
+    duration: "12 weeks",
+    format: "Hybrid",
+    icon: "certificate",
     heroImage: "/images/future/program-it-pathway.jpg",
     heroDescription:
-      "Father Forward isn't one class. It's a whole program of professional events built to move a father's career and leadership forward: a CompTIA Tech+ certification course, networking lunch-and-learns, firearm-safety range days for the security path, money workshops, and a brotherhood that has his back. Free, and built around real life.",
+      "Twelve weeks of free, hands-on IT training built around a father's real life. Earn your CompTIA Tech+, stand inside a working data center, and walk out with a credential, a portfolio, and a room full of people in your corner. IT is the first track. HVAC, auto, and the trades are next.",
     overview: [
-      "Father Forward is our flagship program, built on one belief: the fastest way to change a family's future is to move its father forward. So we don't run a single class. We run a whole slate of professional events, each one designed to advance a father's career, sharpen his leadership, and put real people in his corner.",
-      "The centerpiece is our CompTIA Tech+ certification course, twelve weeks that take a father from help desk to hire-ready, with a stop inside a working data center along the way. Around it sit lunch-and-learns on networking and leadership, range days that turn firearm safety into a security-career credential, money workshops, and career-launch clinics. Come for one event or move through them all. Every one of them is free, and Travis, our AI mentor, is on call the whole way.",
-      "For a company, this is more than goodwill. It's a pipeline of certified, motivated talent and a direct line into the neighborhoods you say you want to reach. Sponsor an event, send a speaker, host a facility visit, or hire a graduate, and your name goes on a father's fresh start.",
+      "IT & Cybersecurity Foundations is the flagship program inside Father Forward, built on one belief: the fastest way to change a family's future is to hand its father a real career. Right now, that career is IT. You'll earn your CompTIA Tech+, learn how networks actually run the world, stand inside a working data center, and see the road from help desk to network and systems engineer laid out clearly in front of you.",
+      "Every week brings guest speakers who do this work today, a leadership thread on goals, money, and showing up for your kids, and Travis, our AI mentor, on call around the clock. It's completely free, and IT is only the first track. HVAC, auto and EV, and the skilled trades are coming next.",
+      "For a company, this is more than goodwill. It's a pipeline of certified, motivated talent and a direct line into the neighborhoods you say you want to reach. Sponsor a cohort, send a speaker, or hire a graduate, and your name goes on a father's fresh start.",
     ],
     atAGlance: {
-      duration: "Ongoing · 12-week flagship course",
-      format: "Events, workshops & field experiences",
+      duration: "12 weeks",
+      format: "Hybrid (in-person labs + online)",
       schedule: "Evenings & Saturdays, built around work and kids",
       certification: "CompTIA Tech+ certification prep",
       cost: "Free for qualifying participants",
     },
-    eventsEyebrow: "The Events",
-    eventsTitle: "One program. A whole slate of ways forward.",
-    eventsIntro:
-      "Father Forward isn't a single class. It's a calendar of professional events, each built to move your career, your leadership, and your family forward. Come for one. Stay for all of them.",
-    events: [
-      {
-        name: "CompTIA Tech+ Certification Course",
-        kind: "Flagship · 12-Week Course",
-        description:
-          "Your first real IT credential, plus the runway from help desk to network and systems engineer, with a day inside a working data center along the way.",
-        icon: "certificate",
-        flagship: true,
-        image: "/images/programs/ff-certprep.jpg",
-        imageAlt:
-          "A study group of fathers around a table with laptops and notebooks, prepping for their CompTIA Tech+ exam together",
-      },
-      {
-        name: "Lunch & Learn: Build a Network",
-        kind: "Hands-On + Field Trip",
-        description:
-          "Over lunch, dads learn real networking, then wire up a live demo rig, running video over ethernet until every screen lights up in sync. Then we roll to Cosm in Inglewood to see that exact skill powering one of the wildest LED screens on earth.",
-        icon: "network",
-        image: "/images/programs/ff-event-networking.jpg",
-        imageAlt:
-          "Black fathers at a hands-on tech lunch-and-learn building network cables and a demo rig with bright synced displays",
-        highlights: [
-          "Build and test your own network, hands on the gear",
-          "Send video over ethernet across displays working as one",
-          "Behind-the-scenes tour of the Cosm dome in Inglewood",
-        ],
-      },
-      {
-        name: "Range Day: The Security Path",
-        kind: "Safety Training + Career Door",
-        description:
-          "A safety-first day built with Swift Security Solutions that opens the door to armed-security careers, with discipline and respect leading every minute. The targets? Donated e-waste, old office gear destroyed for good.",
-        icon: "bolt",
-        image: "/images/programs/ff-event-security.jpg",
-        imageAlt:
-          "A proud Black man in a professional security uniform with safety glasses at an outdoor training facility beside a certified instructor",
-        highlights: [
-          "Certified firearm-safety training with the pros",
-          "A real path toward an armed-security career",
-          "Targets are donated e-waste, wiped and destroyed for good",
-        ],
-      },
-      {
-        name: "Money Moves: Building for the Family",
-        kind: "Evening Workshop",
-        description:
-          "Budgeting, credit, and the money habits that turn a paycheck into a future your kids get to inherit.",
-        icon: "briefcase",
-      },
-      {
-        name: "Career Launch: Resume, Interviews & Intros",
-        kind: "Workshop",
-        description:
-          "An AI-built resume, mock interviews until the nerves fade, and face time with employers who are ready to hire.",
-        icon: "rocket",
-      },
-      {
-        name: "Brotherhood & Mentorship",
-        kind: "Ongoing",
-        description:
-          "A cohort, an alumni network, and mentors who pick up the phone long after graduation. Nobody walks this road alone.",
-        icon: "crew",
-      },
-    ],
-    curriculumEyebrow: "Inside the Tech+ Course",
-    curriculumTitle: "The flagship, plotted week by week,",
-    curriculumSubtitle:
-      "Twelve weeks from first login to certified and hire-ready. This is the heart of Father Forward, and just one of the events inside it.",
+    sponsorCta: true,
+    curriculumEyebrow: "The Course",
+    curriculumTitle: "Plotted week by week,",
     curriculum: [
       {
         week: 1,
@@ -326,13 +259,193 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
       quote:
         "I came in not knowing what an IP address was. Twelve weeks later I passed my Tech+ and my son watched me walk across a stage. Now he tells everybody his dad works in tech.",
       name: "Marcus J.",
-      role: "Father Forward Graduate, IT Track",
+      role: "IT & Cybersecurity Foundations Graduate",
     },
   },
 
-  "tech-ready-youth": {
-    slug: "tech-ready-youth",
-    name: "Tech-Ready Youth",
+  "networking-live": {
+    slug: "networking-live",
+    name: "Networking Live",
+    tagline: "Build It. Then Watch It Work.",
+    audience: "fathers",
+    duration: "Half-day",
+    format: "Hands-On + Field Trip",
+    icon: "network",
+    heroImage: "/images/programs/ff-event-networking.jpg",
+    heroDescription:
+      "A hands-on day where dads learn how networks really work, build a live demo rig that sends video over ethernet until every screen lights up in sync, then head to Cosm in Inglewood to see that exact skill powering one of the wildest LED screens on earth.",
+    overview: [
+      "Networking Live turns a lunch into a launchpad. Over a meal, dads learn the real fundamentals: what an IP address is, what a router actually does, and how data moves across ethernet and fiber. No jargon, no lecture. Just the stuff that runs the modern world, explained like you belong in the room, because you do.",
+      "Then it gets physical. With mentors from the field, each dad builds and tests a working network, wiring up a live demo rig that pushes video over ethernet across displays until they all move as one. From there, we roll to Cosm in Inglewood for a behind-the-scenes look at how a massive LED dome is run, and dads see the exact skill they just learned powering it. Suddenly a tech career isn't a far-off idea. It's a room they're standing in.",
+    ],
+    atAGlance: {
+      duration: "Half-day experience",
+      format: "Hands-on + field trip",
+      schedule: "Scheduled cohorts, evenings & weekends",
+      cost: "Free for qualifying participants",
+    },
+    sponsorCta: true,
+    curriculumEyebrow: "How the Day Flows",
+    curriculumTitle: "One day, start to finish,",
+    curriculum: [
+      {
+        phase: "Learn",
+        title: "How Networks Really Work",
+        topics: [
+          "What an IP address is and what a router actually does",
+          "Ethernet vs. fiber, and how data really moves",
+          "Lunch, fellowship, and zero jargon",
+        ],
+      },
+      {
+        phase: "Build",
+        title: "Wire Up a Live Rig",
+        topics: [
+          "Build and test your own network cable",
+          "Send video over ethernet across synced displays",
+          "Break it, fix it, and prove it works",
+        ],
+        image: "/images/programs/ff-event-networking.jpg",
+        imageAlt:
+          "Black fathers building network cables and a demo rig with bright synced displays at a lunch-and-learn",
+      },
+      {
+        phase: "See It Live",
+        title: "Inside the Cosm Dome",
+        topics: [
+          "Behind-the-scenes tour at Cosm in Inglewood",
+          "See the skill you just learned running a giant LED screen",
+          "Meet people who do this for a living",
+        ],
+      },
+    ],
+    deliverables: [
+      {
+        icon: "network",
+        title: "A Network You Built",
+        description:
+          "You wired it, tested it, and watched it carry live video. That's a real skill, in your hands.",
+      },
+      {
+        icon: "compass",
+        title: "A Look Inside Cosm",
+        description:
+          "A behind-the-scenes tour of one of the most advanced screens on earth, and how it's run.",
+      },
+      {
+        icon: "briefcase",
+        title: "A Career Connection",
+        description:
+          "A clear line from what you built to the jobs that pay for it, plus the people who hire for them.",
+      },
+      {
+        icon: "crew",
+        title: "The Brotherhood",
+        description:
+          "A day with mentors and other dads who show up, and keep showing up.",
+      },
+    ],
+    testimonial: {
+      quote:
+        "I made a cable, plugged it in, and every screen lit up together. Then we're standing in Cosm looking at the same thing on a screen the size of a building. My son will not stop talking about it.",
+      name: "Andre P.",
+      role: "Networking Live participant",
+    },
+  },
+
+  "security-path": {
+    slug: "security-path",
+    name: "The Security Path",
+    tagline: "Safety First. Career Next.",
+    audience: "fathers",
+    duration: "One-day",
+    format: "Safety Training + Career",
+    icon: "bolt",
+    heroImage: "/images/programs/ff-event-security.jpg",
+    heroDescription:
+      "A safety-first day built with Swift Security Solutions that opens the door to a real career in armed security. Certified training, discipline and respect on every rep, and targets made of donated e-waste, old office gear destroyed for good.",
+    overview: [
+      "The Security Path is about a real doorway to a career. Built with Swift Security Solutions, it starts where every professional starts: safety. Dads learn the fundamentals with a certified instructor, the four safety rules, safe handling, and the discipline the job demands, before anything else happens.",
+      "From there it becomes a day of focus, respect, and brotherhood, and a real look at what an armed-security career takes and pays. The targets? Donated e-waste from organizations retiring old office equipment, hard drives and hardware destroyed for good. A career door for the dads, a clean data-disposal win for our partners, and a story everybody takes home.",
+    ],
+    atAGlance: {
+      duration: "One-day experience",
+      format: "Safety training + career door",
+      schedule: "Scheduled cohorts",
+      cost: "Free for qualifying participants",
+    },
+    sponsorCta: true,
+    curriculumEyebrow: "How the Day Flows",
+    curriculumTitle: "One day, start to finish,",
+    curriculum: [
+      {
+        phase: "Safety First",
+        title: "Ground Rules & Respect",
+        topics: [
+          "Sign in, gear up, and set expectations",
+          "The four firearm-safety rules with a certified instructor",
+          "Safe handling and range commands, dry practice first",
+        ],
+      },
+      {
+        phase: "The Fundamentals",
+        title: "Do It Right",
+        topics: [
+          "Firearm parts, stance, and safe handling",
+          "Supervised, one-on-one coaching",
+          "Confidence built the right way",
+        ],
+        image: "/images/programs/ff-event-security.jpg",
+        imageAlt:
+          "A proud man in a professional security uniform with safety glasses beside a certified instructor at a range",
+      },
+      {
+        phase: "The Career Door",
+        title: "Where This Leads",
+        topics: [
+          "What an armed-security career takes and pays",
+          "Start a guard-card or installer application with Swift Security",
+          "Fellowship, food, and what comes next",
+        ],
+      },
+    ],
+    deliverables: [
+      {
+        icon: "certificate",
+        title: "Certified Safety Training",
+        description:
+          "Hands-on firearm-safety training with a certified instructor, the foundation every security career is built on.",
+      },
+      {
+        icon: "briefcase",
+        title: "A Real Career Door",
+        description:
+          "A path toward armed-security and installer roles, with applications you can start on the spot.",
+      },
+      {
+        icon: "bolt",
+        title: "E-Waste, Destroyed for Good",
+        description:
+          "Old drives and hardware from partner orgs, wiped and physically retired. A disposal need turned into a win.",
+      },
+      {
+        icon: "crew",
+        title: "The Brotherhood",
+        description:
+          "A day of discipline, respect, and fellowship with dads walking the same road.",
+      },
+    ],
+    testimonial: {
+      quote:
+        "I came in nervous and left with a plan. They taught safety first, treated us like men, and showed me a real career I could actually see myself in.",
+      name: "Terrance W.",
+      role: "The Security Path participant",
+    },
+  },
+
+  "future-tech-lab": {
+    slug: "future-tech-lab",
+    name: "Future Tech Lab",
     tagline: "Get Your Hands on the Future",
     audience: "youth",
     duration: "8 weeks",
@@ -342,7 +455,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     heroDescription:
       "Eight weeks of hands-on access to the technology shaping tomorrow: robots you build, AI you direct, designs you print, satellites you track. Plus a field trip inside a real tech company to meet the people who do this for a living. It all ends with a capstone gaming tournament on machines you set up yourself.",
     overview: [
-      "Talent is everywhere. Access isn't. Tech-Ready Youth throws the doors wide open. Over eight weeks, young people get their hands on the tools most kids only ever see on a screen: they build and program robots, direct AI instead of scrolling past it, design and 3D-print their own creations, and track the satellites crossing their own sky.",
+      "Talent is everywhere. Access isn't. Future Tech Lab throws the doors wide open. Over eight weeks, young people get their hands on the tools most kids only ever see on a screen: they build and program robots, direct AI instead of scrolling past it, design and 3D-print their own creations, and track the satellites crossing their own sky.",
       "The heart of it is exposure. We take the whole crew inside a real tech company, one of our sponsors, to see the machines up close and meet the engineers, builders, and creatives who run them. Suddenly a career in tech stops being a far-off idea. It becomes a real person, doing real work, in a room these kids are standing in.",
       "It all builds to a capstone gaming tournament on rigs they set up themselves, with the whole community cheering them on. Free for qualifying participants, and proof that this world is theirs to step into.",
     ],
@@ -353,10 +466,11 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
       ageRange: "16+",
       cost: "Free for qualifying participants",
     },
+    sponsorCta: true,
     eventsEyebrow: "The Experiences",
     eventsTitle: "Every week, a new piece of the future in their hands.",
     eventsIntro:
-      "Tech-Ready Youth is a program of experiences, each one built to spark curiosity and prove that this world belongs to them too. Innovation you can touch, encouragement at every step.",
+      "Future Tech Lab is a program of experiences, each one built to spark curiosity and prove that this world belongs to them too. Innovation you can touch, encouragement at every step.",
     events: [
       {
         name: "Inside a Tech Company",
@@ -521,7 +635,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
       quote:
         "I thought coding was for other people. Then our robot finished the maze on my code. Mine. I haven't stopped building since.",
       name: "Jaylen T.",
-      role: "Tech-Ready Youth Graduate, 17",
+      role: "Future Tech Lab Graduate, 17",
     },
   },
 

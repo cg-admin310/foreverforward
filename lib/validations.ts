@@ -54,12 +54,12 @@ export const enrollmentFormSchema = z.object({
   email: emailSchema,
   phone: phoneSchema,
   program: z.enum([
-    "father-forward",
-    "tech-ready-youth",
-    "making-moments",
-    "from-script-to-screen",
+    "it-foundations",
+    "networking-live",
+    "security-path",
+    "future-tech-lab",
     "stories-from-my-future",
-    "lula",
+    "making-moments",
   ]),
   // Father Forward specific
   currentEmployment: z.string().optional(),

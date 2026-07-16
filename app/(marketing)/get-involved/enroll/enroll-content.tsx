@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/shared/badge";
 import { FFIcon, isFFIconName, type FFIconName } from "@/components/shared/ff-icons";
-import { PROGRAMS } from "@/lib/constants";
 import { routeFormSubmission } from "@/lib/actions/lead-routing";
 import { createParticipant } from "@/lib/actions/participants";
 import type { ProgramType } from "@/types/database";
@@ -94,12 +93,78 @@ const initialFormData: FormData = {
   emergencyContactPhone: "",
 };
 
-const enrollablePrograms = PROGRAMS.filter(
-  (p) =>
-    p.slug === "father-forward" ||
-    p.slug === "tech-ready-youth" ||
-    p.slug === "stories-from-my-future"
-);
+// The programs a person can apply to, grouped under their umbrella. Each maps to
+// a CRM ProgramType (kept stable) while the specific program name is passed
+// through as the interest so the admin sees exactly which one they chose.
+type EnrollableProgram = {
+  slug: string;
+  name: string;
+  umbrella: string;
+  audience: "fathers" | "youth" | "kids";
+  blurb: string;
+  duration: string;
+  format: string;
+  icon: string;
+  programType: ProgramType;
+};
+
+const enrollablePrograms: EnrollableProgram[] = [
+  {
+    slug: "it-foundations",
+    name: "IT & Cybersecurity Foundations",
+    umbrella: "Father Forward",
+    audience: "fathers",
+    blurb: "Earn your CompTIA Tech+ and start a real tech career, help desk to network engineer.",
+    duration: "12 weeks",
+    format: "Hybrid",
+    icon: "certificate",
+    programType: "father_forward",
+  },
+  {
+    slug: "networking-live",
+    name: "Networking Live",
+    umbrella: "Father Forward",
+    audience: "fathers",
+    blurb: "Build a live network by hand, then tour the Cosm LED dome in Inglewood.",
+    duration: "Half-day",
+    format: "Hands-on + trip",
+    icon: "network",
+    programType: "father_forward",
+  },
+  {
+    slug: "security-path",
+    name: "The Security Path",
+    umbrella: "Father Forward",
+    audience: "fathers",
+    blurb: "Certified safety training and a real door into an armed-security career.",
+    duration: "One-day",
+    format: "Training",
+    icon: "bolt",
+    programType: "father_forward",
+  },
+  {
+    slug: "future-tech-lab",
+    name: "Future Tech Lab",
+    umbrella: "Tech-Ready Youth",
+    audience: "youth",
+    blurb: "Robots, AI, 3D printing, and a field trip inside a real tech company.",
+    duration: "8 weeks",
+    format: "Hybrid",
+    icon: "robot",
+    programType: "tech_ready_youth",
+  },
+  {
+    slug: "stories-from-my-future",
+    name: "Stories from My Future",
+    umbrella: "Tech-Ready Youth",
+    audience: "kids",
+    blurb: "Kids write a story with an AI partner and 3D-print their own hero.",
+    duration: "Workshop",
+    format: "In-person",
+    icon: "spark",
+    programType: "stories_from_my_future",
+  },
+];
 
 const STEPS: { key: FormStep; label: string }[] = [
   { key: "program", label: "Pick Your Program" },
@@ -153,21 +218,17 @@ export function EnrollContent() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const selectedProgram = PROGRAMS.find((p) => p.slug === formData.program);
+  const selectedProgram = enrollablePrograms.find((p) => p.slug === formData.program);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // Map slug to program type
-      const programTypeMap: Record<string, ProgramType> = {
-        "father-forward": "father_forward",
-        "tech-ready-youth": "tech_ready_youth",
-        "stories-from-my-future": "stories_from_my_future",
-      };
-
-      const programType = programTypeMap[formData.program] || "father_forward";
+      // Map the chosen program to its CRM program type; pass the specific
+      // program name through as the interest so the admin sees exactly which.
+      const programType = selectedProgram?.programType ?? "father_forward";
+      const programInterest = selectedProgram?.name ?? programType;
 
       // Route through unified lead system (creates lead + triggers AI classification)
       const leadResult = await routeFormSubmission({
@@ -178,7 +239,7 @@ export function EnrollContent() {
           email: formData.email,
           phone: formData.phone || undefined,
           program: programType,
-          programInterest: programType,
+          programInterest,
           goals: formData.goals,
           barriers: formData.barriers,
           howDidYouHear: formData.howDidYouHear,
@@ -244,10 +305,9 @@ export function EnrollContent() {
   };
 
   const isYouthProgram =
-    formData.program === "tech-ready-youth" ||
-    formData.program === "stories-from-my-future";
+    selectedProgram?.audience === "youth" || selectedProgram?.audience === "kids";
 
-  const isFatherProgram = formData.program === "father-forward";
+  const isFatherProgram = selectedProgram?.audience === "fathers";
 
   const stepIndex = STEPS.findIndex((s) => s.key === step);
 
@@ -407,6 +467,9 @@ export function EnrollContent() {
                             </span>
                           )}
                           <div className="flex-1">
+                            <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#A68A2E] mb-1">
+                              {program.umbrella}
+                            </p>
                             <div className="flex items-center gap-2 mb-1">
                               <h3 className="text-lg font-semibold text-[#1A1A1A]">
                                 {program.name}
@@ -414,7 +477,7 @@ export function EnrollContent() {
                               <Badge variant={program.audience} size="sm" />
                             </div>
                             <p className="text-[#555555] text-sm mb-3 leading-relaxed">
-                              {program.description}
+                              {program.blurb}
                             </p>
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="inline-flex items-center rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#A68A2E]">

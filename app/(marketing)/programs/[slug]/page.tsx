@@ -1,62 +1,73 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { ProgramPageClient } from "./program-page-client";
+import { UmbrellaPageClient } from "./umbrella-page-client";
 import { getProgramBySlug, getAllProgramSlugs } from "@/lib/data/programs";
+import { getUmbrellaBySlug, getAllUmbrellaSlugs } from "@/lib/data/umbrellas";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  return getAllProgramSlugs().map((slug) => ({ slug }));
+  return [...getAllUmbrellaSlugs(), ...getAllProgramSlugs()].map((slug) => ({
+    slug,
+  }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  const umbrella = getUmbrellaBySlug(slug);
   const program = getProgramBySlug(slug);
+  const entity = umbrella ?? program;
 
-  if (!program) {
+  if (!entity) {
     return {
       title: "Program Not Found",
     };
   }
 
   return {
-    title: `${program.name} | Programs`,
-    description: program.heroDescription,
+    title: `${entity.name} | Programs`,
+    description: entity.heroDescription,
     openGraph: {
-      title: `${program.name}: ${program.tagline}`,
-      description: program.heroDescription,
+      title: `${entity.name}: ${entity.tagline}`,
+      description: entity.heroDescription,
       type: "website",
-      url: `/programs/${program.slug}`,
+      url: `/programs/${entity.slug}`,
       images: [
         {
-          url: program.heroImage,
+          url: entity.heroImage,
           width: 1200,
           height: 630,
-          alt: `${program.name}: ${program.tagline}`,
+          alt: `${entity.name}: ${entity.tagline}`,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${program.name}: ${program.tagline}`,
-      description: program.heroDescription,
-      images: [program.heroImage],
+      title: `${entity.name}: ${entity.tagline}`,
+      description: entity.heroDescription,
+      images: [entity.heroImage],
     },
     alternates: {
-      canonical: `/programs/${program.slug}`,
+      canonical: `/programs/${entity.slug}`,
     },
   };
 }
 
 export default async function ProgramPage({ params }: PageProps) {
   const { slug } = await params;
-  const program = getProgramBySlug(slug);
 
-  if (!program) {
-    notFound();
+  const umbrella = getUmbrellaBySlug(slug);
+  if (umbrella) {
+    return <UmbrellaPageClient umbrella={umbrella} />;
   }
 
-  return <ProgramPageClient program={program} />;
+  const program = getProgramBySlug(slug);
+  if (program) {
+    return <ProgramPageClient program={program} />;
+  }
+
+  notFound();
 }

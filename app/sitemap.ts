@@ -22,11 +22,17 @@ const staticRoutes = [
   "/get-involved/enroll",
 ];
 
-// Program slugs
+// Program slugs — umbrellas + their sub-programs + Marigold/CommonGround tools
 const programSlugs = [
   "father-forward",
   "tech-ready-youth",
+  "it-foundations",
+  "networking-live",
+  "security-path",
+  "future-tech-lab",
   "stories-from-my-future",
+  "marigold",
+  "commonground",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

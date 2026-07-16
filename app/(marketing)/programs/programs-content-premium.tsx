@@ -24,38 +24,12 @@ import {
   Sprout,
 } from "lucide-react";
 import { PROGRAMS, CAREER_PATHWAYS } from "@/lib/constants";
+import { UMBRELLAS, type UmbrellaProgramCard } from "@/lib/data/umbrellas";
 import { cn } from "@/lib/utils";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-type Program = (typeof PROGRAMS)[number];
-
 const programsBySlug = new Map(PROGRAMS.map((p) => [p.slug, p]));
-
-function getPrograms(slugs: string[]): Program[] {
-  return slugs
-    .map((slug) => programsBySlug.get(slug))
-    .filter((p): p is Program => Boolean(p));
-}
-
-const FUTURE_BUILDER_SLUGS = ["tech-ready-youth", "stories-from-my-future"];
-
-const PROGRAM_IMAGES: Record<string, { src: string; alt: string }> = {
-  "tech-ready-youth": {
-    src: "/images/future/pillar-future-tech.jpg",
-    alt: "Youth building and programming robots in a Forever Forward lab",
-  },
-  "stories-from-my-future": {
-    src: "/images/programs/sfmf-character.jpg",
-    alt: "A kid drawing their own original hero character at a creative writing workshop",
-  },
-};
-
-const AUDIENCE_LABELS: Record<Program["audience"], string> = {
-  fathers: "For Fathers",
-  youth: "For Youth",
-  kids: "For Kids",
-};
 
 /* ----------------------------------------------------------------------------
  * Shared bits
@@ -262,7 +236,7 @@ function ProgramsHero() {
 
 function CareerForwardSection() {
   const fatherForward = programsBySlug.get("father-forward");
-  const openTrack = CAREER_PATHWAYS.find((p) => p.status === "open");
+  const fatherPrograms = UMBRELLAS["father-forward"].programs;
   const comingTracks = CAREER_PATHWAYS.filter((p) => p.status === "coming");
 
   if (!fatherForward) return null;
@@ -309,7 +283,7 @@ function CareerForwardSection() {
             <h3 className="mt-5 font-semibold text-[#1A1A1A] text-2xl sm:text-3xl lg:text-4xl leading-tight tracking-tight">
               Father Forward:{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A68A2E] to-[#C9A84C]">
-                get IT certified, get to work.
+                one umbrella, three ways up.
               </span>
             </h3>
             <p className="mt-5 text-[#555555] text-base sm:text-lg leading-relaxed">
@@ -331,24 +305,33 @@ function CareerForwardSection() {
               </MetaChip>
             </div>
 
-            {/* Live track */}
-            {openTrack && (
-              <div className="mt-8 rounded-2xl border border-[#C9A84C] bg-[#FBF6E9] p-5">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C9A84C] text-[#1A1A1A] px-2.5 py-1 text-[10px] font-bold tracking-[0.15em] uppercase">
-                    Enrolling Now
+            {/* The three programs inside Father Forward */}
+            <p className="mt-8 text-xs font-semibold tracking-[0.25em] uppercase text-[#888888]">
+              The programs
+            </p>
+            <div className="mt-3 space-y-2.5">
+              {fatherPrograms.map((program) => (
+                <Link
+                  key={program.slug}
+                  href={`/programs/${program.slug}`}
+                  className="group flex items-center justify-between gap-3 rounded-2xl border border-[#DDDDDD] bg-white/70 px-4 py-3.5 hover:border-[#C9A84C]/60 hover:bg-[#FBF6E9] transition-colors"
+                >
+                  <span>
+                    <span className="block font-semibold text-[#1A1A1A] text-sm sm:text-base group-hover:text-[#A68A2E] transition-colors">
+                      {program.name}
+                    </span>
+                    <span className="block text-[#888888] text-xs mt-0.5">
+                      {program.kind}
+                    </span>
                   </span>
-                  <span className="font-semibold text-[#1A1A1A]">{openTrack.name}</span>
-                </div>
-                <p className="mt-2 text-[#555555] text-sm leading-relaxed">
-                  {openTrack.detail}
-                </p>
-              </div>
-            )}
+                  <ArrowRight className="h-4 w-4 text-[#C9A84C] shrink-0 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              ))}
+            </div>
 
             {/* Expanding soon */}
             <p className="mt-6 text-xs font-semibold tracking-[0.25em] uppercase text-[#888888]">
-              Expanding soon
+              Career tracks expanding soon
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {comingTracks.map((track) => (
@@ -423,8 +406,7 @@ function CareerForwardSection() {
  * 3. Door 02 — Future Builders (youth & kids programs)
  * ------------------------------------------------------------------------- */
 
-function FutureBuilderCard({ program, index }: { program: Program; index: number }) {
-  const image = PROGRAM_IMAGES[program.slug] ?? PROGRAM_IMAGES["tech-ready-youth"];
+function FutureBuilderCard({ card, index }: { card: UmbrellaProgramCard; index: number }) {
   return (
     <motion.article
       initial={{ opacity: 0, y: 40 }}
@@ -433,18 +415,18 @@ function FutureBuilderCard({ program, index }: { program: Program; index: number
       transition={{ duration: 0.8, delay: (index % 2) * 0.12, ease: EASE }}
       className={cn("group", index % 2 === 1 && "lg:translate-y-14")}
     >
-      <Link href={`/programs/${program.slug}`} className="block">
+      <Link href={`/programs/${card.slug}`} className="block">
         <div className="grain-overlay image-zoom relative aspect-[3/2] rounded-3xl overflow-hidden border border-white/10">
           <Image
-            src={image.src}
-            alt={image.alt}
+            src={card.image}
+            alt={card.imageAlt}
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#141413]/70 via-transparent to-transparent" />
           <span className="absolute top-5 left-5 text-[10px] font-semibold tracking-[0.25em] uppercase text-white bg-[#1A1A1A]/60 backdrop-blur px-3 py-1.5 rounded-full border border-white/15">
-            {AUDIENCE_LABELS[program.audience]} · {program.duration}
+            {card.kind}
           </span>
           <div className="absolute top-5 right-5 w-10 h-10 rounded-full bg-[#C9A84C] text-[#1A1A1A] flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
             <ArrowUpRight className="h-5 w-5" />
@@ -456,13 +438,13 @@ function FutureBuilderCard({ program, index }: { program: Program; index: number
           </span>
           <div>
             <h3 className="text-white font-semibold text-xl sm:text-2xl tracking-tight group-hover:text-[#E8D48B] transition-colors">
-              {program.name}
+              {card.name}
             </h3>
             <p className="text-[#C9A84C] text-sm font-semibold mt-0.5">
-              {program.tagline}
+              {card.tagline}
             </p>
             <p className="mt-2 text-white/55 text-sm sm:text-base leading-relaxed max-w-md">
-              {program.description}
+              {card.blurb}
             </p>
           </div>
         </div>
@@ -472,7 +454,7 @@ function FutureBuilderCard({ program, index }: { program: Program; index: number
 }
 
 function FutureBuildersSection() {
-  const futureBuilders = getPrograms(FUTURE_BUILDER_SLUGS);
+  const youth = UMBRELLAS["tech-ready-youth"];
   return (
     <section
       id="future-builders"
@@ -495,7 +477,7 @@ function FutureBuildersSection() {
             02
           </span>
           <div>
-            <Eyebrow light>Door Two · For Kids &amp; Youth</Eyebrow>
+            <Eyebrow light>Door Two · Tech-Ready Youth</Eyebrow>
             <h2 className="mt-2 font-semibold text-white text-3xl sm:text-5xl tracking-tight">
               Future Builders
             </h2>
@@ -504,12 +486,19 @@ function FutureBuildersSection() {
 
         <p className="mt-6 max-w-2xl text-white/60 text-base sm:text-lg leading-relaxed">
           A robot answering their code. A story printed into something they can hold.
-          The first time a kid sees the future, everything changes. Two ways in.
+          The first time a kid sees the future, everything changes. Under the{" "}
+          <Link
+            href="/programs/tech-ready-youth"
+            className="text-[#E8D48B] font-semibold underline decoration-[#C9A84C]/40 underline-offset-4 hover:decoration-[#C9A84C]"
+          >
+            Tech-Ready Youth
+          </Link>{" "}
+          umbrella, two ways in.
         </p>
 
         <div className="mt-14 sm:mt-16 grid lg:grid-cols-2 gap-x-10 gap-y-14 lg:gap-y-10 lg:pb-14">
-          {futureBuilders.map((program, i) => (
-            <FutureBuilderCard key={program.slug} program={program} index={i} />
+          {youth.programs.map((card, i) => (
+            <FutureBuilderCard key={card.slug} card={card} index={i} />
           ))}
         </div>
       </div>
