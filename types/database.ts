@@ -1424,6 +1424,143 @@ export type EventTableUpdate = Partial<EventTableInsert>;
 export type EventFeedbackInsert = Omit<EventFeedback, "id" | "created_at">;
 
 // ============================================================================
+// LMS — members, program membership requests, courses, lessons, quizzes,
+// per-program assignments, member progress + quiz attempts (migration 016)
+// ============================================================================
+
+export type MemberKind = "father" | "youth" | "guardian" | "other";
+export type MembershipStatus = "pending" | "approved" | "waitlisted" | "denied";
+export type CourseStatus = "draft" | "published" | "archived";
+export type CourseLevel = "intro" | "beginner" | "intermediate" | "advanced";
+export type AssignmentStatus = "active" | "inactive";
+export type CourseProgressStatus = "not_started" | "in_progress" | "completed";
+export type QuizQuestionType = "multiple_choice" | "true_false";
+
+export interface Member {
+  id: string;
+  email: string;
+  full_name: string | null;
+  kind: MemberKind;
+  phone: string | null;
+  date_of_birth: string | null;
+  guardian_name: string | null;
+  guardian_email: string | null;
+  participant_id: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+export type MemberInsert = Omit<Member, "created_at" | "updated_at">;
+export type MemberUpdate = Partial<Omit<Member, "id" | "created_at" | "updated_at">>;
+
+export interface ProgramMembership {
+  id: string;
+  member_id: string;
+  program: ProgramType;
+  status: MembershipStatus;
+  message: string | null;
+  decided_by: string | null;
+  decided_at: string | null;
+  admin_notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+export type ProgramMembershipInsert = Omit<ProgramMembership, "id" | "created_at" | "updated_at">;
+export type ProgramMembershipUpdate = Partial<Omit<ProgramMembership, "id" | "member_id" | "created_at" | "updated_at">>;
+
+export interface Course {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string | null;
+  audience: string | null;
+  level: CourseLevel;
+  cover_image_url: string | null;
+  estimated_minutes: number | null;
+  status: CourseStatus;
+  ai_generated: boolean;
+  ai_brief: string | null;
+  pass_threshold: number;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+export type CourseInsert = Omit<Course, "id" | "created_at" | "updated_at">;
+export type CourseUpdate = Partial<Omit<Course, "id" | "created_at" | "updated_at">>;
+
+export interface CourseLesson {
+  id: string;
+  course_id: string;
+  position: number;
+  title: string;
+  story_body: string | null;
+  workbook: string | null;
+  image_url: string | null;
+  image_prompt: string | null;
+  created_at: string;
+  updated_at: string;
+}
+export type CourseLessonInsert = Omit<CourseLesson, "id" | "created_at" | "updated_at">;
+export type CourseLessonUpdate = Partial<Omit<CourseLesson, "id" | "course_id" | "created_at" | "updated_at">>;
+
+export interface QuizQuestion {
+  id: string;
+  course_id: string;
+  lesson_id: string | null;
+  position: number;
+  prompt: string;
+  type: QuizQuestionType;
+  options: string[];
+  correct_index: number;
+  explanation: string | null;
+  created_at: string;
+  updated_at: string;
+}
+export type QuizQuestionInsert = Omit<QuizQuestion, "id" | "created_at" | "updated_at">;
+export type QuizQuestionUpdate = Partial<Omit<QuizQuestion, "id" | "course_id" | "created_at" | "updated_at">>;
+
+export interface CourseProgramAssignment {
+  id: string;
+  course_id: string;
+  program: ProgramType;
+  position: number;
+  status: AssignmentStatus;
+  assigned_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+export type CourseProgramAssignmentInsert = Omit<CourseProgramAssignment, "id" | "created_at" | "updated_at">;
+export type CourseProgramAssignmentUpdate = Partial<Omit<CourseProgramAssignment, "id" | "course_id" | "created_at" | "updated_at">>;
+
+export interface MemberCourseProgress {
+  id: string;
+  member_id: string;
+  assignment_id: string;
+  status: CourseProgressStatus;
+  completed_lesson_ids: string[];
+  current_lesson_position: number;
+  percent: number;
+  last_activity_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+export type MemberCourseProgressInsert = Omit<MemberCourseProgress, "id" | "created_at" | "updated_at">;
+export type MemberCourseProgressUpdate = Partial<Omit<MemberCourseProgress, "id" | "member_id" | "assignment_id" | "created_at" | "updated_at">>;
+
+export interface QuizAttempt {
+  id: string;
+  member_id: string;
+  assignment_id: string;
+  course_id: string;
+  score: number;
+  total: number;
+  passed: boolean;
+  answers: Record<string, unknown>[];
+  submitted_at: string;
+}
+export type QuizAttemptInsert = Omit<QuizAttempt, "id" | "submitted_at">;
+
+// ============================================================================
 // DATABASE SCHEMA TYPE (for Supabase client)
 // ============================================================================
 
