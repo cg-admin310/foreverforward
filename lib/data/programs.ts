@@ -17,6 +17,8 @@ export interface ProgramEvent {
   flagship?: boolean;
   image?: string;
   imageAlt?: string;
+  /** Short scannable bullets, used on featured (image) event cards. */
+  highlights?: string[];
 }
 
 export interface ProgramDetail {
@@ -109,18 +111,34 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
           "A study group of fathers around a table with laptops and notebooks, prepping for their CompTIA Tech+ exam together",
       },
       {
-        name: "Lunch & Learn: Networking & Leadership",
-        kind: "Workshop Series",
+        name: "Lunch & Learn: Build a Network",
+        kind: "Hands-On + Field Trip",
         description:
-          "Break bread with people who do the work, build your circle, and grow into the leader your kids already believe you are.",
+          "Over lunch, dads learn real networking, then wire up a live demo rig, running video over ethernet until every screen lights up in sync. Then we roll to Cosm in Inglewood to see that exact skill powering one of the wildest LED screens on earth.",
         icon: "network",
+        image: "/images/programs/ff-event-networking.jpg",
+        imageAlt:
+          "Black fathers at a hands-on tech lunch-and-learn building network cables and a demo rig with bright synced displays",
+        highlights: [
+          "Build and test your own network, hands on the gear",
+          "Send video over ethernet across displays working as one",
+          "Behind-the-scenes tour of the Cosm dome in Inglewood",
+        ],
       },
       {
-        name: "Range Day: Safety & the Security Path",
-        kind: "Field Experience",
+        name: "Range Day: The Security Path",
+        kind: "Safety Training + Career Door",
         description:
-          "Certified firearm-safety training that opens the door to security and armed-guard careers, taught with discipline and respect.",
+          "A safety-first day built with Swift Security Solutions that opens the door to armed-security careers, with discipline and respect leading every minute. The targets? Donated e-waste, old office gear destroyed for good.",
         icon: "bolt",
+        image: "/images/programs/ff-event-security.jpg",
+        imageAlt:
+          "A proud Black man in a professional security uniform with safety glasses at an outdoor training facility beside a certified instructor",
+        highlights: [
+          "Certified firearm-safety training with the pros",
+          "A real path toward an armed-security career",
+          "Targets are donated e-waste, wiped and destroyed for good",
+        ],
       },
       {
         name: "Money Moves: Building for the Family",

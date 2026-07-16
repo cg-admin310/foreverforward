@@ -294,7 +294,8 @@ function ProgramEvents({ program }: { program: ProgramDetail }) {
   if (!events || events.length === 0) return null;
 
   const flagship = events.find((e) => e.flagship);
-  const rest = events.filter((e) => !e.flagship);
+  const featured = events.filter((e) => !e.flagship && e.image);
+  const plain = events.filter((e) => !e.flagship && !e.image);
 
   return (
     <section className="relative bg-[#FAFAF8] py-24 sm:py-32 overflow-hidden">
@@ -354,41 +355,139 @@ function ProgramEvents({ program }: { program: ProgramDetail }) {
           </motion.div>
         )}
 
+        {/* Featured events — imagery + highlights */}
+        {featured.length > 0 && (
+          <div className="mt-6 grid md:grid-cols-2 gap-6">
+            {featured.map((event, index) => (
+              <motion.div
+                key={event.name}
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-8%" }}
+                transition={{ duration: 0.7, delay: (index % 2) * 0.1, ease: EASE }}
+                className="group flex flex-col rounded-3xl overflow-hidden border border-[#DDDDDD] bg-white hover:border-[#C9A84C]/60 hover:shadow-[0_14px_44px_rgba(201,168,76,0.16)] transition-all duration-300"
+              >
+                <div className="grain-overlay relative aspect-[16/9] overflow-hidden">
+                  {event.image && (
+                    <Image
+                      src={event.image}
+                      alt={event.imageAlt ?? event.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 560px"
+                      className="object-cover"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#141413]/85 via-[#141413]/10 to-transparent" />
+                  <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C9A84C] text-[#1A1A1A] text-[10px] font-bold tracking-[0.16em] uppercase">
+                    <FFIcon
+                      name={isFFIconName(event.icon) ? event.icon : "spark"}
+                      className="h-3.5 w-3.5"
+                    />
+                    {event.kind}
+                  </span>
+                  <h3 className="absolute bottom-4 left-5 right-5 text-white font-semibold text-xl sm:text-2xl leading-tight">
+                    {event.name}
+                  </h3>
+                </div>
+                <div className="flex-1 p-6 sm:p-7">
+                  <p className="text-[#555555] text-sm sm:text-base leading-relaxed">
+                    {event.description}
+                  </p>
+                  {event.highlights && event.highlights.length > 0 && (
+                    <ul className="mt-4 space-y-2">
+                      {event.highlights.map((h, hi) => (
+                        <li
+                          key={hi}
+                          className="flex items-start gap-2.5 text-[#1A1A1A] text-sm leading-relaxed"
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 14 14"
+                            className="text-[#A68A2E] shrink-0 mt-1"
+                            aria-hidden
+                          >
+                            <path
+                              d="M2 1l6 6-6 6M7 1l6 6-6 6"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              fill="none"
+                            />
+                          </svg>
+                          {h}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
         {/* Remaining events — icon cards */}
-        <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {rest.map((event, index) => (
-            <motion.div
-              key={event.name}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-8%" }}
-              transition={{ duration: 0.6, delay: (index % 3) * 0.08, ease: EASE }}
-              className="group relative rounded-3xl bg-white border border-[#DDDDDD] p-6 sm:p-7 overflow-hidden hover:border-[#C9A84C]/60 hover:shadow-[0_12px_40px_rgba(201,168,76,0.15)] transition-all duration-300"
-            >
-              <div
-                className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] opacity-0 group-hover:opacity-100 transition-opacity"
-                aria-hidden
-              />
-              <div className="flex items-center justify-between gap-3">
-                <span className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#FBF6E9] border border-[#C9A84C]/30 text-[#A68A2E]">
-                  <FFIcon
-                    name={isFFIconName(event.icon) ? event.icon : "spark"}
-                    className="h-6 w-6"
-                  />
-                </span>
-                <span className="text-[10px] font-semibold tracking-[0.18em] uppercase text-[#888888] text-right">
-                  {event.kind}
-                </span>
-              </div>
-              <h3 className="mt-4 font-semibold text-[#1A1A1A] text-base sm:text-lg leading-snug">
-                {event.name}
-              </h3>
-              <p className="mt-2 text-[#555555] text-sm leading-relaxed">
-                {event.description}
-              </p>
-            </motion.div>
-          ))}
-        </div>
+        {plain.length > 0 && (
+          <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {plain.map((event, index) => (
+              <motion.div
+                key={event.name}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-8%" }}
+                transition={{ duration: 0.6, delay: (index % 3) * 0.08, ease: EASE }}
+                className="group relative rounded-3xl bg-white border border-[#DDDDDD] p-6 sm:p-7 overflow-hidden hover:border-[#C9A84C]/60 hover:shadow-[0_12px_40px_rgba(201,168,76,0.15)] transition-all duration-300"
+              >
+                <div
+                  className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-hidden
+                />
+                <div className="flex items-center justify-between gap-3">
+                  <span className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#FBF6E9] border border-[#C9A84C]/30 text-[#A68A2E]">
+                    <FFIcon
+                      name={isFFIconName(event.icon) ? event.icon : "spark"}
+                      className="h-6 w-6"
+                    />
+                  </span>
+                  <span className="text-[10px] font-semibold tracking-[0.18em] uppercase text-[#888888] text-right">
+                    {event.kind}
+                  </span>
+                </div>
+                <h3 className="mt-4 font-semibold text-[#1A1A1A] text-base sm:text-lg leading-snug">
+                  {event.name}
+                </h3>
+                <p className="mt-2 text-[#555555] text-sm leading-relaxed">
+                  {event.description}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {/* Sponsor hook — bring a company into the room */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-10%" }}
+          transition={{ duration: 0.7, ease: EASE }}
+          className="mt-8 rounded-3xl border border-[#C9A84C]/40 bg-[#FBF6E9] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-5 justify-between"
+        >
+          <div>
+            <p className="text-[11px] font-semibold tracking-[0.28em] uppercase text-[#A68A2E]">
+              For Partners &amp; Sponsors
+            </p>
+            <p className="mt-2 text-[#1A1A1A] font-semibold text-lg sm:text-xl leading-snug max-w-xl">
+              Put your company in the room. Sponsor an event, send a speaker, or
+              host the visit.
+            </p>
+          </div>
+          <Link
+            href="/get-involved/partner"
+            className="group shrink-0 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#1A1A1A] text-[#E8D48B] font-semibold hover:bg-[#2D2D2D] transition-colors"
+          >
+            Sponsor an event
+            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </motion.div>
       </div>
     </section>
   );
