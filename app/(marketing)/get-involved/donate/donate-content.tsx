@@ -141,7 +141,7 @@ const GIVING_AREAS: {
     fund: "father-forward",
     icon: "briefcase",
     label: "Fathers",
-    blurb: "Free IT training toward a CompTIA ITF+ and a real career. The bulk of our work goes here.",
+    blurb: "Free IT training toward a CompTIA Tech+ and a real career. The bulk of our work goes here.",
     includes: "Father Forward · career training",
   },
   {

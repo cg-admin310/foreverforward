@@ -4,11 +4,11 @@ import { ProgramsContentPremium } from "./programs-content-premium";
 export const metadata: Metadata = {
   title: "Programs",
   description:
-    "Three programs, events all year, one direction: forward. Free IT training for fathers toward a CompTIA ITF+, future tech in young hands, and Making Moments events, across Greater Los Angeles.",
+    "Three programs, events all year, one direction: forward. Free IT training for fathers toward a CompTIA Tech+, future tech in young hands, and Making Moments events, across Greater Los Angeles.",
   keywords: [
     "father programs Los Angeles",
     "free IT training for fathers",
-    "CompTIA ITF+ training",
+    "CompTIA Tech+ training",
     "youth robotics program",
     "AI programs for kids",
     "3D printing workshops kids",

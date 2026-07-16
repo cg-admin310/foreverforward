@@ -2,6 +2,23 @@
 
 export type ProgramAudience = "fathers" | "youth" | "families" | "kids" | "students";
 
+/**
+ * A single event or experience inside a program. Programs are umbrellas: a slate
+ * of these events is what makes up Father Forward or Tech-Ready Youth. One event
+ * can be flagged `flagship` to render larger with imagery.
+ */
+export interface ProgramEvent {
+  name: string;
+  /** Small badge, e.g. "Flagship · 12-Week Course", "Field Experience". */
+  kind: string;
+  description: string;
+  /** FFIconName. */
+  icon: string;
+  flagship?: boolean;
+  image?: string;
+  imageAlt?: string;
+}
+
 export interface ProgramDetail {
   slug: string;
   name: string;
@@ -21,6 +38,16 @@ export interface ProgramDetail {
     ageRange?: string;
     cost: string;
   };
+  // The events/experiences that make up the program. When present, they render
+  // as a dedicated section framing the program as more than one class.
+  eventsEyebrow?: string;
+  eventsTitle?: string;
+  eventsIntro?: string;
+  events?: ProgramEvent[];
+  // Optional framing for the curriculum timeline (defaults handle the rest).
+  curriculumEyebrow?: string;
+  curriculumTitle?: string;
+  curriculumSubtitle?: string;
   curriculum: {
     week?: number;
     phase?: string;
@@ -45,26 +72,82 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
   "father-forward": {
     slug: "father-forward",
     name: "Father Forward",
-    tagline: "Your First Cert. Your Next Career.",
+    tagline: "Career. Leadership. Brotherhood.",
     audience: "fathers",
-    duration: "12 weeks",
-    format: "Hybrid",
+    duration: "Ongoing",
+    format: "Events & Courses",
     icon: "briefcase",
     heroImage: "/images/future/program-it-pathway.jpg",
     heroDescription:
-      "Twelve weeks of free, hands-on IT training built around a father's real life. Earn your CompTIA ITF+, stand inside a working data center, and walk out with a credential, a portfolio, and a room full of people in your corner. IT is the first track. HVAC, auto, and the trades are next.",
+      "Father Forward isn't one class. It's a whole program of professional events built to move a father's career and leadership forward: a CompTIA Tech+ certification course, networking lunch-and-learns, firearm-safety range days for the security path, money workshops, and a brotherhood that has his back. Free, and built around real life.",
     overview: [
-      "Father Forward is our flagship program, built on one simple belief: the fastest way to change a family's future is to hand its father a real career. Right now, that career is IT. You'll earn your CompTIA ITF+, learn how networks actually run the world, stand inside a working data center, and see the road from help desk to network and systems engineer laid out clearly in front of you.",
-      "Every week brings guest speakers who do this work today, a leadership thread on goals, money, and showing up for your kids, and Travis, our AI mentor, on call around the clock. It's completely free, and IT is only the first track. HVAC, auto and EV, and the skilled trades are coming next.",
-      "For a company, this is more than goodwill. It's a pipeline of certified, motivated talent and a direct line into the neighborhoods you say you want to reach. Sponsor a cohort, send a speaker, or hire a graduate, and your name goes on a father's fresh start.",
+      "Father Forward is our flagship program, built on one belief: the fastest way to change a family's future is to move its father forward. So we don't run a single class. We run a whole slate of professional events, each one designed to advance a father's career, sharpen his leadership, and put real people in his corner.",
+      "The centerpiece is our CompTIA Tech+ certification course, twelve weeks that take a father from help desk to hire-ready, with a stop inside a working data center along the way. Around it sit lunch-and-learns on networking and leadership, range days that turn firearm safety into a security-career credential, money workshops, and career-launch clinics. Come for one event or move through them all. Every one of them is free, and Travis, our AI mentor, is on call the whole way.",
+      "For a company, this is more than goodwill. It's a pipeline of certified, motivated talent and a direct line into the neighborhoods you say you want to reach. Sponsor an event, send a speaker, host a facility visit, or hire a graduate, and your name goes on a father's fresh start.",
     ],
     atAGlance: {
-      duration: "12 weeks",
-      format: "Hybrid (in-person labs + online)",
+      duration: "Ongoing · 12-week flagship course",
+      format: "Events, workshops & field experiences",
       schedule: "Evenings & Saturdays, built around work and kids",
-      certification: "CompTIA ITF+ certification prep",
+      certification: "CompTIA Tech+ certification prep",
       cost: "Free for qualifying participants",
     },
+    eventsEyebrow: "The Events",
+    eventsTitle: "One program. A whole slate of ways forward.",
+    eventsIntro:
+      "Father Forward isn't a single class. It's a calendar of professional events, each built to move your career, your leadership, and your family forward. Come for one. Stay for all of them.",
+    events: [
+      {
+        name: "CompTIA Tech+ Certification Course",
+        kind: "Flagship · 12-Week Course",
+        description:
+          "Your first real IT credential, plus the runway from help desk to network and systems engineer, with a day inside a working data center along the way.",
+        icon: "certificate",
+        flagship: true,
+        image: "/images/programs/ff-certprep.jpg",
+        imageAlt:
+          "A study group of fathers around a table with laptops and notebooks, prepping for their CompTIA Tech+ exam together",
+      },
+      {
+        name: "Lunch & Learn: Networking & Leadership",
+        kind: "Workshop Series",
+        description:
+          "Break bread with people who do the work, build your circle, and grow into the leader your kids already believe you are.",
+        icon: "network",
+      },
+      {
+        name: "Range Day: Safety & the Security Path",
+        kind: "Field Experience",
+        description:
+          "Certified firearm-safety training that opens the door to security and armed-guard careers, taught with discipline and respect.",
+        icon: "bolt",
+      },
+      {
+        name: "Money Moves: Building for the Family",
+        kind: "Evening Workshop",
+        description:
+          "Budgeting, credit, and the money habits that turn a paycheck into a future your kids get to inherit.",
+        icon: "briefcase",
+      },
+      {
+        name: "Career Launch: Resume, Interviews & Intros",
+        kind: "Workshop",
+        description:
+          "An AI-built resume, mock interviews until the nerves fade, and face time with employers who are ready to hire.",
+        icon: "rocket",
+      },
+      {
+        name: "Brotherhood & Mentorship",
+        kind: "Ongoing",
+        description:
+          "A cohort, an alumni network, and mentors who pick up the phone long after graduation. Nobody walks this road alone.",
+        icon: "crew",
+      },
+    ],
+    curriculumEyebrow: "Inside the Tech+ Course",
+    curriculumTitle: "The flagship, plotted week by week,",
+    curriculumSubtitle:
+      "Twelve weeks from first login to certified and hire-ready. This is the heart of Father Forward, and just one of the events inside it.",
     curriculum: [
       {
         week: 1,
@@ -145,26 +228,26 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
         title: "Beyond Help Desk",
         topics: [
           "The road: help desk to network engineer to systems engineer",
-          "What comes after ITF+ (A+, Network+, and up)",
+          "What comes after Tech+ (A+, Network+, and up)",
           "Specializing: security, cloud, or infrastructure",
           "Leadership thread: thinking two moves ahead",
         ],
       },
       {
         week: 9,
-        title: "ITF+ Certification Prep I",
+        title: "Tech+ Certification Prep I",
         topics: [
-          "CompTIA ITF+ deep prep and practice exams",
+          "CompTIA Tech+ deep prep and practice exams",
           "Knock out the topics that scare you",
           "Study crew sessions: nobody preps alone",
           "Leadership thread: handling pressure without passing it down",
         ],
         image: "/images/programs/ff-certprep.jpg",
-        imageAlt: "A study group of fathers around a table with laptops and notebooks, prepping for their ITF+ exam together",
+        imageAlt: "A study group of fathers around a table with laptops and notebooks, prepping for their Tech+ exam together",
       },
       {
         week: 10,
-        title: "ITF+ Prep II & Portfolio",
+        title: "Tech+ Prep II & Portfolio",
         topics: [
           "Practice exams until they stop being scary",
           "Portfolio: document what you can actually do",
@@ -198,9 +281,9 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     deliverables: [
       {
         icon: "certificate",
-        title: "CompTIA ITF+",
+        title: "CompTIA Tech+",
         description:
-          "Certification prep and exam support for CompTIA ITF+, your first real credential in tech.",
+          "Certification prep and exam support for CompTIA Tech+, your first real credential in tech.",
       },
       {
         icon: "route",
@@ -223,7 +306,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
     ],
     testimonial: {
       quote:
-        "I came in not knowing what an IP address was. Twelve weeks later I passed my ITF+ and my son watched me walk across a stage. Now he tells everybody his dad works in tech.",
+        "I came in not knowing what an IP address was. Twelve weeks later I passed my Tech+ and my son watched me walk across a stage. Now he tells everybody his dad works in tech.",
       name: "Marcus J.",
       role: "Father Forward Graduate, IT Track",
     },
@@ -252,6 +335,60 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetail> = {
       ageRange: "16+",
       cost: "Free for qualifying participants",
     },
+    eventsEyebrow: "The Experiences",
+    eventsTitle: "Every week, a new piece of the future in their hands.",
+    eventsIntro:
+      "Tech-Ready Youth is a program of experiences, each one built to spark curiosity and prove that this world belongs to them too. Innovation you can touch, encouragement at every step.",
+    events: [
+      {
+        name: "Inside a Tech Company",
+        kind: "Field Trip",
+        description:
+          "Go behind the scenes at a real tech sponsor, see the machines up close, and meet the engineers and creatives who do this for a living.",
+        icon: "briefcase",
+        flagship: true,
+        image: "/images/programs/try-facility.jpg",
+        imageAlt:
+          "Teenagers on a field trip inside a tech company, an engineer showing them advanced equipment",
+      },
+      {
+        name: "Build-a-Bot Robotics",
+        kind: "Hands-On Lab",
+        description:
+          "Assemble and program a robot with your crew, then watch your own code make it move.",
+        icon: "robot",
+      },
+      {
+        name: "Direct the AI Studio",
+        kind: "Creative Lab",
+        description:
+          "Stop scrolling past AI and start steering it, building real projects in your own words.",
+        icon: "chip",
+      },
+      {
+        name: "Design & Print Shop",
+        kind: "Maker Lab",
+        description:
+          "Turn an idea in your head into something you can hold, printed on real 3D machines.",
+        icon: "printer3d",
+      },
+      {
+        name: "Satellite Night",
+        kind: "Field Experience",
+        description:
+          "Track live satellites crossing your own sky and see how space internet reaches neighborhoods like ours.",
+        icon: "satellite",
+      },
+      {
+        name: "Capstone Gaming Tournament",
+        kind: "Community Event",
+        description:
+          "Set up the rigs, run the network, then compete with the whole community cheering you on.",
+        icon: "trophy",
+      },
+    ],
+    curriculumEyebrow: "The 8-Week Journey",
+    curriculumTitle: "Eight weeks of hands on the future,",
     curriculum: [
       {
         week: 1,

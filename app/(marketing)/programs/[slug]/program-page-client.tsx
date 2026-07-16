@@ -286,6 +286,115 @@ function Overview({ program }: { program: ProgramDetail }) {
 }
 
 /* ----------------------------------------------------------------------------
+ * 3.5 The events — a program is a slate of events, not one class
+ * ------------------------------------------------------------------------- */
+
+function ProgramEvents({ program }: { program: ProgramDetail }) {
+  const events = program.events;
+  if (!events || events.length === 0) return null;
+
+  const flagship = events.find((e) => e.flagship);
+  const rest = events.filter((e) => !e.flagship);
+
+  return (
+    <section className="relative bg-[#FAFAF8] py-24 sm:py-32 overflow-hidden">
+      <div className="absolute inset-0 bg-blueprint opacity-50" aria-hidden />
+      <div className="relative max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
+        <div className="max-w-2xl">
+          <Eyebrow>{program.eventsEyebrow ?? "The Events"}</Eyebrow>
+          <h2 className="mt-6 font-semibold text-[#1A1A1A] text-3xl sm:text-4xl lg:text-[2.6rem] leading-[1.12] tracking-tight">
+            {program.eventsTitle ?? "One program. Many ways forward."}
+          </h2>
+          {program.eventsIntro && (
+            <p className="mt-5 text-[#555555] text-base sm:text-lg leading-relaxed">
+              {program.eventsIntro}
+            </p>
+          )}
+        </div>
+
+        {/* Flagship event — featured with imagery */}
+        {flagship && (
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 0.8, ease: EASE }}
+            className="mt-12 group relative rounded-3xl overflow-hidden border border-[#C9A84C]/40 bg-[#141413] grid lg:grid-cols-2"
+          >
+            <div className="grain-overlay relative aspect-[16/10] lg:aspect-auto lg:min-h-[22rem] overflow-hidden">
+              {flagship.image && (
+                <Image
+                  src={flagship.image}
+                  alt={flagship.imageAlt ?? flagship.name}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 600px"
+                  className="object-cover"
+                />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#141413] via-[#141413]/20 to-transparent lg:bg-gradient-to-r" />
+            </div>
+            <div className="relative p-7 sm:p-10 flex flex-col justify-center">
+              <div className="absolute inset-0 bg-starfield opacity-30" aria-hidden />
+              <div className="relative">
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#C9A84C] text-[#1A1A1A] text-[11px] font-bold tracking-[0.16em] uppercase">
+                  <FFIcon
+                    name={isFFIconName(flagship.icon) ? flagship.icon : "spark"}
+                    className="h-3.5 w-3.5"
+                  />
+                  {flagship.kind}
+                </span>
+                <h3 className="mt-5 font-semibold text-white text-2xl sm:text-3xl leading-tight">
+                  {flagship.name}
+                </h3>
+                <p className="mt-4 text-white/70 text-base leading-relaxed max-w-md">
+                  {flagship.description}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Remaining events — icon cards */}
+        <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {rest.map((event, index) => (
+            <motion.div
+              key={event.name}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ duration: 0.6, delay: (index % 3) * 0.08, ease: EASE }}
+              className="group relative rounded-3xl bg-white border border-[#DDDDDD] p-6 sm:p-7 overflow-hidden hover:border-[#C9A84C]/60 hover:shadow-[0_12px_40px_rgba(201,168,76,0.15)] transition-all duration-300"
+            >
+              <div
+                className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#C9A84C] to-[#E8D48B] opacity-0 group-hover:opacity-100 transition-opacity"
+                aria-hidden
+              />
+              <div className="flex items-center justify-between gap-3">
+                <span className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#FBF6E9] border border-[#C9A84C]/30 text-[#A68A2E]">
+                  <FFIcon
+                    name={isFFIconName(event.icon) ? event.icon : "spark"}
+                    className="h-6 w-6"
+                  />
+                </span>
+                <span className="text-[10px] font-semibold tracking-[0.18em] uppercase text-[#888888] text-right">
+                  {event.kind}
+                </span>
+              </div>
+              <h3 className="mt-4 font-semibold text-[#1A1A1A] text-base sm:text-lg leading-snug">
+                {event.name}
+              </h3>
+              <p className="mt-2 text-[#555555] text-sm leading-relaxed">
+                {event.description}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------------------
  * 4. The track — Father Forward only (IT now, trades next)
  * ------------------------------------------------------------------------- */
 
@@ -330,7 +439,7 @@ function CareerPathways() {
                 </p>
                 <p className="mt-5 inline-flex items-center gap-2 text-[#E8D48B] text-sm font-semibold">
                   <BadgeCheck className="h-4 w-4" />
-                  You walk out CompTIA ITF+ certified and job-ready.
+                  You walk out CompTIA Tech+ certified and job-ready.
                 </p>
               </div>
             </motion.div>
@@ -403,13 +512,19 @@ function Curriculum({ program }: { program: ProgramDetail }) {
       />
 
       <div className="relative max-w-5xl mx-auto px-5 sm:px-6 lg:px-8">
-        <Eyebrow light>The Journey</Eyebrow>
+        <Eyebrow light>{program.curriculumEyebrow ?? "The Journey"}</Eyebrow>
         <h2 className="mt-6 font-semibold text-white text-3xl sm:text-5xl tracking-tight leading-[1.08]">
-          {isWeekBased ? "Plotted week by week," : "One step at a time,"}{" "}
+          {program.curriculumTitle ??
+            (isWeekBased ? "Plotted week by week," : "One step at a time,")}{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] to-[#E8D48B]">
             built to finish.
           </span>
         </h2>
+        {program.curriculumSubtitle && (
+          <p className="mt-5 max-w-2xl text-white/60 text-base sm:text-lg leading-relaxed">
+            {program.curriculumSubtitle}
+          </p>
+        )}
 
         <div className="mt-14 relative">
           {/* Timeline spine */}
@@ -747,6 +862,7 @@ export function ProgramPageClient({ program }: ProgramPageClientProps) {
       <ProgramHero program={program} />
       <AtAGlance program={program} />
       <Overview program={program} />
+      <ProgramEvents program={program} />
       {program.slug === "father-forward" && <CareerPathways />}
       <Curriculum program={program} />
       <Deliverables program={program} />

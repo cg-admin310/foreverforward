@@ -105,7 +105,7 @@ const DOORS = [
     number: "01",
     name: "Career Forward",
     kicker: "For Fathers",
-    line: "Free IT training to your CompTIA ITF+ and a real career.",
+    line: "Free IT training to your CompTIA Tech+ and a real career.",
     href: "#career-forward",
     icon: Users,
   },
@@ -403,14 +403,14 @@ function CareerForwardSection() {
                   IT &amp; Cybersecurity
                 </p>
                 <p className="text-white text-lg sm:text-2xl font-semibold mt-1 max-w-lg">
-                  From your CompTIA ITF+ to a hire-ready network engineer.
+                  From your CompTIA Tech+ to a hire-ready network engineer.
                 </p>
               </div>
             </div>
             <p className="mt-4 text-[#888888] text-sm flex items-center gap-2">
               <Compass className="h-4 w-4 text-[#A68A2E] shrink-0" />
-              The leadership thread of goals, family, and finances runs through all
-              twelve weeks. So does Travis, your 24/7 AI mentor.
+              The leadership thread of goals, family, and finances runs through every
+              event. So does Travis, your 24/7 AI mentor.
             </p>
           </motion.div>
         </div>

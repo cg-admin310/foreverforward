@@ -37,7 +37,7 @@ export const PILLARS = [
     name: "Career Forward",
     headline: "Real training. Real credentials. Real careers.",
     description:
-      "Twelve weeks of free IT training that works around your life, evenings and Saturdays, so you can earn your CompTIA ITF+ without missing a shift or a bedtime. It's the start of a real career in tech: work that pays well and can't be outsourced. HVAC, auto, and the trades are coming next. You just need to show up. We'll figure out the rest together.",
+      "A whole program of professional events for fathers, from a free CompTIA Tech+ certification course to lunch-and-learns, range days, and money workshops, all built around your life so you never miss a shift or a bedtime. It's the start of a real career in tech and beyond: work that pays well and can't be outsourced. HVAC, auto, and the trades are coming next. You just need to show up. We'll figure out the rest together.",
     image: "/images/future/pillar-careers.jpg",
     href: "/programs/father-forward",
   },
@@ -107,7 +107,7 @@ export const CAREER_PATHWAYS = [
     name: "IT & Cybersecurity",
     status: "open" as const,
     detail:
-      "CompTIA ITF+ certification, networks, data centers, and security. The runway from help desk to network and systems engineer.",
+      "CompTIA Tech+ certification, networks, data centers, and security. The runway from help desk to network and systems engineer.",
   },
   {
     id: "auto",
@@ -181,12 +181,12 @@ export const PROGRAMS = [
   {
     slug: "father-forward",
     name: "Father Forward",
-    tagline: "Your First Cert. Your Next Career.",
+    tagline: "Career. Leadership. Brotherhood.",
     audience: "fathers" as const,
-    duration: "12 weeks",
-    format: "Hybrid",
+    duration: "Ongoing",
+    format: "Events & Courses",
     description:
-      "Twelve weeks of free IT training built for dads. Earn your CompTIA ITF+, get inside a real data center, and start the climb from help desk to network engineer. HVAC, auto, and the trades are coming next.",
+      "A whole program of professional events for dads: a free CompTIA Tech+ certification course, networking lunch-and-learns, range days for the security path, money workshops, and a brotherhood that has your back. HVAC, auto, and the trades are coming next.",
     icon: "briefcase",
   },
   {
@@ -233,7 +233,7 @@ export const DONATION_FUNDS = [
   {
     id: "father-forward",
     label: "Father Forward",
-    blurb: "Send a father through free IT training toward a CompTIA ITF+, a real career, and a future his kids get to watch.",
+    blurb: "Send a father through free IT training toward a CompTIA Tech+, a real career, and a future his kids get to watch.",
   },
   {
     id: "tech-ready-youth",

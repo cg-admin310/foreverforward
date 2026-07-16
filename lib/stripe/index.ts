@@ -50,7 +50,7 @@ const FUND_DISPLAY: Record<string, { name: string; description: string }> = {
   "father-forward": {
     name: "Father Forward Fund",
     description:
-      "Free IT career training for fathers: CompTIA ITF+ certification and career launch support. 501(c)(3), EIN 87-0944016.",
+      "Free IT career training for fathers: CompTIA Tech+ certification and career launch support. 501(c)(3), EIN 87-0944016.",
   },
   "tech-ready-youth": {
     name: "Tech-Ready Youth Fund",

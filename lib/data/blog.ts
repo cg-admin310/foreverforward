@@ -93,7 +93,7 @@ Let's be honest: going back to school for a four-year degree isn't realistic for
 
 ## Pathway One: IT & Cybersecurity
 
-The IT pathway starts from zero: no degree, no prior tech job required. Over twelve weeks you build toward the CompTIA ITF+ certification: networks, operating systems, troubleshooting, and security fundamentals. You'll hear from guest speakers who do this work for a living, and you'll spend a day inside a working data center. Our founder built those rooms for years, so he knows where the doors are. Help desk and IT support roles are the front door to a whole industry, and cybersecurity sits right behind it, with demand that keeps outrunning supply. If you like solving puzzles and you're the person your family already calls when the Wi-Fi acts up, this one's for you.
+The IT pathway starts from zero: no degree, no prior tech job required. Over twelve weeks you build toward the CompTIA Tech+ certification: networks, operating systems, troubleshooting, and security fundamentals. You'll hear from guest speakers who do this work for a living, and you'll spend a day inside a working data center. Our founder built those rooms for years, so he knows where the doors are. Help desk and IT support roles are the front door to a whole industry, and cybersecurity sits right behind it, with demand that keeps outrunning supply. If you like solving puzzles and you're the person your family already calls when the Wi-Fi acts up, this one's for you.
 
 ## Pathway Two: Plumbing & Skilled Trades
 

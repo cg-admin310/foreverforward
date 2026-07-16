@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     "AI education",
     "3D printing",
     "skilled trades training",
-    "CompTIA ITF+ certification",
+    "CompTIA Tech+ certification",
     "tech exposure for youth",
   ],
   authors: [{ name: "Thomas TJ Wilform" }],

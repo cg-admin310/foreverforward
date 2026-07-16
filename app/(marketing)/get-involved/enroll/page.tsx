@@ -4,11 +4,11 @@ import { EnrollContent } from "./enroll-content";
 export const metadata: Metadata = {
   title: "Enroll | Start Your Path Forward",
   description:
-    "Apply for Forever Forward programs: Father Forward free IT training toward your CompTIA ITF+, Tech-Ready Youth robotics and future tech, and Stories from My Future for kids.",
+    "Apply for Forever Forward programs: Father Forward free IT training toward your CompTIA Tech+, Tech-Ready Youth robotics and future tech, and Stories from My Future for kids.",
   keywords: [
     "enroll Father Forward",
     "free IT training for fathers",
-    "CompTIA ITF+ training Los Angeles",
+    "CompTIA Tech+ training Los Angeles",
     "youth robotics program apply",
     "Los Angeles tech training",
     "STEM program kids",
