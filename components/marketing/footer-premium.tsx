@@ -210,6 +210,9 @@ export function FooterPremium() {
               <Link href="/terms" className="hover:text-white/60 transition-colors">
                 Terms
               </Link>
+              <Link href="/portal/login" className="hover:text-white/60 transition-colors">
+                Member Login
+              </Link>
             </div>
           </div>
         </div>

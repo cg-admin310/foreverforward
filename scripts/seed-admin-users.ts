@@ -25,28 +25,30 @@ interface AdminUser {
   role: "super_admin" | "case_worker" | "sales_lead" | "technician" | "event_coordinator";
 }
 
+// Passwords come from the environment so they are never committed to the repo.
+// Set these in .env.local before running: ADMIN_SEED_PASSWORD, CASEWORKER_SEED_PASSWORD, etc.
 const adminUsers: AdminUser[] = [
   {
     email: "wilform.thomas@gmail.com",
-    password: "power123",
+    password: process.env.ADMIN_SEED_PASSWORD || "ChangeMe123!",
     full_name: "TJ Wilform",
     role: "super_admin",
   },
   {
     email: "caseworker@forever4ward.org",
-    password: "case2024!",
+    password: process.env.CASEWORKER_SEED_PASSWORD || "ChangeMe123!",
     full_name: "Maria Santos",
     role: "case_worker",
   },
   {
     email: "tech@forever4ward.org",
-    password: "tech2024!",
+    password: process.env.TECH_SEED_PASSWORD || "ChangeMe123!",
     full_name: "Devon Jackson",
     role: "technician",
   },
   {
     email: "events@forever4ward.org",
-    password: "events2024!",
+    password: process.env.EVENTS_SEED_PASSWORD || "ChangeMe123!",
     full_name: "Aaliyah Thompson",
     role: "event_coordinator",
   },

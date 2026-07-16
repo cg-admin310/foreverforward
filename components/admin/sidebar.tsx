@@ -20,6 +20,7 @@ import {
   FolderOpen,
   ChevronLeft,
   ChevronRight,
+  UserCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -50,6 +51,13 @@ const navigation: NavGroup[] = [
       { name: "Leads", href: "/leads", icon: Users },
       { name: "Programs", href: "/program-management", icon: GraduationCap, roles: ["super_admin", "case_worker"] },
       { name: "MSP Clients", href: "/clients", icon: Building2, roles: ["super_admin", "sales_lead"] },
+    ],
+  },
+  {
+    title: "Learning",
+    items: [
+      { name: "Courses", href: "/courses", icon: BookOpen, roles: ["super_admin", "case_worker"] },
+      { name: "Program Requests", href: "/program-requests", icon: UserCheck, roles: ["super_admin", "case_worker"] },
     ],
   },
   {
