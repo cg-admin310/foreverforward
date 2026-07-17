@@ -144,10 +144,19 @@ export async function requestMembership(program: string): Promise<ActionResult> 
     if (!memberId) return { success: false, error: "Not signed in" };
     const db = createAdminClient();
 
+    const { data: member } = await db
+      .from("members")
+      .select("email, full_name")
+      .eq("id", memberId)
+      .single();
+    const email = (member?.email ?? "").toLowerCase();
+
+    // A request is identified by (email, program) — it may already exist from a
+    // website enrollment. Claim it and (re)set it pending if it was denied.
     const { data: existing } = await db
       .from("program_memberships")
       .select("id, status")
-      .eq("member_id", memberId)
+      .eq("email", email)
       .eq("program", program)
       .maybeSingle();
 
@@ -155,17 +164,30 @@ export async function requestMembership(program: string): Promise<ActionResult> 
       if (existing.status === "denied") {
         await db
           .from("program_memberships")
-          .update({ status: "pending", decided_at: null, decided_by: null, admin_notes: null })
+          .update({
+            status: "pending",
+            member_id: memberId,
+            decided_at: null,
+            decided_by: null,
+            admin_notes: null,
+          })
           .eq("id", existing.id);
         revalidatePath("/portal");
         return { success: true };
       }
+      // Ensure it's linked to this login; report current standing.
+      await db.from("program_memberships").update({ member_id: memberId }).eq("id", existing.id);
       return { success: false, error: "You already have a request for that program." };
     }
 
-    const { error } = await db
-      .from("program_memberships")
-      .insert({ member_id: memberId, program, status: "pending" });
+    const { error } = await db.from("program_memberships").insert({
+      member_id: memberId,
+      email,
+      full_name: member?.full_name ?? null,
+      program,
+      status: "pending",
+      source: "portal",
+    });
     if (error) return { success: false, error: error.message };
     revalidatePath("/portal");
     return { success: true };

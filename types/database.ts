@@ -1455,7 +1455,10 @@ export type MemberUpdate = Partial<Omit<Member, "id" | "created_at" | "updated_a
 
 export interface ProgramMembership {
   id: string;
-  member_id: string;
+  member_id: string | null; // null until the person has a portal login
+  email: string | null; // the identity (a request/enrollment/lead is keyed by this)
+  full_name: string | null;
+  source: string; // 'portal' | 'website'
   program: string; // website program slug (see lib/lms.ts LMS_PROGRAMS)
   status: MembershipStatus;
   message: string | null;

@@ -13,9 +13,11 @@ export default async function ProgramRequestsPage() {
       <div>
         <h1 className="text-2xl font-bold text-[#1A1A1A]">Program Requests</h1>
         <p className="text-[#555555] mt-1">
+          Everyone who asked to join a program, from the website enrollment form and
+          from portal sign-ups, in one place.{" "}
           {pending > 0
-            ? `${pending} request${pending === 1 ? "" : "s"} waiting on you.`
-            : "People who asked to join a program. Approve, waitlist, or deny."}
+            ? `${pending} waiting on you.`
+            : "Approve, waitlist, or deny."}
         </p>
       </div>
       <RequestsTable requests={requests} />

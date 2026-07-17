@@ -72,8 +72,16 @@ export function RequestsTable({ requests }: { requests: ProgramRequestRow[] }) {
                   </span>
                 </div>
                 <p className="text-sm text-[#888888]">
-                  {lmsProgramLabel(r.program)} · {r.member_kind} · {r.member_email}
+                  {lmsProgramLabel(r.program)} · {r.member_email}
+                  <span className="ml-2 rounded-full bg-[#F5F3EF] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#888888]">
+                    {r.source === "website" ? "Website" : "Portal"}
+                  </span>
                 </p>
+                {r.status === "approved" && !r.hasLogin && (
+                  <p className="mt-1 text-xs text-[#A68A2E]">
+                    Approved — access starts when they create a login with this email.
+                  </p>
+                )}
                 {r.message && (
                   <p className="mt-1 text-sm text-[#555555] italic">&ldquo;{r.message}&rdquo;</p>
                 )}

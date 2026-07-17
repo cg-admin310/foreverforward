@@ -9,9 +9,11 @@ type ActionResult<T = void> = { success: boolean; data?: T; error?: string };
 
 export interface ProgramRequestRow {
   id: string;
-  member_id: string;
+  member_id: string | null;
   program: string;
   status: MembershipStatus;
+  source: string;
+  hasLogin: boolean;
   message: string | null;
   admin_notes: string | null;
   created_at: string;
@@ -28,7 +30,7 @@ export async function listProgramRequests(): Promise<ActionResult<ProgramRequest
     const { data, error } = await db
       .from("program_memberships")
       .select(
-        "id, member_id, program, status, message, admin_notes, created_at, decided_at, members ( full_name, email, kind )"
+        "id, member_id, program, status, message, admin_notes, created_at, decided_at, email, full_name, source, members ( full_name, email, kind )"
       )
       .order("created_at", { ascending: false });
     if (error) return { success: false, error: error.message };
@@ -40,16 +42,18 @@ export async function listProgramRequests(): Promise<ActionResult<ProgramRequest
         | undefined;
       return {
         id: r.id as string,
-        member_id: r.member_id as string,
+        member_id: (r.member_id ?? null) as string | null,
         program: r.program as string,
         status: r.status as MembershipStatus,
+        source: (r.source ?? "portal") as string,
+        hasLogin: Boolean(r.member_id),
         message: (r.message ?? null) as string | null,
         admin_notes: (r.admin_notes ?? null) as string | null,
         created_at: r.created_at as string,
         decided_at: (r.decided_at ?? null) as string | null,
-        member_name: m?.full_name ?? null,
-        member_email: m?.email ?? "",
-        member_kind: m?.kind ?? "other",
+        member_name: (r.full_name as string | null) ?? m?.full_name ?? null,
+        member_email: (r.email as string | null) ?? m?.email ?? "",
+        member_kind: m?.kind ?? (r.source === "website" ? "website" : "other"),
       };
     });
     return { success: true, data: rows };

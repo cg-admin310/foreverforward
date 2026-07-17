@@ -12,6 +12,7 @@ import {
   ChevronUp,
   Loader2,
   Bot,
+  Eye,
 } from "lucide-react";
 import {
   updateCourse,
@@ -86,6 +87,12 @@ export function CourseEditor({ detail }: { detail: CourseDetail }) {
               <Bot className="h-3.5 w-3.5" /> AI-generated
             </span>
           )}
+          <Link
+            href={`/courses/${course.id}/preview`}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#DDDDDD] px-3 py-2 text-sm font-semibold text-[#1A1A1A] hover:border-[#C9A84C]/60"
+          >
+            <Eye className="h-4 w-4" /> Preview
+          </Link>
           <button
             onClick={togglePublish}
             className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${

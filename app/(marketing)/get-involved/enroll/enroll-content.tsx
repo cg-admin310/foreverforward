@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/shared/badge";
 import { FFIcon, isFFIconName, type FFIconName } from "@/components/shared/ff-icons";
 import { routeFormSubmission } from "@/lib/actions/lead-routing";
+import { createEnrollmentRequest } from "@/lib/actions/program-access";
 import { createParticipant } from "@/lib/actions/participants";
 import type { ProgramType } from "@/types/database";
 import { cn } from "@/lib/utils";
@@ -285,6 +286,17 @@ export function EnrollContent() {
         emergencyContactPhone: formData.emergencyContactPhone || undefined,
         howDidYouHear: formData.howDidYouHear || undefined,
       });
+
+      // Also land this in the unified program-access funnel (Program Requests),
+      // keyed by email so it links to their portal login when they create one.
+      if (selectedProgram) {
+        await createEnrollmentRequest({
+          email: formData.email,
+          fullName: `${formData.firstName} ${formData.lastName}`.trim(),
+          program: selectedProgram.slug,
+          source: "website",
+        });
+      }
 
       if (participantResult.success) {
         setStep("confirmation");

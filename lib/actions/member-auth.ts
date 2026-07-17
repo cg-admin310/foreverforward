@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { claimMembershipsForMember } from "@/lib/actions/program-access";
 import type { MemberKind } from "@/types/database";
 
 type ActionResult<T = void> = { success: boolean; data?: T; error?: string };
@@ -49,6 +50,9 @@ export async function signUpMember(input: {
       await db.auth.admin.deleteUser(created.user.id);
       return { success: false, error: memberError.message };
     }
+
+    // Link any earlier email-keyed requests (e.g. a website enrollment) to this login.
+    await claimMembershipsForMember(created.user.id, email);
 
     return { success: true, data: { userId: created.user.id } };
   } catch {
