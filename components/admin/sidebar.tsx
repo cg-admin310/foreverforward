@@ -4,8 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Users,
-  GraduationCap,
   FileText,
   Mail,
   CreditCard,
@@ -42,13 +40,6 @@ const navigation: NavGroup[] = [
     title: "Overview",
     items: [
       { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    ],
-  },
-  {
-    title: "CRM",
-    items: [
-      { name: "Leads", href: "/leads", icon: Users },
-      { name: "Programs", href: "/program-management", icon: GraduationCap, roles: ["super_admin", "case_worker"] },
     ],
   },
   {

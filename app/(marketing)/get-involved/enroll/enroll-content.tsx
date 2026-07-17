@@ -15,9 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/shared/badge";
 import { FFIcon, isFFIconName, type FFIconName } from "@/components/shared/ff-icons";
-import { routeFormSubmission } from "@/lib/actions/lead-routing";
 import { createEnrollmentRequest } from "@/lib/actions/program-access";
-import { createParticipant } from "@/lib/actions/participants";
 import type { ProgramType } from "@/types/database";
 import { cn } from "@/lib/utils";
 
@@ -226,82 +224,54 @@ export function EnrollContent() {
     setIsSubmitting(true);
 
     try {
-      // Map the chosen program to its CRM program type; pass the specific
-      // program name through as the interest so the admin sees exactly which.
-      const programType = selectedProgram?.programType ?? "father_forward";
-      const programInterest = selectedProgram?.name ?? programType;
-
-      // Route through unified lead system (creates lead + triggers AI classification)
-      const leadResult = await routeFormSubmission({
-        formType: "program_enrollment",
-        formData: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone || undefined,
-          program: programType,
-          programInterest,
-          goals: formData.goals,
-          barriers: formData.barriers,
-          howDidYouHear: formData.howDidYouHear,
-          employmentStatus: formData.employmentStatus,
-          itExperienceLevel: formData.itExperience,
-          parentGuardianName: formData.parentGuardianName,
-          parentGuardianPhone: formData.parentGuardianPhone,
-          parentGuardianEmail: formData.parentGuardianEmail,
-          source: "enrollment_form",
-        },
-      });
-
-      if (!leadResult.success) {
-        console.error("Failed to create lead:", leadResult.error);
-        alert("Something went wrong. Please try again.");
+      if (!selectedProgram) {
+        alert("Please pick a program.");
         setIsSubmitting(false);
         return;
       }
 
-      // Create full participant record with all details
-      // (lead routing creates basic participant, but we need full details)
-      const participantResult = await createParticipant({
+      // The application lands directly in Program Requests, keyed by email, with
+      // every field the applicant filled in. Approving it grants program access.
+      const details: Record<string, unknown> = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
+        phone: formData.phone,
+        dateOfBirth: formData.dateOfBirth,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zip: formData.zip,
+        programName: selectedProgram.name,
+        umbrella: selectedProgram.umbrella,
+        employmentStatus: formData.employmentStatus,
+        itExperience: formData.itExperience,
+        parentGuardianName: formData.parentGuardianName,
+        parentGuardianPhone: formData.parentGuardianPhone,
+        parentGuardianEmail: formData.parentGuardianEmail,
+        schoolName: formData.schoolName,
+        gradeLevel: formData.gradeLevel,
+        goals: formData.goals,
+        barriers: formData.barriers,
+        emergencyContactName: formData.emergencyContactName,
+        emergencyContactPhone: formData.emergencyContactPhone,
+        howDidYouHear: formData.howDidYouHear,
+      };
+
+      const result = await createEnrollmentRequest({
+        email: formData.email,
+        fullName: `${formData.firstName} ${formData.lastName}`.trim(),
+        program: selectedProgram.slug,
+        source: "website",
         phone: formData.phone || undefined,
-        dateOfBirth: formData.dateOfBirth || undefined,
-        program: programType,
-        addressLine1: formData.address || undefined,
-        city: formData.city || undefined,
-        state: formData.state || "CA",
-        zipCode: formData.zip || undefined,
-        employmentStatus: formData.employmentStatus || undefined,
-        itExperienceLevel: formData.itExperience || undefined,
-        parentGuardianName: formData.parentGuardianName || undefined,
-        parentGuardianPhone: formData.parentGuardianPhone || undefined,
-        parentGuardianEmail: formData.parentGuardianEmail || undefined,
-        schoolName: formData.schoolName || undefined,
-        gradeLevel: formData.gradeLevel || undefined,
-        goals: formData.goals || undefined,
-        barriers: formData.barriers || undefined,
-        emergencyContactName: formData.emergencyContactName || undefined,
-        emergencyContactPhone: formData.emergencyContactPhone || undefined,
-        howDidYouHear: formData.howDidYouHear || undefined,
+        message: formData.goals || undefined,
+        details,
       });
 
-      // Also land this in the unified program-access funnel (Program Requests),
-      // keyed by email so it links to their portal login when they create one.
-      if (selectedProgram) {
-        await createEnrollmentRequest({
-          email: formData.email,
-          fullName: `${formData.firstName} ${formData.lastName}`.trim(),
-          program: selectedProgram.slug,
-          source: "website",
-        });
-      }
-
-      if (participantResult.success) {
+      if (result.success) {
         setStep("confirmation");
       } else {
-        console.error("Failed to create participant:", participantResult.error);
+        console.error("Failed to submit application:", result.error);
         alert("Something went wrong. Please try again.");
       }
     } catch (error) {

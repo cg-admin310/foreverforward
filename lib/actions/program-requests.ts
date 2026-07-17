@@ -20,7 +20,9 @@ export interface ProgramRequestRow {
   decided_at: string | null;
   member_name: string | null;
   member_email: string;
+  member_phone: string | null;
   member_kind: string;
+  details: Record<string, unknown> | null;
 }
 
 export async function listProgramRequests(): Promise<ActionResult<ProgramRequestRow[]>> {
@@ -30,7 +32,7 @@ export async function listProgramRequests(): Promise<ActionResult<ProgramRequest
     const { data, error } = await db
       .from("program_memberships")
       .select(
-        "id, member_id, program, status, message, admin_notes, created_at, decided_at, email, full_name, source, members ( full_name, email, kind )"
+        "id, member_id, program, status, message, admin_notes, created_at, decided_at, email, full_name, phone, details, source, members ( full_name, email, kind )"
       )
       .order("created_at", { ascending: false });
     if (error) return { success: false, error: error.message };
@@ -53,7 +55,9 @@ export async function listProgramRequests(): Promise<ActionResult<ProgramRequest
         decided_at: (r.decided_at ?? null) as string | null,
         member_name: (r.full_name as string | null) ?? m?.full_name ?? null,
         member_email: (r.email as string | null) ?? m?.email ?? "",
+        member_phone: (r.phone ?? null) as string | null,
         member_kind: m?.kind ?? (r.source === "website" ? "website" : "other"),
+        details: (r.details ?? null) as Record<string, unknown> | null,
       };
     });
     return { success: true, data: rows };

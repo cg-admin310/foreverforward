@@ -1458,6 +1458,8 @@ export interface ProgramMembership {
   member_id: string | null; // null until the person has a portal login
   email: string | null; // the identity (a request/enrollment/lead is keyed by this)
   full_name: string | null;
+  phone: string | null;
+  details: Record<string, unknown> | null; // full application from the website form
   source: string; // 'portal' | 'website'
   program: string; // website program slug (see lib/lms.ts LMS_PROGRAMS)
   status: MembershipStatus;

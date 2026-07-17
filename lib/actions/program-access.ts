@@ -17,6 +17,8 @@ export async function createEnrollmentRequest(input: {
   program: string;
   source: "portal" | "website";
   message?: string;
+  phone?: string;
+  details?: Record<string, unknown>;
 }): Promise<ActionResult> {
   try {
     const email = input.email.trim().toLowerCase();
@@ -37,11 +39,13 @@ export async function createEnrollmentRequest(input: {
       .maybeSingle();
 
     if (existing) {
-      // Don't downgrade an existing decision; just keep identity/link current.
+      // Don't downgrade an existing decision; refresh identity + application info.
       await db
         .from("program_memberships")
         .update({
           full_name: input.fullName ?? undefined,
+          phone: input.phone ?? undefined,
+          details: input.details ?? undefined,
           member_id: existing.member_id ?? member?.id ?? null,
         })
         .eq("id", existing.id);
@@ -52,6 +56,8 @@ export async function createEnrollmentRequest(input: {
     const { error } = await db.from("program_memberships").insert({
       email,
       full_name: input.fullName ?? null,
+      phone: input.phone ?? null,
+      details: input.details ?? null,
       program: input.program,
       status: "pending",
       source: input.source,
