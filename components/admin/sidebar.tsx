@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   Users,
   GraduationCap,
-  Building2,
   FileText,
   Mail,
   CreditCard,
@@ -50,7 +49,6 @@ const navigation: NavGroup[] = [
     items: [
       { name: "Leads", href: "/leads", icon: Users },
       { name: "Programs", href: "/program-management", icon: GraduationCap, roles: ["super_admin", "case_worker"] },
-      { name: "MSP Clients", href: "/clients", icon: Building2, roles: ["super_admin", "sales_lead"] },
     ],
   },
   {
